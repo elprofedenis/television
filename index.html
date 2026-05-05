@@ -390,7 +390,7 @@
 
     /* ══════════ COMMENT VIDEO SCREENS ══════════ */
     .screen-comment-video {
-      flex-direction: column; align-items: center; justify-content: center;
+      flex-direction: row; align-items: center; justify-content: center;
       background: #06080f; z-index: 8;
     }
     .screen-comment-video::before {
@@ -403,14 +403,6 @@
     }
 
     /* fixed header title */
-    .comment-screen-header {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      z-index: 15;
-      display: flex; align-items: center; justify-content: center;
-      padding: 22px 80px 18px;
-      background: linear-gradient(to bottom, #06080f 70%, transparent);
-    }
     .comment-video-title {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(28px, 4vw, 46px);
@@ -547,6 +539,113 @@
     .sidenav-item.comment-home-item:hover { color: #e040fb; }
     .sidenav-item.comment-home-item .num { color: #e040fb; font-size: 16px; }
 
+
+    /* ── vote counters on comment screen ── */
+    .vote-counter {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px; line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      transition: transform .15s;
+      flex-direction: row;
+    }
+    .vote-counter:hover { transform: scale(1.12); }
+    .vote-counter:active { transform: scale(.95); }
+    .vote-counter .vc-icon { font-size: 52px; line-height: 1; }
+    .vote-counter .vc-num {
+      font-size: 44px;
+      min-width: 60px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .vote-counter .vc-num.revealed { opacity: 1; }
+    .vote-counter.vc-like    { color: #00e676; text-shadow: 0 0 16px rgba(0,230,118,.5); }
+    .vote-counter.vc-dislike { color: #FF3C5F; text-shadow: 0 0 16px rgba(255,60,95,.5); }
+
+    /* ── comment screen header: absolute positions for like/dislike ── */
+    .comment-screen-header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 15;
+      height: 110px;
+      background: linear-gradient(to bottom, #06080f 70%, transparent);
+    }
+    .comment-video-title {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    #vc-like-wrap {
+      position: absolute;
+      top: 0; left: 0;
+      width: 50%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      /* centered between left edge and the "C" of "Comentarios" (~left 50% - half title width)
+         We use left 0 + width 50% and then offset left 25% of screen toward center */
+      padding-left: 0; padding-right: 0;
+    }
+    #vc-dislike-wrap {
+      position: absolute;
+      top: 0; right: 0;
+      width: 50%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* confetti canvas */
+    #confetti-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 9999;
+      display: none;
+    }
+    /* dislike shake + flash */
+    @keyframes dislike-shake {
+      0%,100% { transform: translateX(0) rotate(0deg); }
+      10% { transform: translateX(-12px) rotate(-2deg); }
+      20% { transform: translateX(12px) rotate(2deg); }
+      30% { transform: translateX(-10px) rotate(-1.5deg); }
+      40% { transform: translateX(10px) rotate(1.5deg); }
+      50% { transform: translateX(-8px); }
+      60% { transform: translateX(8px); }
+      70% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+      90% { transform: translateX(-3px); }
+    }
+    .dislike-shaking { animation: dislike-shake .7s ease; }
+    #dislike-flash {
+      position: fixed; inset: 0;
+      background: rgba(255,60,95,0);
+      pointer-events: none; z-index: 9998;
+      transition: background .1s;
+    }
+    #dislike-flash.flash { background: rgba(255,60,95,.35); }
+    /* skull/warning burst */
+    #dislike-burst {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(0);
+      font-size: 120px; z-index: 9999;
+      pointer-events: none;
+      transition: transform .2s cubic-bezier(.175,.885,.32,1.275), opacity .3s;
+      opacity: 0;
+    }
+    #dislike-burst.show {
+      transform: translate(-50%,-50%) scale(1);
+      opacity: 1;
+    }
+
+    @keyframes dislike-shake {
+      0%,100% { transform: translateX(0) rotate(0deg); }
+      10% { transform: translateX(-12px) rotate(-2deg); }
+      20% { transform: translateX(12px) rotate(2deg); }
+      30% { transform: translateX(-10px) rotate(-1.5deg); }
+      40% { transform: translateX(10px) rotate(1.5deg); }
+      50% { transform: translateX(-8px); }
+      60% { transform: translateX(8px); }
+      70% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+      90% { transform: translateX(-3px); }
+    }
   </style>
 </head>
 <body>
@@ -768,7 +867,7 @@
     setTimeout(() => el.classList.remove('fade-enter'), 500);
   }
 
-  function loadVideo(num) {
+  async function loadVideo(num) {
     currentVideo = num;
     loopMode = false;
     const n = pad(num);
@@ -782,8 +881,9 @@
       el.classList.toggle('active', i + 1 === num);
     });
 
-    video.src = `${n}.mp4`;
-    bgVideo.src = `${n}.mp4`;
+    const _vidSrc = await resolveVideoSrc(n);
+    video.src = _vidSrc;
+    bgVideo.src = _vidSrc;
     video.muted = false;
     bgVideo.muted = true;
     video.loop = false;
@@ -857,7 +957,30 @@
     }
   }
 
-  function goToVideo(num) {
+
+  // Tries mp4 first, falls back to mov (works with local files that match 01–11 naming)
+  async function resolveVideoSrc(n) {
+    const pad = x => String(x).padStart(2, '0');
+    const num = pad(n);
+    for (const ext of ['mp4', 'mov']) {
+      const src = `${num}.${ext}`;
+      try {
+        const res = await fetch(src, { method: 'HEAD' });
+        if (res.ok) return src;
+      } catch (_) {}
+    }
+    // Fallback: try unpadded too
+    for (const ext of ['mp4', 'mov']) {
+      const src = `${n}.${ext}`;
+      try {
+        const res = await fetch(src, { method: 'HEAD' });
+        if (res.ok) return src;
+      } catch (_) {}
+    }
+    return `${n}.mp4`; // last resort
+  }
+
+  async function goToVideo(num) {
     showScreen('screen-video');
     loadVideo(num);
   }
@@ -869,6 +992,9 @@
   }
 
   function goToComment(num) {
+    // Reset revealed state for this screen so counters can animate again on revisit
+    delete _revealed[num+'-like'];
+    delete _revealed[num+'-dislike'];
     showScreen(`screen-comment-${num}`);
     document.querySelectorAll('[id^="nav-comment-item-"]').forEach((el, i) => {
       el.classList.toggle('active', i + 1 === num);
@@ -878,7 +1004,7 @@
   }
 
   // ── Google Sheets config ──────────────────────────────────
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1zzteVwRkrL7pI3fKErZwj6caRtPY5GOpfKjRtHflxZ_rNnEJv5p_dGyhQ4DXag8t/exec';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAqW6S3_qDM-hH2yTfYUpLypSujfO65l8IMhUBKAuh2JDPDKn2WKHNm7lrqqB2quUl/exec';
   // Persiste qué cartas están dadas vuelta: { numVideo: Set<index> }
   const _flippedState = {};
   // Polling
@@ -914,6 +1040,10 @@
       if (!data.ok) throw new Error(data.error || 'Error');
 
       const comments = data.comentarios || [];
+      // Actualizar contadores de votos
+      const likes    = (data.comentarios || []).filter(c => c.like    === 'X').length;
+      const dislikes = (data.comentarios || []).filter(c => c.dislike === 'X').length;
+      _setVoteCounts(num, likes, dislikes);
       // Guardamos scroll antes de re-renderizar
       const scrollTop = container.scrollTop;
 
@@ -1010,7 +1140,19 @@
 <div id="screen-comment-1" class="screen screen-comment-video hidden">
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(2)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-1" onclick="triggerVote(1,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-1">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 1</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-1" onclick="triggerVote(1,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-1">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-1"></div>
 </div>
@@ -1019,7 +1161,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(1)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(3)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-2" onclick="triggerVote(2,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-2">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 2</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-2" onclick="triggerVote(2,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-2">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-2"></div>
 </div>
@@ -1028,7 +1182,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(2)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(4)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-3" onclick="triggerVote(3,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-3">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 3</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-3" onclick="triggerVote(3,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-3">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-3"></div>
 </div>
@@ -1037,7 +1203,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(3)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(5)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-4" onclick="triggerVote(4,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-4">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 4</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-4" onclick="triggerVote(4,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-4">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-4"></div>
 </div>
@@ -1046,7 +1224,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(4)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(6)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-5" onclick="triggerVote(5,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-5">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 5</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-5" onclick="triggerVote(5,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-5">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-5"></div>
 </div>
@@ -1055,7 +1245,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(5)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(7)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-6" onclick="triggerVote(6,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-6">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 6</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-6" onclick="triggerVote(6,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-6">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-6"></div>
 </div>
@@ -1064,7 +1266,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(6)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(8)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-7" onclick="triggerVote(7,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-7">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 7</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-7" onclick="triggerVote(7,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-7">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-7"></div>
 </div>
@@ -1073,7 +1287,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(7)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(9)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-8" onclick="triggerVote(8,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-8">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 8</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-8" onclick="triggerVote(8,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-8">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-8"></div>
 </div>
@@ -1082,7 +1308,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(8)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(10)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-9" onclick="triggerVote(9,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-9">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 9</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-9" onclick="triggerVote(9,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-9">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-9"></div>
 </div>
@@ -1091,7 +1329,19 @@
   <button class="comment-arrow comment-arrow-left"  onclick="goToComment(9)">←</button>
   <button class="comment-arrow comment-arrow-right" onclick="goToComment(11)">→</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-10" onclick="triggerVote(10,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-10">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 10</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-10" onclick="triggerVote(10,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-10">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-10"></div>
 </div>
@@ -1099,10 +1349,159 @@
 <div id="screen-comment-11" class="screen screen-comment-video hidden">
   <button class="comment-arrow comment-arrow-left" onclick="goToComment(10)">←</button>
   <div class="comment-screen-header">
+    <div id="vc-like-wrap">
+      <div class="vote-counter vc-like" id="vc-like-11" onclick="triggerVote(11,'like')">
+        <span class="vc-icon">👍</span>
+        <span class="vc-num" id="vc-like-count-11">0</span>
+      </div>
+    </div>
     <div class="comment-video-title">Comentarios <span>Video 11</span></div>
+    <div id="vc-dislike-wrap">
+      <div class="vote-counter vc-dislike" id="vc-dislike-11" onclick="triggerVote(11,'dislike')">
+        <span class="vc-icon">👎</span>
+        <span class="vc-num" id="vc-dislike-count-11">0</span>
+      </div>
+    </div>
   </div>
   <div class="comment-cards-scroll" id="cards-11"></div>
 </div>
+
+<!-- confetti + dislike overlays -->
+<canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9999;display:none;"></canvas>
+<div id="dislike-flash" style="position:fixed;inset:0;background:rgba(255,60,95,0);pointer-events:none;z-index:9998;transition:background .1s;"></div>
+<div id="dislike-burst" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:120px;z-index:9999;pointer-events:none;opacity:0;transition:transform .2s cubic-bezier(.175,.885,.32,1.275),opacity .3s;">💀</div>
+
+<script>
+// ══ VOTE COUNTER SYSTEM ══
+const _voteCounts = {};
+const _revealed   = {};
+
+function _setVoteCounts(num, likes, dislikes) {
+  _voteCounts[num+"-like"]    = likes;
+  _voteCounts[num+"-dislike"] = dislikes;
+  const likeEl    = document.getElementById("vc-like-count-"   +num);
+  const dislikeEl = document.getElementById("vc-dislike-count-"+num);
+  if (likeEl    && !_revealed[num+"-like"])    { likeEl.textContent    = "0"; likeEl.classList.remove("revealed"); }
+  if (dislikeEl && !_revealed[num+"-dislike"]) { dislikeEl.textContent = "0"; dislikeEl.classList.remove("revealed"); }
+}
+
+// ── Slot machine audio ──
+let _audioCtx = null;
+function _getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+function _playTick(pitch) {
+  try {
+    const ctx = _getAudioCtx();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = "square";
+    osc.frequency.setValueAtTime(440*pitch, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(220*pitch, ctx.currentTime+.06);
+    gain.gain.setValueAtTime(.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+.08);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime+.09);
+  } catch(e){}
+}
+
+function triggerVote(num, type) {
+  const key = num+"-"+type;
+  if (_revealed[key]) return;
+  _revealed[key] = true;
+  const target = _voteCounts[key] ?? 0;
+  const el = document.getElementById("vc-"+type+"-count-"+num);
+  if (!el) return;
+  el.classList.add("revealed");
+  el.textContent = "0";
+  if (target === 0) return;
+  const totalTime = Math.min(1800, Math.max(600, target*120));
+  const baseInterval = totalTime / target;
+  let current = 0;
+  function tick() {
+    current++;
+    el.textContent = current;
+    _playTick(0.8 + (current/target)*0.8);
+    if (current < target) {
+      const delay = baseInterval * (1.6 - (current/target)*1.2);
+      setTimeout(tick, Math.max(30, delay));
+    } else {
+      if (type === "like") setTimeout(_launchConfetti, 80);
+      else setTimeout(() => _triggerDislikeBurst(num), 80);
+    }
+  }
+  setTimeout(tick, 200);
+}
+
+// ── Confetti ──
+function _launchConfetti() {
+  const canvas = document.getElementById("confetti-canvas");
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  canvas.style.display = "block";
+  const ctx = canvas.getContext("2d");
+  const COLORS = ["#00e676","#FFD600","#FF3C5F","#00EAFF","#e040fb","#ffffff","#ff9800"];
+  const particles = [];
+  for (let i = 0; i < 200; i++) {
+    particles.push({
+      x: Math.random()*canvas.width, y: -10-Math.random()*200,
+      w: 8+Math.random()*10, h: 5+Math.random()*7,
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      vx: (Math.random()-.5)*6, vy: 3+Math.random()*5,
+      rot: Math.random()*Math.PI*2, rotV: (Math.random()-.5)*.25,
+    });
+  }
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = false;
+    for (const p of particles) {
+      p.x+=p.vx; p.y+=p.vy; p.vy+=.15; p.rot+=p.rotV;
+      if (p.y > canvas.height+20) continue;
+      alive = true;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, 1-frame/160);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    }
+    frame++;
+    if (alive && frame < 180) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display="none"; }
+  }
+  draw();
+}
+
+// ── Dislike burst ──
+function _triggerDislikeBurst(num) {
+  const flash = document.getElementById("dislike-flash");
+  const burst = document.getElementById("dislike-burst");
+  const screen = document.getElementById("screen-comment-"+num);
+  if (screen) {
+    screen.style.animation = "none";
+    screen.offsetHeight;
+    screen.style.animation = "dislike-shake .7s ease";
+    setTimeout(() => screen.style.animation = "", 700);
+  }
+  flash.style.background = "rgba(255,60,95,.35)";
+  setTimeout(() => flash.style.background="rgba(255,60,95,0)", 200);
+  setTimeout(() => { flash.style.background="rgba(255,60,95,.25)"; }, 260);
+  setTimeout(() => flash.style.background="rgba(255,60,95,0)", 420);
+  burst.style.transform = "translate(-50%,-50%) scale(1)";
+  burst.style.opacity = "1";
+  setTimeout(() => { burst.style.transform="translate(-50%,-50%) scale(0)"; burst.style.opacity="0"; }, 900);
+  try {
+    const ctx = _getAudioCtx();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(180, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime+.5);
+    gain.gain.setValueAtTime(.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+.55);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime+.6);
+  } catch(e){}
+}
+</script>
 
 </body>
 </html>

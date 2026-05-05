@@ -154,6 +154,42 @@
     }
     .thanks-sub strong { color: var(--accent2); }
 
+
+    /* ── like / dislike ── */
+    .vote-row {
+      display: flex; gap: 16px; justify-content: center;
+      width: 100%;
+    }
+    .vote-btn {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 6px;
+      padding: 14px 10px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      cursor: pointer;
+      transition: border-color .2s, background .2s, transform .15s;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--muted);
+      user-select: none;
+    }
+    .vote-btn .vote-icon { font-size: 32px; line-height: 1; transition: transform .2s; }
+    .vote-btn:hover { transform: translateY(-2px); }
+    .vote-btn.selected-like {
+      border-color: #00e676;
+      background: rgba(0,230,118,.1);
+      color: #00e676;
+    }
+    .vote-btn.selected-dislike {
+      border-color: var(--accent);
+      background: rgba(255,60,95,.1);
+      color: var(--accent);
+    }
+    .vote-btn.selected-like .vote-icon   { transform: scale(1.2); }
+    .vote-btn.selected-dislike .vote-icon { transform: scale(1.2); }
     @media (max-width: 480px) {
       .page  { padding: 40px 16px; }
       .card  { padding: 28px 18px; }
@@ -173,6 +209,16 @@
   <!-- ══ FORM ══ -->
   <div id="screen-form" class="card">
     <div class="card-title">¿Qué te pareció el Video 2?</div>
+    <div class="vote-row">
+      <button class="vote-btn" id="btnLike" onclick="selectVote('like')">
+        <span class="vote-icon">👍</span>
+        <span class="vote-label">Me gustó</span>
+      </button>
+      <button class="vote-btn" id="btnDislike" onclick="selectVote('dislike')">
+        <span class="vote-icon">👎</span>
+        <span class="vote-label">No me gustó</span>
+      </button>
+    </div>
     <textarea
       id="commentText"
       placeholder="Podés opinar, hacer aportes, bardear, usar emojis, lo que quieras siempre y cuando le sirva al grupo 🎬"
@@ -195,7 +241,7 @@
 
 <script>
   // ── Config ──────────────────────────────────────────────────
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1zzteVwRkrL7pI3fKErZwj6caRtPY5GOpfKjRtHflxZ_rNnEJv5p_dGyhQ4DXag8t/exec';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAqW6S3_qDM-hH2yTfYUpLypSujfO65l8IMhUBKAuh2JDPDKn2WKHNm7lrqqB2quUl/exec';
   const SHEET_NAME      = 'V02';           // hoja del Google Sheets
   const VIDEO_KEY       = 'tp2_commented_v02'; // clave localStorage (evita doble envío)
   // ────────────────────────────────────────────────────────────
@@ -205,6 +251,15 @@
     document.getElementById('screen-form').classList.add('hidden');
     document.getElementById('screen-thanks').classList.remove('hidden');
   }
+
+  let selectedVote = null; // 'like' | 'dislike' | null
+
+  function selectVote(v) {
+    selectedVote = (selectedVote === v) ? null : v;
+    document.getElementById('btnLike').classList.toggle('selected-like', selectedVote === 'like');
+    document.getElementById('btnDislike').classList.toggle('selected-dislike', selectedVote === 'dislike');
+  }
+
 
   async function sendComment() {
     const text   = document.getElementById('commentText').value.trim();
@@ -227,7 +282,12 @@
         method:  'POST',
         mode:    'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ hoja: SHEET_NAME, texto: text })
+        body:    JSON.stringify({
+          hoja:    SHEET_NAME,
+          texto:   text,
+          like:    selectedVote === 'like'    ? 'X' : '',
+          dislike: selectedVote === 'dislike' ? 'X' : ''
+        })
       });
 
       // no-cors no nos deja leer la respuesta, pero si no lanzó error = llegó
