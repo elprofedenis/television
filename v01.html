@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rio Pinto – Participá</title>
+<style>
+  @font-face {
+    font-family: 'MontserratBlack';
+    src: url('Montserrat-Black.ttf') format('truetype');
+    font-weight: 900;
+  }
+  @font-face {
+    font-family: 'MontserratMedium';
+    src: url('Montserrat-Medium.ttf') format('truetype');
+    font-weight: 500;
+  }
+  @font-face {
+    font-family: 'MontserratBold';
+    src: url('Montserrat-Bold.otf') format('opentype');
+    font-weight: 700;
+  }
+
+  :root {
+    --azul: #00008c;
+    --azul-header: #0037DC;
+    --rojo: #f0001e;
+    --text: #111;
+    --sub: #666;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'MontserratMedium', sans-serif;
+    background: #00008c;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    width: 100%;
+    background: var(--azul-header);
+    border-bottom: 4px solid var(--rojo);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header img {
+    width: 100%;
+    max-width: 340px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* ── CONTENT ── */
+  .content {
+    width: 100%;
+    max-width: 480px;
+    padding: 28px 20px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    background: #00008c;
+  }
+
+  /* ── VIEWS ── */
+  .view { width: 100%; display: none; flex-direction: column; gap: 18px; }
+  .view.active { display: flex; }
+
+  /* ── INTRO TITLE ── */
+  .form-intro {
+    font-family: 'MontserratBlack', sans-serif;
+    font-size: 1.15rem;
+    color: #fff;
+    text-align: center;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── FORM SECTION ── */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+  }
+
+  label {
+    font-family: 'MontserratBold', sans-serif;
+    font-size: 0.82rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    background: #f4f4f4;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'MontserratMedium', sans-serif;
+    font-size: 1rem;
+    color: #111;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    text-transform: uppercase;
+  }
+  input[type="text"::placeholder] { text-transform: none; }
+  input[type="text"]:focus,
+  textarea:focus { border-color: var(--azul); }
+
+  /* placeholder no en mayus */
+  input[type="text"]::placeholder,
+  textarea::placeholder {
+    text-transform: none;
+    color: #aaa;
+  }
+
+  .char-count {
+    text-align: right;
+    font-size: 0.78rem;
+    color: var(--sub);
+    margin-top: -2px;
+  }
+  .char-count.warn { color: var(--rojo); }
+
+  .btn-send {
+    width: 100%;
+    background: var(--rojo);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 18px;
+    font-family: 'MontserratBold', sans-serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .btn-send:hover { filter: brightness(1.1); }
+  .btn-send:active { transform: scale(0.97); }
+  .btn-send:disabled { background: #aaa; cursor: not-allowed; }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer {
+    font-family: 'MontserratMedium', sans-serif;
+    font-size: 0.72rem;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.5;
+    padding: 0 4px;
+  }
+
+  /* ── ERROR ── */
+  .error-msg {
+    background: rgba(240,0,30,0.08);
+    border: 1.5px solid var(--rojo);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    color: var(--rojo);
+    display: none;
+    font-family: 'MontserratMedium', sans-serif;
+  }
+  .error-msg.show { display: block; }
+
+  /* ── SUCCESS ── */
+  .success-box {
+    text-align: center;
+    padding: 40px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .success-icon { font-size: 3.5rem; }
+  .success-box h3 {
+    font-family: 'MontserratBold', sans-serif;
+    font-size: 1.45rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .success-box p {
+    font-family: 'MontserratMedium', sans-serif;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+  }
+
+  /* ── SOCIAL SECTION ── */
+  .social-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+    width: 100%;
+  }
+
+  .web-link {
+    font-family: 'MontserratBold', sans-serif;
+    font-size: 0.95rem;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 2px solid rgba(255,255,255,0.5);
+    padding-bottom: 3px;
+    transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .web-link:hover { color: #fff; border-color: #fff; }
+
+  .social-label {
+    font-family: 'MontserratBold', sans-serif;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .social-buttons {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    text-decoration: none;
+    background: #fff;
+    border: none;
+    color: var(--azul);
+    transition: box-shadow 0.18s, transform 0.15s;
+  }
+  .social-btn:hover { box-shadow: 0 0 0 3px rgba(255,255,255,0.4); transform: translateY(-2px); }
+  .social-btn:active { transform: scale(0.94); }
+
+  .social-btn svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    fill: #00008c;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <img src="RIOPINTOLOGO.png" alt="Rio Pinto">
+</div>
+
+<div class="content">
+
+  <!-- ── VISTA MENSAJE ── -->
+  <div class="view active" id="view-msg">
+
+    <div class="form-intro">💬 ¡ENVIÁ TU MENSAJE Y MIRALO EN EL STREAMING!</div>
+
+    <div class="form-group">
+      <label>Tu nombre *</label>
+      <input type="text" id="msg-nombre" placeholder="¿Cómo te llamás?" maxlength="40" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label>Tu mensaje *</label>
+      <textarea id="msg-texto" rows="4" placeholder="Escribí tu mensaje acá..." maxlength="80"></textarea>
+      <div class="char-count" id="char-count">0 / 80</div>
+    </div>
+
+    <div class="error-msg" id="msg-error">Completá tu nombre y tu mensaje.</div>
+
+    <button class="btn-send" id="btn-send-msg" onclick="enviarMensaje()">
+      Enviar mensaje
+    </button>
+
+    <div class="disclaimer">* Los mensajes son revisados por un moderador antes de aparecer en pantalla. Mensajes inapropiados o fuera de lugar no serán aprobados.</div>
+
+  </div>
+
+  <!-- ── ÉXITO MENSAJE ── -->
+  <div class="view" id="view-msg-ok">
+    <div class="success-box">
+      <div class="success-icon">🎉</div>
+      <h3>¡Tu mensaje fue enviado!</h3>
+      <p>Un moderador lo está revisando.<br>Si se aprueba, ¡aparecerá en pantalla!</p>
+    </div>
+    <button class="btn-send" onclick="showView('view-msg')" style="margin-top:10px">
+      ¿Mandás otro? 🙌
+    </button>
+
+    <!-- REDES SOCIALES -->
+    <div class="social-section">
+      <a href="https://www.desafiopinto.com.ar" target="_blank" class="web-link">
+        www.desafiopinto.com.ar
+      </a>
+      <div class="social-label">¡Seguinos!</div>
+      <div class="social-buttons">
+
+        <!-- Facebook -->
+        <a href="https://www.facebook.com/desafioriopinto" target="_blank" class="social-btn" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+          </svg>
+        </a>
+
+        <!-- Instagram -->
+        <a href="https://www.instagram.com/riopinto/" target="_blank" class="social-btn" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+        </a>
+
+        <!-- YouTube -->
+        <a href="https://www.youtube.com/@riopinto5506" target="_blank" class="social-btn" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, push }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyDXf_yUP18qbsAweA3PwIGiIrK4NLVEJI0",
+    authDomain:        "riopinto-dom.firebaseapp.com",
+    databaseURL:       "https://riopinto-dom-default-rtdb.firebaseio.com",
+    projectId:         "riopinto-dom",
+    storageBucket:     "riopinto-dom.firebasestorage.app",
+    messagingSenderId: "271649446795",
+    appId:             "1:271649446795:web:b21c5a1ba17e65a7ea6d8e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  window.showView = (id) => {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  };
+
+  // Contador caracteres
+  const textarea  = document.getElementById('msg-texto');
+  const charCount = document.getElementById('char-count');
+  textarea.addEventListener('input', () => {
+    const len = textarea.value.length;
+    charCount.textContent = `${len} / 80`;
+    charCount.classList.toggle('warn', len > 60);
+  });
+
+  // Enviar mensaje
+  window.enviarMensaje = async () => {
+    const nombre = document.getElementById('msg-nombre').value.trim();
+    const texto  = textarea.value.trim();
+    const errEl  = document.getElementById('msg-error');
+    const btn    = document.getElementById('btn-send-msg');
+
+    if (!nombre || !texto) {
+      errEl.classList.add('show');
+      return;
+    }
+    errEl.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    try {
+      await push(ref(db, 'mensajes'), {
+        nombre: nombre + ':',
+        texto,
+        aprobado: false,
+        ts: Date.now()
+      });
+      document.getElementById('msg-nombre').value = '';
+      textarea.value = '';
+      charCount.textContent = '0 / 80';
+      showView('view-msg-ok');
+    } catch(e) {
+      errEl.textContent = 'Error al enviar. Revisá tu conexión.';
+      errEl.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enviar mensaje';
+    }
+  };
+</script>
+</body>
+</html>
