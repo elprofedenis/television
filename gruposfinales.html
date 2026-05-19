@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupos finales — Streaming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Outfit: bold, wide, very legible — replaces Syne which was too narrow/condensed -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080810;
+  --border: rgba(255,255,255,0.08);
+  --border-bright: rgba(255,255,255,0.15);
+  --text: #F0EEF8;
+  --text-muted: rgba(240,238,248,0.5);
+  --text-faint: rgba(240,238,248,0.25);
+  --neon-purple: #B467FF;
+  --neon-pink: #FF3FA4;
+  --neon-cyan: #00E5FF;
+  --neon-purple-glow: rgba(180,103,255,0.35);
+  --neon-pink-glow: rgba(255,63,164,0.3);
+  --p1: #00E5B0;
+  --p2: #FFD166;
+  --p3: #FF5C5C;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* Per-program accent colors */
+  --prog1: #B467FF;
+  --prog1-bg: rgba(180,103,255,0.13);
+  --prog1-border: rgba(180,103,255,0.4);
+
+  --prog2: #00E5B0;
+  --prog2-bg: rgba(0,229,176,0.11);
+  --prog2-border: rgba(0,229,176,0.4);
+
+  --prog3: #FF5C5C;
+  --prog3-bg: rgba(255,92,92,0.11);
+  --prog3-border: rgba(255,92,92,0.4);
+
+  --prog4: #00E5FF;
+  --prog4-bg: rgba(0,229,255,0.11);
+  --prog4-border: rgba(0,229,255,0.4);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 40px 24px 80px;
+  overflow-x: hidden;
+  position: relative;
+  color: var(--text);
+}
+body::before {
+  content: ''; position: fixed; top: -200px; left: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(180,103,255,0.12) 0%, transparent 70%);
+  pointer-events: none; animation: drift1 12s ease-in-out infinite alternate;
+}
+body::after {
+  content: ''; position: fixed; bottom: -200px; right: -200px;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(255,63,164,0.10) 0%, transparent 70%);
+  pointer-events: none; animation: drift2 15s ease-in-out infinite alternate;
+}
+@keyframes drift1 { from{transform:translate(0,0)} to{transform:translate(60px,80px)} }
+@keyframes drift2 { from{transform:translate(0,0)} to{transform:translate(-80px,-60px)} }
+
+.scanlines {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+}
+
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 1400px; margin: 0 auto;
+  animation: fadeIn 0.6s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex; align-items: flex-start; justify-content: center;
+  flex-wrap: wrap; gap: 16px; margin-bottom: 32px;
+  flex-direction: column; align-items: center;
+}
+h1 {
+  font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800;
+  color: var(--text); line-height: 1.2; margin-bottom: 6px;
+}
+h1 span {
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.subtitle { font-size: 14px; color: var(--text-muted); font-weight: 300; }
+.top-bar-actions { display: flex; gap: 12px; align-items: center; flex-shrink: 0; margin-top: 10px; }
+.btn-update {
+  padding: 10px 22px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+  color: #fff; border: none; border-radius: var(--radius-md); cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.btn-update:hover {
+  box-shadow: 0 0 24px var(--neon-purple-glow), 0 0 48px var(--neon-pink-glow);
+  transform: translateY(-1px);
+}
+.auto-badge { font-size: 12px; color: var(--text-faint); font-family: 'Outfit', sans-serif; }
+
+/* ── STATS ── */
+.stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+.stat {
+  background: rgba(12,11,20,0.85); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 16px 28px; min-width: 120px;
+  backdrop-filter: blur(20px); position: relative; overflow: hidden;
+}
+.stat::before {
+  content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-purple), transparent); opacity: 0.4;
+}
+.stat-num { font-family: 'Outfit', sans-serif; font-size: 34px; font-weight: 800; color: var(--text); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 5px; font-family: 'Outfit', sans-serif; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.section-header::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-bright), transparent); }
+
+/* ── FLIP CARD CORE ── */
+.flip-card { cursor: pointer; perspective: 1200px; }
+.flip-card-inner {
+  width: 100%; height: 100%;
+  transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+  position: relative;
+}
+.flip-card.revealed .flip-card-inner { transform: rotateY(180deg); }
+.flip-front, .flip-back {
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-lg); overflow: hidden;
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+}
+.flip-back { transform: rotateY(180deg); }
+
+/* ── PRIORITY CARDS ── */
+.priority-section { margin-bottom: 48px; }
+.priority-cards-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+.priority-flip-card { flex: 1; min-width: 200px; height: 170px; position: relative; }
+.priority-flip-card .flip-card-inner { height: 170px; }
+
+.priority-front {
+  background: rgba(12,11,20,0.9); border: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+}
+.priority-front::before {
+  content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-purple), var(--neon-pink), transparent); opacity: 0.6;
+}
+.priority-icon { font-size: 30px; line-height: 1; }
+.priority-label { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 0.03em; }
+
+.priority-back { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 20px; }
+.p1-back { background: rgba(0,229,176,0.10); border: 1px solid rgba(0,229,176,0.3); }
+.p2-back { background: rgba(255,209,102,0.10); border: 1px solid rgba(255,209,102,0.3); }
+.p3-back { background: rgba(255,92,92,0.10); border: 1px solid rgba(255,92,92,0.3); }
+.priority-back-label { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+.p1-back .priority-back-label { color: var(--p1); }
+.p2-back .priority-back-label { color: var(--p2); }
+.p3-back .priority-back-label { color: var(--p3); }
+.priority-back-num { font-family: 'Outfit', sans-serif; font-size: 62px; font-weight: 900; line-height: 1; }
+.p1-back .priority-back-num { color: var(--p1); text-shadow: 0 0 30px rgba(0,229,176,0.5); }
+.p2-back .priority-back-num { color: var(--p2); text-shadow: 0 0 30px rgba(255,209,102,0.5); }
+.p3-back .priority-back-num { color: var(--p3); text-shadow: 0 0 30px rgba(255,92,92,0.5); }
+.priority-back-sub { font-size: 13px; color: var(--text-muted); font-family: 'Outfit', sans-serif; }
+
+/* ── PROGRAMS GRID ── */
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-bottom: 56px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: rgba(10,9,18,0.5);
+}
+
+/* ── PROGRAM COLUMN ── */
+.program-col { display: flex; flex-direction: column; }
+.program-col:nth-child(2),
+.program-col:nth-child(4) { background: rgba(255,255,255,0.035); }
+.program-col + .program-col { border-left: 1px solid rgba(255,255,255,0.14); }
+
+.program-heading {
+  font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800;
+  text-align: center; padding: 22px 16px 18px; letter-spacing: 0;
+}
+.program-col:nth-child(1) .program-heading { color: var(--prog1); border-top: 3px solid var(--prog1); }
+.program-col:nth-child(2) .program-heading { color: var(--prog2); border-top: 3px solid var(--prog2); }
+.program-col:nth-child(3) .program-heading { color: var(--prog3); border-top: 3px solid var(--prog3); }
+.program-col:nth-child(4) .program-heading { color: var(--prog4); border-top: 3px solid var(--prog4); }
+
+.role-cards-stack { display: flex; flex-direction: column; gap: 10px; padding: 0 14px 22px; }
+
+/* ── ROLE FLIP CARD ── */
+/* The outer wrapper drives height via the invisible height-driver div */
+.role-flip-card { position: relative; cursor: pointer; }
+
+/* Invisible ghost that sets the card's natural height */
+.card-ghost {
+  visibility: hidden; pointer-events: none;
+  display: flex; align-items: flex-start; padding: 14px 16px; gap: 10px; min-height: 110px;
+}
+.card-ghost-inner { flex: 1; }
+.card-ghost-title { font-family: 'Outfit', sans-serif; font-size: 11px; color: transparent; margin-bottom: 5px; }
+.card-ghost-name { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; color: transparent; line-height: 1.3; word-break: break-word; white-space: normal; }
+
+/* The actual flip inner sits absolutely on top of the ghost */
+.role-flip-inner {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  perspective: 1200px;
+  pointer-events: none;
+}
+.role-flip-inner-anim {
+  width: 100%; height: 100%;
+  transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+  position: relative;
+}
+.role-flip-card.revealed .role-flip-inner-anim { transform: rotateY(180deg); }
+
+.role-face {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 14px; overflow: hidden;
+}
+.role-face-back { transform: rotateY(180deg); }
+
+/* FRONT face */
+.role-front-face {
+  background: rgba(12,11,20,0.88); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.role-front-face::before {
+  content: ''; position: absolute; top: 0; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180,103,255,0.35), transparent);
+}
+.role-flip-card:hover .role-front-face {
+  border-color: rgba(180,103,255,0.3);
+  box-shadow: 0 0 20px rgba(180,103,255,0.07);
+}
+.role-front-name {
+  font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;
+  text-transform: uppercase; color: #fff; text-align: center; padding: 0 16px; line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+
+/* BACK face */
+.role-back-face {
+  display: flex; align-items: flex-start; padding: 14px 16px; gap: 10px;
+}
+/* Program colors for back */
+.role-back-face.prog1 { background: var(--prog1-bg); border: 1px solid var(--prog1-border); }
+.role-back-face.prog1::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, var(--prog1), transparent); opacity: 0.8; }
+.role-back-face.prog2 { background: var(--prog2-bg); border: 1px solid var(--prog2-border); }
+.role-back-face.prog2::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, var(--prog2), transparent); opacity: 0.8; }
+.role-back-face.prog3 { background: var(--prog3-bg); border: 1px solid var(--prog3-border); }
+.role-back-face.prog3::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, var(--prog3), transparent); opacity: 0.8; }
+.role-back-face.prog4 { background: var(--prog4-bg); border: 1px solid var(--prog4-border); }
+.role-back-face.prog4::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, var(--prog4), transparent); opacity: 0.8; }
+.role-back-face.vacant { background: rgba(12,11,20,0.75); border: 1px solid var(--border); }
+
+.role-back-info { flex: 1; min-width: 0; }
+.role-back-title {
+  font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 5px;
+}
+.role-back-person {
+  font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800;
+  color: #fff; line-height: 1.3;
+  /* NEVER truncate — wrap freely */
+  white-space: normal; word-break: break-word; overflow: visible;
+}
+.role-back-person.vacant-name {
+  color: var(--text-faint); font-size: 16px; font-style: italic;
+  font-weight: 400; font-family: 'Inter', sans-serif;
+}
+.prioridad-badge {
+  font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+}
+.badge-p1 { background: rgba(0,229,176,0.15); color: var(--p1); border: 1px solid rgba(0,229,176,0.3); }
+.badge-p2 { background: rgba(255,209,102,0.15); color: var(--p2); border: 1px solid rgba(255,209,102,0.3); }
+.badge-p3 { background: rgba(255,92,92,0.15); color: var(--p3); border: 1px solid rgba(255,92,92,0.3); }
+
+/* ── SIN ASIGNAR ── */
+.sin-asignar {
+  background: rgba(255,92,92,0.06); border: 1px dashed rgba(255,92,92,0.3);
+  border-radius: var(--radius-md); padding: 16px 20px; margin: 16px 0 40px;
+}
+.sin-asignar h3 { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--p3); margin-bottom: 10px; }
+.sin-asignar li { font-size: 13px; color: var(--text-muted); padding: 3px 0; list-style: none; }
+
+/* ── RESPUESTAS ── */
+.respuestas-section { margin-top: 48px; }
+.respuestas-header {
+  display: flex; align-items: center; gap: 14px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted);
+  padding: 14px 20px; background: rgba(12,11,20,0.6); border: 1px solid var(--border);
+  border-radius: var(--radius-md); transition: border-color 0.2s; user-select: none;
+}
+.respuestas-header:hover { border-color: var(--border-bright); }
+.resp-chevron { margin-left: auto; font-size: 16px; transition: transform 0.3s; }
+.respuestas-header.open .resp-chevron { transform: rotate(180deg); }
+.respuestas-body { display: none; margin-top: 10px; }
+.respuestas-body.open { display: block; }
+.resp-table { width: 100%; border-collapse: collapse; font-size: 13px; background: rgba(12,11,20,0.7); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.resp-table th { background: rgba(255,255,255,0.04); padding: 10px 16px; text-align: left; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--border); }
+.resp-table td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-muted); vertical-align: top; }
+.resp-table tr:last-child td { border-bottom: none; }
+.resp-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── MISC ── */
+.loading { text-align: center; padding: 80px; color: var(--text-faint); font-size: 15px; font-family: 'Outfit', sans-serif; }
+.error { background: rgba(255,92,92,0.08); border: 1px solid rgba(255,92,92,0.3); border-radius: var(--radius-md); padding: 20px; color: var(--p3); font-size: 14px; }
+.seed-info { font-size: 11px; color: var(--text-faint); margin-top: 20px; text-align: right; font-family: 'Outfit', sans-serif; }
+
+/* ── BOTÓN ASIGNAR ROLES ── */
+.btn-asignar-roles {
+  font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 900;
+  letter-spacing: 0.06em;
+  padding: 22px 60px;
+  background: linear-gradient(135deg, #B467FF, #FF3FA4, #00E5FF);
+  background-size: 200% 200%; animation: gradShift 3s ease infinite;
+  color: #fff; border: none; border-radius: var(--radius-lg); cursor: pointer;
+  box-shadow: 0 0 40px rgba(180,103,255,0.4), 0 0 80px rgba(255,63,164,0.2);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.btn-asignar-roles:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 0 60px rgba(180,103,255,0.6), 0 0 100px rgba(255,63,164,0.35);
+}
+@keyframes gradShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+.asignados-notice {
+  margin-top: 16px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+  color: var(--p1); letter-spacing: 0.02em;
+}
+
+/* ── CARTA BLOQUEADA ── */
+.card-locked { cursor: not-allowed !important; }
+.card-locked .role-front-face { opacity: 0.6; }
+
+/* ── BOTÓN RESET ── */
+.btn-reset {
+  font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 500;
+  padding: 6px 16px; background: transparent; color: var(--text-faint);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-reset:hover { color: var(--p3); border-color: rgba(255,92,92,0.4); }
+
+/* ── BOTÓN EXPORTAR ── */
+.btn-export {
+  font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+  padding: 14px 36px; background: rgba(0,229,176,0.1);
+  color: var(--p1); border: 1px solid rgba(0,229,176,0.35);
+  border-radius: var(--radius-md); cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  letter-spacing: 0.04em;
+}
+.btn-export:hover {
+  background: rgba(0,229,176,0.18);
+  box-shadow: 0 0 24px rgba(0,229,176,0.25);
+  transform: translateY(-1px);
+}
+
+/* ── 4ta priority card (sorteo) ── */
+.p4-back { background: rgba(100,100,255,0.10); border: 1px solid rgba(130,100,255,0.3); }
+.p4-back .priority-back-label { color: #a78bfa; }
+.p4-back .priority-back-num { color: #a78bfa; text-shadow: 0 0 30px rgba(130,100,255,0.5); }
+
+/* ── QR CODE ── */
+.qr-wrap {
+  position: fixed; top: 24px; left: 24px; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.qr-btn {
+  background: rgba(12,11,20,0.9); border: 1px solid rgba(180,103,255,0.35);
+  border-radius: 16px; padding: 10px; cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+  backdrop-filter: blur(12px);
+}
+.qr-btn:hover {
+  box-shadow: 0 0 28px rgba(180,103,255,0.4);
+  transform: scale(1.04);
+}
+.qr-btn img { width: 90px; height: 90px; display: block; border-radius: 8px; }
+.qr-label {
+  font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 600;
+  color: rgba(180,103,255,0.7); letter-spacing: 0.08em; text-transform: uppercase;
+  text-align: center;
+}
+
+/* ── QR LIGHTBOX ── */
+#qr-lightbox {
+  display: none; position: fixed; inset: 0; z-index: 99998;
+  background: rgba(5,4,14,0.92); backdrop-filter: blur(16px);
+  align-items: center; justify-content: center; cursor: pointer;
+  animation: overlayIn 0.25s ease;
+}
+#qr-lightbox.active { display: flex; }
+#qr-lightbox img {
+  width: min(420px, 85vw); height: auto; border-radius: 24px;
+  border: 2px solid rgba(180,103,255,0.4);
+  box-shadow: 0 0 80px rgba(180,103,255,0.35);
+  animation: cardPop 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+#qr-lightbox p {
+  margin-top: 20px; font-family: 'Outfit', sans-serif; font-size: 13px;
+  color: rgba(240,238,248,0.4); letter-spacing: 0.05em;
+  text-align: center;
+}
+.qr-lightbox-inner { display: flex; flex-direction: column; align-items: center; }
+#reveal-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(5,4,14,0.97);
+  backdrop-filter: blur(20px);
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  animation: overlayIn 0.35s cubic-bezier(0.2,0,0,1);
+}
+#reveal-overlay.active { display: flex; }
+@keyframes overlayIn { from{opacity:0;} to{opacity:1;} }
+
+.reveal-card {
+  display: flex; align-items: center; gap: 0;
+  width: min(900px, 92vw); max-height: 90vh;
+  border-radius: 28px; overflow: hidden;
+  box-shadow: 0 0 120px rgba(180,103,255,0.35), 0 0 60px rgba(0,0,0,0.8);
+  animation: cardPop 0.45s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes cardPop { from{transform:scale(0.82) translateY(40px);opacity:0;} to{transform:scale(1) translateY(0);opacity:1;} }
+
+.reveal-photo-side {
+  width: 42%; flex-shrink: 0; align-self: stretch;
+  position: relative; overflow: hidden;
+  background: #0c0b14;
+}
+.reveal-photo-side img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  display: block;
+  filter: brightness(0.92) contrast(1.05);
+}
+.reveal-photo-side .photo-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 100px; color: rgba(255,255,255,0.08);
+}
+/* Gradient edge blending photo into info */
+.reveal-photo-side::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to right, transparent 60%, rgba(5,4,14,0.6) 100%);
+}
+
+.reveal-info-side {
+  flex: 1; padding: 56px 52px; display: flex; flex-direction: column;
+  justify-content: center; gap: 20px;
+  position: relative;
+}
+/* Accent top bar colored by program */
+.reveal-info-side::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.reveal-info-side.prog1::before { background: var(--prog1); box-shadow: 0 0 30px var(--prog1); }
+.reveal-info-side.prog2::before { background: var(--prog2); box-shadow: 0 0 30px var(--prog2); }
+.reveal-info-side.prog3::before { background: var(--prog3); box-shadow: 0 0 30px var(--prog3); }
+.reveal-info-side.prog4::before { background: var(--prog4); box-shadow: 0 0 30px var(--prog4); }
+
+.reveal-prog-label {
+  font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint);
+}
+.reveal-rol {
+  font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.reveal-rol.prog1 { color: var(--prog1); }
+.reveal-rol.prog2 { color: var(--prog2); }
+.reveal-rol.prog3 { color: var(--prog3); }
+.reveal-rol.prog4 { color: var(--prog4); }
+
+.reveal-nombre {
+  font-family: 'Outfit', sans-serif; font-size: clamp(36px, 6vw, 72px);
+  font-weight: 900; color: #fff; line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.reveal-badge { margin-top: 8px; }
+.reveal-hint {
+  margin-top: 32px; font-size: 12px; color: var(--text-faint);
+  font-family: 'Outfit', sans-serif; letter-spacing: 0.06em;
+}
+
+/* ── REVEALED MINI CARD (con foto) ── */
+.role-back-face.has-photo {
+  display: flex; align-items: stretch; padding: 0; gap: 0; overflow: hidden;
+}
+.role-back-face.has-photo .mini-photo {
+  width: 64px; flex-shrink: 0;
+  object-fit: cover; object-position: center top;
+  display: block; border-right: 1px solid rgba(255,255,255,0.08);
+}
+.role-back-face.has-photo .role-back-info {
+  padding: 12px 12px 12px 12px; display: flex; flex-direction: column; justify-content: center;
+}
+.role-back-face.has-photo .prioridad-badge {
+  margin-top: 6px; align-self: flex-start;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  .programs-grid { grid-template-columns: repeat(2, 1fr); }
+  .program-col:nth-child(3) { border-left: none; border-top: 1px solid rgba(255,255,255,0.14); }
+  .program-col:nth-child(4) { border-top: 1px solid rgba(255,255,255,0.14); }
+}
+@media (max-width: 560px) {
+  h1 { font-size: 22px; }
+  .programs-grid { grid-template-columns: 1fr; }
+  .program-col + .program-col { border-left: none; border-top: 1px solid rgba(255,255,255,0.14); }
+}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+
+<!-- QR FIJO SUPERIOR IZQUIERDO -->
+<div class="qr-wrap">
+  <button class="qr-btn" onclick="document.getElementById('qr-lightbox').classList.add('active')" title="Escaneá para abrir el formulario">
+    <img src="qr_streaming.png" alt="QR formulario">
+  </button>
+  <span class="qr-label">Escaneá aquí</span>
+</div>
+
+<!-- QR LIGHTBOX -->
+<div id="qr-lightbox" onclick="this.classList.remove('active')">
+  <div class="qr-lightbox-inner">
+    <img src="qr_streaming.png" alt="QR grande">
+    <p>tocá para cerrar</p>
+  </div>
+</div>
+
+<!-- FULLSCREEN REVEAL OVERLAY -->
+<div id="reveal-overlay" onclick="cerrarOverlay()">
+  <div class="reveal-card" id="reveal-card" onclick="event.stopPropagation(); cerrarOverlay()">
+    <div class="reveal-photo-side" id="reveal-photo-side">
+      <img id="reveal-img" src="" alt="" style="display:none;">
+      <div class="photo-fallback" id="reveal-fallback">👤</div>
+    </div>
+    <div class="reveal-info-side" id="reveal-info-side">
+      <div class="reveal-prog-label" id="reveal-prog-label"></div>
+      <div class="reveal-rol" id="reveal-rol"></div>
+      <div class="reveal-nombre" id="reveal-nombre"></div>
+      <div class="reveal-badge" id="reveal-badge"></div>
+      <div class="reveal-hint">tocá para cerrar</div>
+    </div>
+  </div>
+</div>
+<div class="page-wrap">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div style="width:100%; text-align:center;">
+      <h1 style="text-transform:uppercase;">TP FINAL TELEVISIÓN I: <span>PROGRAMA DE STREAMING</span></h1>
+      <p class="subtitle" style="text-align:center;">Asignación de roles por programa</p>
+    </div>
+    <div class="top-bar-actions">
+      <span class="auto-badge" id="countdown-label">Actualizando en 30s</span>
+      <button class="btn-update" onclick="cargarDatos()">↻ Actualizar</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats" id="stats" style="justify-content:center;">
+    <div class="stat"><div class="stat-num">—</div><div class="stat-label">Respuestas</div></div>
+    <div class="stat"><div class="stat-num">—</div><div class="stat-label">Asignados</div></div>
+  </div>
+
+  <!-- BOTÓN ASIGNAR -->
+  <div style="text-align:center; margin-bottom: 40px;">
+    <button class="btn-asignar-roles" id="btn-asignar" onclick="asignarRoles()">⚡ ASIGNAR ROLES</button>
+    <div class="asignados-notice" id="asignados-notice" style="display:none;">✅ Roles asignados y guardados — hacé clic en cada carta para revelarla</div>
+  </div>
+
+  <!-- PRIORITY CARDS -->
+  <div class="priority-section">
+    <div class="section-header">Distribución por preferencia</div>
+    <div class="priority-cards-grid" id="priority-cards"></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main"><div class="loading">Cargando respuestas...</div></div>
+
+  <!-- RESPUESTAS COLAPSABLES -->
+  <div class="respuestas-section" id="respuestas-section" style="display:none;">
+    <div class="respuestas-header" id="resp-toggle" onclick="toggleRespuestas()">
+      <span>Todas las respuestas</span>
+      <span id="resp-count" style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0;font-family:Inter;font-size:13px;"></span>
+      <span class="resp-chevron">▾</span>
+    </div>
+    <div class="respuestas-body" id="resp-body"></div>
+  </div>
+
+  <!-- EXPORTAR XLS -->
+  <div id="export-wrap" style="display:none; text-align:center; margin-top: 48px;">
+    <button class="btn-export" onclick="exportarXLS()">📊 Exportar XLS</button>
+  </div>
+
+  <p class="seed-info" id="seed-info"></p>
+
+  <!-- BOTÓN REESTABLECER (oculto, al pie) -->
+  <div style="text-align:center; margin-top: 60px; opacity: 0.3;" onmouseenter="this.style.opacity='0.7'" onmouseleave="this.style.opacity='0.3'">
+    <button class="btn-reset" onclick="reestablecerTodo()">Reestablecer todo</button>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKv-8nzgPN_gk0UG4FZrWlSUyrWNckLASSS3AtGufYM0yADSD68W-qU0wW_zlTRlZB/exec";
+const GRUPOS = 4;
+const ROLES_CONFIG = [
+  { nombre: "Director",                    cupo: 1 },
+  { nombre: "Productor general",           cupo: 1 },
+  { nombre: "Productor de piso/contenido", cupo: 1 },
+  { nombre: "Playback",                    cupo: 1 },
+  { nombre: "Sonido",                      cupo: 1 },
+  { nombre: "Arte",                        cupo: 2 },
+  { nombre: "Cámaras/Iluminación",         cupo: 2 },
+  { nombre: "Data manager",               cupo: 1 },
+];
+const PROG_COLORS = ["prog1","prog2","prog3","prog4"];
+let seedActual = 20250518;
+const STORAGE_KEY = "gruposfinales_asignacion_v1";
+
+// Lista completa de alumnos del padrón (APELLIDO, NOMBRE)
+const PADRON = [
+  "ALTAMIRANO, JULIÁN DAVID",
+  "ALTAMIRANO AREDES, JOAQUIN",
+  "BADARO MARGONARI, ROCIO MERCEDES",
+  "BASSINI JUAN, CATALINA",
+  "BERSANO, THIAGO",
+  "BERTORELLI DEL FABRO, CAMILA",
+  "BOTTA, DAVID EZEQUIEL",
+  "CAÑARTE PAGANI, JULIETA",
+  "CASAS JACAMO, ROSARIO BERENICE",
+  "CHAVERO ALTAMIRANO, XIMENA DANIELA",
+  "FAORO MIRANDA, BRUNO",
+  "FERNANDEZ SOTO, SOFIA",
+  "FERRARIO, SANTIAGO",
+  "GALLEANO, SOFIA",
+  "GALVAN, DANA LOURDES",
+  "GINGINS, ALEJO",
+  "GITTO OVIEDO, PHOEBE",
+  "HALISKA, WENCESLAO FACUNDO",
+  "LEIBOVICH, MARIANO",
+  "MANZANO, MICAELA MARIA",
+  "MARTINEZ HERRERA, LAUTARO",
+  "MENCHON, CANDELA",
+  "MUÑOZ, PEDRO ANDRES",
+  "MURACA, MAIA",
+  "NAVARRO, SANTIAGO",
+  "NEGRI SOUT, MARIA SOL",
+  "NITZ, BELEN MAGALI",
+  "NUÑEZ LIBREROS, SIMON",
+  "PENDINO, NICOLAS ESTEBAN",
+  "PETRONE, FRANCISCO MANUEL",
+  "PIRES VILLARROEL, GALA MICAELA",
+  "REYNOSO ADRIS, IGNACIO GUSTAVO",
+  "RIVERO GONZALEZ, ROCIO EUGENIA",
+  "SANCHEZ SLAMOVITS, LUCAS AGUSTIN",
+  "SEQUILÁN, FACUNDO MIQUEAS",
+  "STORNI, MARTINIANO ALEJANDRO",
+  "TORRES ARCANDO, FATIMA",
+  "TROGLIA, CATALINA",
+  "TRUCCO, VALENTIN",
+  "VACA, SANTIAGO JESUS RAUL",
+  "VALAZZA, LUCA",
+];
+
+let datosGlobales = [];
+let rolesAsignados = false;      // true = se presionó "ASIGNAR ROLES"
+let gruposGuardados = null;      // resultado guardado en localStorage
+const revealedCards = new Set();
+let countdown = 30;
+let countdownTimer;
+
+// ── PERSISTENCIA ──────────────────────────────────────────────────────────────
+function guardarEstado(grupos) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(grupos));
+  } catch(e) {}
+}
+function cargarEstado() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+function borrarEstado() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+}
+
+// ── SEED / SHUFFLE ────────────────────────────────────────────────────────────
+function seededRandom(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+function shuffleWithSeed(arr, seed) {
+  const rng = seededRandom(seed);
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── ARMAR GRUPOS ──────────────────────────────────────────────────────────────
+function armarGrupos(respuestas, seed) {
+  const grupos = Array.from({ length: GRUPOS }, (_, i) => ({
+    numero: i + 1,
+    slots: ROLES_CONFIG.flatMap(r =>
+      Array.from({ length: r.cupo }, (_, j) => ({ rol: r.nombre, alumno: null, prioridad: null, slotIndex: j }))
+    )
+  }));
+  const slotsLibres = (g, rol) => g.slots.filter(s => s.rol === rol && s.alumno === null);
+
+  // 1. Asignar por preferencias (prioridad 1, 2, 3)
+  for (let pri = 1; pri <= 3; pri++) {
+    const campo = pri === 1 ? "Rol 1" : pri === 2 ? "Rol 2" : "Rol 3";
+    const noAsig = respuestas.filter(r => !r._asignado);
+    const porRol = {};
+    noAsig.forEach(r => { const rol = r[campo]; if (!rol) return; (porRol[rol] = porRol[rol]||[]).push(r); });
+    Object.entries(porRol).forEach(([rol, alumnos]) => {
+      shuffleWithSeed(alumnos, seed + rol.length).forEach(alumno => {
+        if (alumno._asignado) return;
+        const conSlot = shuffleWithSeed(grupos.filter(g => slotsLibres(g, rol).length > 0), seed + alumno["Nombre"].length);
+        if (conSlot.length > 0) {
+          const slot = slotsLibres(conSlot[0], rol)[0];
+          slot.alumno = alumno["Nombre"]; slot.prioridad = pri; alumno._asignado = true;
+        }
+      });
+    });
+  }
+
+  // 2. Rellenar vacantes con alumnos del padrón que no aparecieron en el sheet
+  const nombresEnSheet = new Set(respuestas.map(r => normalizarNombre(r["Nombre"])));
+  const sinResponder = PADRON.filter(n => !nombresEnSheet.has(normalizarNombre(n)));
+  const shuffledSinResponder = shuffleWithSeed(sinResponder, seed + 99);
+
+  // Recolectar todos los slots vacíos
+  const todosVacios = [];
+  grupos.forEach(g => g.slots.forEach(s => { if (!s.alumno) todosVacios.push(s); }));
+
+  shuffledSinResponder.forEach((nombre, i) => {
+    if (i < todosVacios.length) {
+      todosVacios[i].alumno = nombre;
+      todosVacios[i].prioridad = null; // sin prioridad (forzado)
+    }
+  });
+
+  return { grupos, sinAsignar: respuestas.filter(r => !r._asignado).map(r => r["Nombre"]) };
+}
+
+function normalizarNombre(s) {
+  return (s || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+}
+
+// ── FORMATEO DE NOMBRES ───────────────────────────────────────────────────────
+// Extrae el primer nombre de "APELLIDO, NOMBRE NOMBRE2"
+function primerNombre(fullName) {
+  if (!fullName) return "";
+  const partes = fullName.split(",");
+  if (partes.length < 2) return "";
+  return partes[1].trim().split(/\s+/)[0];
+}
+function apellido(fullName) {
+  if (!fullName) return "";
+  return fullName.split(",")[0].trim();
+}
+
+// Construye el mapa de duplicados de primer nombre sobre todos los slots asignados
+function buildDuplicateMap(grupos) {
+  const conteo = {};
+  grupos.forEach(g => g.slots.forEach(s => {
+    if (!s.alumno) return;
+    const pn = primerNombre(s.alumno).toUpperCase();
+    if (!pn) return;
+    conteo[pn] = (conteo[pn] || 0) + 1;
+  }));
+  return conteo; // primer nombre => cantidad de ocurrencias
+}
+
+let duplicateMap = {};
+
+function formatNombre(fullName) {
+  if (!fullName) return "VACANTE";
+  const pn = primerNombre(fullName).toUpperCase();
+  const ap = apellido(fullName).toUpperCase();
+  if (!pn) return ap; // solo apellido si no hay nombre
+  if (duplicateMap[pn] && duplicateMap[pn] > 1) {
+    // Hay duplicados: mostrar APELLIDO,\nNOMBRE
+    return `${ap},\u200B${pn}`;
+  }
+  return pn; // solo primer nombre
+}
+
+// ── FOTO PATH ────────────────────────────────────────────────────────────────
+function fotoPath(fullName) {
+  // La foto se llama igual que el nombre en el padrón: "APELLIDO, NOMBRE.jpg"
+  if (!fullName) return null;
+  return `nombres/${fullName}.jpg`;
+}
+
+// ── CARD TOGGLE / OVERLAY ─────────────────────────────────────────────────────
+function cardKey(grupoNum, rolNombre, slotIndex) {
+  return `g${grupoNum}-${rolNombre.replace(/\W+/g,"-")}-${slotIndex}`;
+}
+
+// Mapa global de key → datos del slot, para poder abrir overlay desde tarjeta revelada también
+const slotDataMap = {};
+
+function toggleCard(key, el, slot, progClass, grupoNum) {
+  if (!rolesAsignados) return;
+  // Siempre abrimos el overlay al hacer click (tanto en carta cerrada como revelada)
+  abrirOverlay(slot, progClass, grupoNum, key, el);
+}
+
+function abrirOverlay(slot, progClass, grupoNum, key, cardEl) {
+  const overlay = document.getElementById("reveal-overlay");
+  const infoSide = document.getElementById("reveal-info-side");
+  const img = document.getElementById("reveal-img");
+  const fallback = document.getElementById("reveal-fallback");
+  const rolEl = document.getElementById("reveal-rol");
+  const nombreEl = document.getElementById("reveal-nombre");
+  const badgeEl = document.getElementById("reveal-badge");
+  const progLabel = document.getElementById("reveal-prog-label");
+
+  // Programa label
+  progLabel.textContent = `Programa ${grupoNum}`;
+
+  // Rol
+  rolEl.textContent = slot.rol;
+  rolEl.className = `reveal-rol ${progClass}`;
+
+  // Nombre
+  const nombreDisplay = slot.alumno ? formatNombre(slot.alumno).replace(/\u200B/g, "\n") : "VACANTE";
+  nombreEl.innerHTML = slot.alumno ? formatNombre(slot.alumno).replace(/\u200B/g, "<br>") : "<span style='opacity:.4;font-style:italic'>VACANTE</span>";
+
+  // Badge
+  let badgeHtml = "";
+  if (slot.alumno && slot.prioridad) {
+    const bc = slot.prioridad===1?"badge-p1":slot.prioridad===2?"badge-p2":"badge-p3";
+    const bl = slot.prioridad===1?"1ª opción":slot.prioridad===2?"2ª opción":"3ª opción";
+    badgeHtml = `<span class="prioridad-badge ${bc}" style="font-size:13px;padding:6px 16px;">${bl}</span>`;
+  }
+  badgeEl.innerHTML = badgeHtml;
+
+  // Info side color class
+  infoSide.className = `reveal-info-side ${progClass}`;
+
+  // Foto
+  const path = slot.alumno ? fotoPath(slot.alumno) : null;
+  if (path) {
+    img.onload = () => { img.style.display = "block"; fallback.style.display = "none"; };
+    img.onerror = () => { img.style.display = "none"; fallback.style.display = "flex"; };
+    img.src = path;
+    img.style.display = "none";
+    fallback.style.display = "none"; // espera onload/onerror
+  } else {
+    img.style.display = "none";
+    fallback.style.display = "flex";
+  }
+
+  // Guardar referencia para cuando se cierre
+  overlay._currentKey = key;
+  overlay._currentCardEl = cardEl;
+  overlay._currentSlot = slot;
+  overlay._currentProgClass = progClass;
+
+  overlay.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function cerrarOverlay() {
+  const overlay = document.getElementById("reveal-overlay");
+  if (!overlay.classList.contains("active")) return;
+
+  const key = overlay._currentKey;
+  const cardEl = overlay._currentCardEl;
+  const slot = overlay._currentSlot;
+  const progClass = overlay._currentProgClass;
+
+  overlay.classList.remove("active");
+  document.body.style.overflow = "";
+
+  // Marcar la carta como revelada y actualizar su cara trasera con foto mini
+  if (key && cardEl) {
+    revealedCards.add(key);
+    cardEl.classList.add("revealed");
+    // Actualizar la cara trasera para incluir la foto en miniatura
+    actualizarCartaRevelada(cardEl, slot, progClass);
+  }
+}
+
+function actualizarCartaRevelada(cardEl, slot, progClass) {
+  const backFace = cardEl.querySelector(".role-back-face");
+  if (!backFace) return;
+
+  const vacantClass = slot.alumno ? "" : "vacant-name";
+  const nombreDisplay = slot.alumno ? formatNombre(slot.alumno).replace(/\u200B/g,"<br>") : "VACANTE";
+  const path = slot.alumno ? fotoPath(slot.alumno) : null;
+
+  let badgeHtml = "";
+  if (slot.alumno && slot.prioridad) {
+    const bc = slot.prioridad===1?"badge-p1":slot.prioridad===2?"badge-p2":"badge-p3";
+    const bl = slot.prioridad===1?"1ª":slot.prioridad===2?"2ª":"3ª";
+    badgeHtml = `<span class="prioridad-badge ${bc}">${bl}</span>`;
+  }
+
+  if (path) {
+    backFace.classList.add("has-photo");
+    backFace.innerHTML = `
+      <img class="mini-photo" src="${path}" alt="" onerror="this.style.display='none'">
+      <div class="role-back-info">
+        <div class="role-back-title">${slot.rol}</div>
+        <div class="role-back-person ${vacantClass}">${nombreDisplay}</div>
+        ${badgeHtml}
+      </div>`;
+  }
+  // Si no hay foto, la cara trasera ya tiene el contenido original, no la tocamos
+}
+
+// ── BOTÓN ASIGNAR ─────────────────────────────────────────────────────────────
+function asignarRoles() {
+  if (!datosGlobales.length) return;
+  const copia = datosGlobales.map(r => ({ ...r, _asignado: false }));
+  const { grupos, sinAsignar } = armarGrupos(copia, seedActual);
+  guardarEstado(grupos);
+  gruposGuardados = grupos;
+  rolesAsignados = true;
+  duplicateMap = buildDuplicateMap(grupos);
+  renderPriorityCards(grupos);
+  renderGrupos(grupos, sinAsignar);
+  renderStats(copia);
+  document.getElementById("btn-asignar").style.display = "none";
+  document.getElementById("asignados-notice").style.display = "block";
+  document.getElementById("export-wrap").style.display = "block";
+  document.getElementById("seed-info").textContent = `Seed: ${seedActual}`;
+}
+
+function reestablecerTodo() {
+  if (!confirm("¿Reestablecer todo? Se borrará la asignación guardada y se podrá reasignar.")) return;
+  borrarEstado();
+  rolesAsignados = false;
+  gruposGuardados = null;
+  revealedCards.clear();
+  revealedPriCards.clear();
+  duplicateMap = {};
+  // Nueva seed aleatoria para que la próxima asignación sea diferente
+  seedActual = Date.now() & 0x7fffffff;
+  document.getElementById("btn-asignar").style.display = "block";
+  document.getElementById("asignados-notice").style.display = "none";
+  document.getElementById("export-wrap").style.display = "none";
+  document.getElementById("seed-info").textContent = "";
+  procesarSinAsignar();
+}
+
+// ── PRIORITY CARDS ────────────────────────────────────────────────────────────
+const revealedPriCards = new Set();
+
+function renderPriorityCards(grupos) {
+  const all = grupos.flatMap(g => g.slots);
+  const p1 = all.filter(s => s.prioridad === 1).length;
+  const p2 = all.filter(s => s.prioridad === 2).length;
+  const p3 = all.filter(s => s.prioridad === 3).length;
+  // prioridad null = asignado por sorteo (del padrón, sin completar form)
+  const p4 = all.filter(s => s.alumno && s.prioridad === null).length;
+
+  document.getElementById("priority-cards").innerHTML =
+    mkPriCard("p1","1ª opción",p1,"p1-back","🟢") +
+    mkPriCard("p2","2ª opción",p2,"p2-back","🟡") +
+    mkPriCard("p3","3ª opción",p3,"p3-back","🔴") +
+    mkPriCard("p4","Por sorteo",p4,"p4-back","🎲");
+
+  ["p1","p2","p3","p4"].forEach(key => {
+    const el = document.getElementById("pc-"+key);
+    if (!el) return;
+    if (revealedPriCards.has(key)) el.classList.add("revealed");
+    el.addEventListener("click", () => {
+      if (!rolesAsignados) return;
+      if (revealedPriCards.has(key)) {
+        revealedPriCards.delete(key);
+        el.classList.remove("revealed");
+      } else {
+        revealedPriCards.add(key);
+        el.classList.add("revealed");
+      }
+    });
+  });
+}
+
+function mkPriCard(key, label, count, backClass, icon) {
+  return `<div class="flip-card priority-flip-card" id="pc-${key}">
+    <div class="flip-card-inner">
+      <div class="flip-front priority-front">
+        <div class="priority-icon">${icon}</div>
+        <div class="priority-label">${label}</div>
+      </div>
+      <div class="flip-back priority-back ${backClass}">
+        <div class="priority-back-label">${label}</div>
+        <div class="priority-back-num">${count}</div>
+        <div class="priority-back-sub">asignaciones</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── RENDER GRUPOS ─────────────────────────────────────────────────────────────
+function renderGrupos(grupos, sinAsignar) {
+  const main = document.getElementById("main");
+  let html = `<div class="section-header" style="margin-bottom:20px;">Roles por programa</div>`;
+  html += '<div class="programs-grid">';
+
+  grupos.forEach(g => {
+    const progClass = PROG_COLORS[g.numero - 1];
+    html += `<div class="program-col">
+      <div class="program-heading">Programa ${g.numero}</div>
+      <div class="role-cards-stack">`;
+
+    g.slots.forEach(slot => {
+      const key = cardKey(g.numero, slot.rol, slot.slotIndex);
+      const isRevealed = revealedCards.has(key) ? "revealed" : "";
+      const backFaceClass = slot.alumno ? progClass : "vacant";
+      const nombreDisplay = slot.alumno ? formatNombre(slot.alumno).replace(/\u200B/g,"<br>") : "VACANTE";
+      const vacantClass = slot.alumno ? "" : "vacant-name";
+      const lockedClass = rolesAsignados ? "" : "card-locked";
+
+      // Guarda datos del slot para recuperarlos al hacer click
+      slotDataMap[key] = { slot, progClass, grupoNum: g.numero };
+
+      let badge = "";
+      if (slot.alumno && slot.prioridad) {
+        const bc = slot.prioridad===1?"badge-p1":slot.prioridad===2?"badge-p2":"badge-p3";
+        const bl = slot.prioridad===1?"1ª":slot.prioridad===2?"2ª":"3ª";
+        badge = `<span class="prioridad-badge ${bc}">${bl}</span>`;
+      }
+
+      // Cara trasera: si ya está revelada Y hay foto, mostramos versión con foto
+      const path = slot.alumno ? fotoPath(slot.alumno) : null;
+      let backContent;
+      if (isRevealed && path) {
+        backContent = `
+          <img class="mini-photo" src="${path}" alt="" onerror="this.style.display='none'">
+          <div class="role-back-info">
+            <div class="role-back-title">${slot.rol}</div>
+            <div class="role-back-person ${vacantClass}">${nombreDisplay}</div>
+            ${badge}
+          </div>`;
+      } else {
+        backContent = `
+          <div class="role-back-info">
+            <div class="role-back-title">${slot.rol}</div>
+            <div class="role-back-person ${vacantClass}">${nombreDisplay}</div>
+          </div>
+          ${badge}`;
+      }
+      const backPhotoClass = (isRevealed && path) ? "has-photo" : "";
+
+      html += `<div class="role-flip-card ${isRevealed} ${lockedClass}" id="fc-${key}" data-key="${key}">
+        <div class="card-ghost" aria-hidden="true">
+          <div class="card-ghost-inner">
+            <div class="card-ghost-title">${slot.rol}</div>
+            <div class="card-ghost-name">${nombreDisplay}</div>
+          </div>
+          ${badge}
+        </div>
+        <div class="role-flip-inner">
+          <div class="role-flip-inner-anim">
+            <div class="role-face role-front-face">
+              <div class="role-front-name">${slot.rol}</div>
+            </div>
+            <div class="role-face role-face-back role-back-face ${backFaceClass} ${backPhotoClass}">
+              ${backContent}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += '</div>';
+  main.innerHTML = html;
+
+  main.querySelectorAll(".role-flip-card[data-key]").forEach(el => {
+    el.addEventListener("click", () => {
+      const key = el.dataset.key;
+      const data = slotDataMap[key];
+      if (!data) return;
+      toggleCard(key, el, data.slot, data.progClass, data.grupoNum);
+    });
+  });
+}
+
+// Render solo la grilla vacía (sin asignación aún)
+function procesarSinAsignar() {
+  const grupos = Array.from({ length: GRUPOS }, (_, i) => ({
+    numero: i + 1,
+    slots: ROLES_CONFIG.flatMap(r =>
+      Array.from({ length: r.cupo }, (_, j) => ({ rol: r.nombre, alumno: null, prioridad: null, slotIndex: j }))
+    )
+  }));
+  renderPriorityCards(grupos);
+  renderGrupos(grupos, []);
+}
+
+function renderStats(respuestas) {
+  const asig = respuestas.filter(r => r._asignado).length;
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><div class="stat-num">${respuestas.length}</div><div class="stat-label">Respuestas</div></div>
+    <div class="stat"><div class="stat-num">${asig}</div><div class="stat-label">Asignados</div></div>
+  `;
+}
+
+function renderTabla(respuestas) {
+  if (!respuestas.length) return;
+  document.getElementById("respuestas-section").style.display = "block";
+  document.getElementById("resp-count").textContent = `(${respuestas.length})`;
+  let html = `<table class="resp-table"><thead><tr><th>Nombre</th><th>Rol 1</th><th>Rol 2</th><th>Rol 3</th></tr></thead><tbody>`;
+  respuestas.forEach(r => {
+    html += `<tr><td style="color:var(--text);font-weight:500;">${r["Nombre"]}</td><td>${r["Rol 1"]||"—"}</td><td>${r["Rol 2"]||"—"}</td><td>${r["Rol 3"]||"—"}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  document.getElementById("resp-body").innerHTML = html;
+}
+
+function toggleRespuestas() {
+  document.getElementById("resp-toggle").classList.toggle("open");
+  document.getElementById("resp-body").classList.toggle("open");
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────────────────────────────
+function startCountdown() {
+  // Si ya asignamos, no seguimos actualizando automáticamente
+  if (rolesAsignados) return;
+  clearInterval(countdownTimer);
+  countdown = 30;
+  updateCountdownLabel();
+  countdownTimer = setInterval(() => {
+    if (rolesAsignados) { clearInterval(countdownTimer); updateCountdownLabel(); return; }
+    countdown--;
+    updateCountdownLabel();
+    if (countdown <= 0) cargarDatos();
+  }, 1000);
+}
+function updateCountdownLabel() {
+  const lbl = document.getElementById("countdown-label");
+  if (!lbl) return;
+  lbl.textContent = rolesAsignados ? "" : `Actualizando en ${countdown}s`;
+}
+
+// ── EXPORTAR XLS ──────────────────────────────────────────────────────────────
+function exportarXLS() {
+  const grupos = gruposGuardados;
+  if (!grupos) return;
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Hoja 1: Por alumno (una fila por persona) ──
+  const filasPorAlumno = [];
+  filasPorAlumno.push(["Alumno", "Programa", "Rol", "Cómo fue asignado"]);
+  grupos.forEach(g => {
+    g.slots.forEach(s => {
+      if (!s.alumno) return;
+      let asig = s.prioridad === 1 ? "1ª opción" :
+                 s.prioridad === 2 ? "2ª opción" :
+                 s.prioridad === 3 ? "3ª opción" : "Por sorteo";
+      filasPorAlumno.push([s.alumno, `Programa ${g.numero}`, s.rol, asig]);
+    });
+  });
+  const ws1 = XLSX.utils.aoa_to_sheet(filasPorAlumno);
+  ws1["!cols"] = [{wch:35},{wch:12},{wch:28},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, ws1, "Por alumno");
+
+  // ── Hoja 2: Por programa (columnas = programas, filas = roles) ──
+  const roles = ROLES_CONFIG.map(r => r.nombre);
+  // Construir mapa: rol → [slots de prog1, prog2, prog3, prog4]
+  const header = ["Rol", "Programa 1", "Programa 2", "Programa 3", "Programa 4"];
+  const filasPorProg = [header];
+  roles.forEach(rol => {
+    const fila = [rol];
+    grupos.forEach(g => {
+      const slotsDeRol = g.slots.filter(s => s.rol === rol);
+      const nombres = slotsDeRol.map(s => s.alumno || "VACANTE").join(" / ");
+      fila.push(nombres);
+    });
+    filasPorProg.push(fila);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(filasPorProg);
+  ws2["!cols"] = [{wch:28},{wch:30},{wch:30},{wch:30},{wch:30}];
+  XLSX.utils.book_append_sheet(wb, ws2, "Por programa");
+
+  // ── Hoja 3: Resumen de asignaciones ──
+  const all = grupos.flatMap(g => g.slots);
+  const p1 = all.filter(s => s.prioridad === 1).length;
+  const p2 = all.filter(s => s.prioridad === 2).length;
+  const p3 = all.filter(s => s.prioridad === 3).length;
+  const p4 = all.filter(s => s.alumno && s.prioridad === null).length;
+  const ws3 = XLSX.utils.aoa_to_sheet([
+    ["Resumen de asignaciones"],
+    [],
+    ["Categoría", "Cantidad"],
+    ["1ª opción", p1],
+    ["2ª opción", p2],
+    ["3ª opción", p3],
+    ["Por sorteo", p4],
+    ["Total", p1+p2+p3+p4],
+  ]);
+  ws3["!cols"] = [{wch:20},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws3, "Resumen");
+
+  XLSX.writeFile(wb, "grupos_streaming.xlsx");
+}
+
+// ── CARGA DE DATOS ────────────────────────────────────────────────────────────
+async function cargarDatos() {
+  // Si ya hay estado guardado, cargarlo directamente sin tocar el sheet
+  const estado = cargarEstado();
+  if (estado) {
+    gruposGuardados = estado;
+    rolesAsignados = true;
+    duplicateMap = buildDuplicateMap(estado);
+    renderPriorityCards(estado);
+    const sinAsignar = estado.flatMap(g => g.slots).filter(s => !s.alumno).map(() => "");
+    renderGrupos(estado, []);
+    document.getElementById("btn-asignar").style.display = "none";
+    document.getElementById("asignados-notice").style.display = "block";
+    document.getElementById("export-wrap").style.display = "block";
+    // igual cargamos datos del sheet para el contador y la tabla, pero sin re-asignar
+    try {
+      const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
+      const data = await res.json();
+      datosGlobales = data;
+      renderStats(data.map(r => ({ ...r, _asignado: true })));
+      renderTabla(data);
+    } catch(e) {}
+    return;
+  }
+
+  if (!datosGlobales.length) document.getElementById("main").innerHTML = '<div class="loading">Cargando respuestas...</div>';
+  try {
+    const res = await fetch(SCRIPT_URL + "?t=" + Date.now());
+    const data = await res.json();
+    datosGlobales = data;
+    if (!data.length) {
+      procesarSinAsignar();
+      renderStats([]);
+      startCountdown(); return;
+    }
+    renderStats(data.map(r => ({ ...r, _asignado: false })));
+    procesarSinAsignar();
+    renderTabla(data);
+  } catch(e) {
+    document.getElementById("main").innerHTML = `<div class="error">No se pudo conectar con el servidor.<br><small>${e}</small></div>`;
+  }
+  startCountdown();
+}
+
+cargarDatos();
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarOverlay(); });
+</script>
+</body>
+</html>
