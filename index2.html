@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP Final Televisión I — Streaming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080810;
+  --surface: rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border-bright: rgba(255,255,255,0.15);
+  --text: #F0EEF8;
+  --text-muted: rgba(240,238,248,0.5);
+  --text-faint: rgba(240,238,248,0.25);
+  --neon-purple: #B467FF;
+  --neon-pink: #FF3FA4;
+  --neon-cyan: #00E5FF;
+  --neon-purple-glow: rgba(180,103,255,0.35);
+  --neon-pink-glow: rgba(255,63,164,0.3);
+  --neon-cyan-glow: rgba(0,229,255,0.25);
+  --danger: #FF5C5C;
+  --success: #00E5B0;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(180,103,255,0.12) 0%, transparent 70%);
+  pointer-events: none;
+  animation: drift1 12s ease-in-out infinite alternate;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -200px; right: -200px;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(255,63,164,0.1) 0%, transparent 70%);
+  pointer-events: none;
+  animation: drift2 15s ease-in-out infinite alternate;
+}
+
+@keyframes drift1 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(60px, 80px); }
+}
+@keyframes drift2 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-80px, -60px); }
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+  );
+}
+
+.outer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  margin-bottom: 20px;
+  padding: 6px 14px 6px 10px;
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 20px;
+  background: rgba(0,229,255,0.06);
+}
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 8px var(--neon-cyan), 0 0 16px var(--neon-cyan);
+  animation: blink 1.4s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--neon-cyan), 0 0 16px var(--neon-cyan); }
+  50% { opacity: 0.4; box-shadow: 0 0 4px var(--neon-cyan); }
+}
+
+.card {
+  background: rgba(12,11,20,0.85);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 36px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-purple), var(--neon-pink), transparent);
+  opacity: 0.7;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 200px;
+  background: radial-gradient(ellipse, rgba(180,103,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+h1 span {
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+  margin: 28px 0;
+}
+
+.field { margin-bottom: 20px; }
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+
+.label-num {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sublabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--text-faint);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+select {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgba(240,238,248,0.3)' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+select:focus {
+  outline: none;
+  border-color: rgba(180,103,255,0.5);
+  background: var(--surface-hover);
+  box-shadow: 0 0 0 3px rgba(180,103,255,0.1), 0 0 20px rgba(180,103,255,0.05);
+}
+select:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+select option {
+  background: #12101E;
+  color: var(--text);
+}
+
+.roles-nota {
+  font-size: 12px;
+  color: var(--text-faint);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  background: rgba(0,229,255,0.04);
+  border: 1px solid rgba(0,229,255,0.12);
+  border-radius: var(--radius-sm);
+}
+.roles-nota strong { color: rgba(0,229,255,0.7); font-weight: 500; }
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.submit-btn:hover:not(:disabled)::before { opacity: 1; }
+.submit-btn:hover:not(:disabled) {
+  box-shadow: 0 0 24px var(--neon-purple-glow), 0 0 48px var(--neon-pink-glow);
+  transform: translateY(-1px);
+}
+.submit-btn:active:not(:disabled) { transform: scale(0.98) translateY(0); }
+.submit-btn:disabled {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-faint);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.err-msg {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 8px;
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+.err-msg.visible { display: flex; }
+
+/* ── DNI MODAL ── */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(8px);
+}
+.modal-backdrop.open { display: flex; }
+
+.modal {
+  background: #0E0D1A;
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  max-width: 380px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  animation: modalIn 0.25s cubic-bezier(.34,1.3,.64,1);
+}
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 15%; right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+}
+.modal::after {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 150px;
+  background: radial-gradient(ellipse, rgba(0,229,255,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-icon-wrap {
+  width: 52px; height: 52px;
+  margin: 0 auto 20px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-icon-bg {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: rgba(0,229,255,0.08);
+  border: 1px solid rgba(0,229,255,0.2);
+}
+.modal-icon-glow {
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.modal-icon-svg {
+  position: relative; z-index: 1;
+  width: 22px; height: 22px;
+  color: var(--neon-cyan);
+}
+
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.modal p {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.65;
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+.modal p strong { color: var(--text); font-weight: 500; }
+
+.dni-input {
+  width: 100%;
+  padding: 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.2em;
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  color: var(--neon-cyan);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin-bottom: 8px;
+  caret-color: var(--neon-cyan);
+}
+.dni-input::placeholder { color: rgba(0,229,255,0.2); letter-spacing: 0.1em; font-size: 16px; }
+.dni-input:focus {
+  outline: none;
+  border-color: rgba(0,229,255,0.5);
+  box-shadow: 0 0 0 3px rgba(0,229,255,0.08), 0 0 20px rgba(0,229,255,0.06);
+  background: rgba(0,229,255,0.04);
+}
+.dni-input.error {
+  border-color: rgba(255,92,92,0.6);
+  color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(255,92,92,0.08);
+}
+
+.dni-err {
+  font-size: 12px;
+  color: var(--danger);
+  text-align: center;
+  margin-bottom: 20px;
+  min-height: 16px;
+  display: none;
+}
+.dni-err.visible { display: block; }
+
+.modal-btns {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 10px;
+}
+
+.btn-cancel {
+  padding: 11px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-cancel:hover { background: var(--surface); border-color: var(--border-bright); color: var(--text); }
+
+.btn-confirm {
+  padding: 11px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,229,255,0.1));
+  color: var(--neon-cyan);
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid rgba(0,229,255,0.3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-confirm:hover {
+  background: linear-gradient(135deg, rgba(0,229,255,0.28), rgba(0,229,255,0.15));
+  box-shadow: 0 0 16px rgba(0,229,255,0.15);
+  border-color: rgba(0,229,255,0.5);
+}
+
+/* ── SUCCESS ── */
+.success {
+  display: none;
+  text-align: center;
+  padding: 20px 0;
+}
+.success-ring {
+  width: 72px; height: 72px;
+  margin: 0 auto 24px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.success-ring::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,176,0.15) 0%, transparent 70%);
+  animation: successPulse 2s ease-in-out infinite;
+}
+@keyframes successPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.6; }
+}
+.success-check {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(0,229,176,0.1);
+  border: 1px solid rgba(0,229,176,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  color: var(--success);
+  position: relative;
+}
+.success h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+.success h2 span {
+  background: linear-gradient(135deg, var(--success), var(--neon-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.success p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.corner-tl, .corner-br {
+  position: absolute;
+  width: 16px; height: 16px;
+  pointer-events: none;
+}
+.corner-tl { top: 12px; left: 12px; border-top: 1.5px solid var(--neon-purple); border-left: 1.5px solid var(--neon-purple); opacity: 0.5; }
+.corner-br { bottom: 12px; right: 12px; border-bottom: 1.5px solid var(--neon-pink); border-right: 1.5px solid var(--neon-pink); opacity: 0.5; }
+
+@media (max-width: 480px) {
+  .card { padding: 28px 20px; }
+  .modal { padding: 28px 20px; }
+  h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+
+<div class="outer">
+  <div class="live-badge">
+    <span class="live-dot"></span>
+    TP Final Televisión I: Programa de Streaming
+  </div>
+
+  <div class="card">
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
+
+    <div id="form-container">
+      <h1>Elegí tu rol <span>para el TP</span></h1>
+      <p class="desc">Seleccioná tu nombre y tres roles en orden de preferencia para el trabajo práctico de streaming.</p>
+
+      <div class="field">
+        <label for="nombre">Tu nombre</label>
+        <select id="nombre" onchange="onNombreChange()">
+          <option value="">— Seleccioná tu nombre —</option>
+          <option>ALTAMIRANO, JULIÁN DAVID</option>
+          <option>ALTAMIRANO AREDES, JOAQUIN</option>
+          <option>BADARO MARGONARI, ROCIO MERCEDES</option>
+          <option>BASSINI JUAN, CATALINA</option>
+          <option>BERSANO, THIAGO</option>
+          <option>BERTORELLI DEL FABRO, CAMILA</option>
+          <option>BOTTA, DAVID EZEQUIEL</option>
+          <option>CAÑARTE PAGANI, JULIETA</option>
+          <option>CASAS JACAMO, ROSARIO BERENICE</option>
+          <option>CHAVERO ALTAMIRANO, XIMENA DANIELA</option>
+          <option>FAORO MIRANDA, BRUNO</option>
+          <option>FERNANDEZ SOTO, SOFIA</option>
+          <option>FERRARIO, SANTIAGO</option>
+          <option>GALLEANO, SOFIA</option>
+          <option>GALVAN, DANA LOURDES</option>
+          <option>GINGINS, ALEJO</option>
+          <option>GITTO OVIEDO, PHOEBE</option>
+          <option>HALISKA, WENCESLAO FACUNDO</option>
+          <option>LEIBOVICH, MARIANO</option>
+          <option>MANZANO, MICAELA MARIA</option>
+          <option>MARTINEZ HERRERA, LAUTARO</option>
+          <option>MENCHON, CANDELA</option>
+          <option>MUÑOZ, PEDRO ANDRES</option>
+          <option>MURACA, MAIA</option>
+          <option>NAVARRO, SANTIAGO</option>
+          <option>NEGRI SOUT, MARIA SOL</option>
+          <option>NITZ, BELEN MAGALI</option>
+          <option>NUÑEZ LIBREROS, SIMON</option>
+          <option>PENDINO, NICOLAS ESTEBAN</option>
+          <option>PETRONE, FRANCISCO MANUEL</option>
+          <option>PIRES VILLARROEL, GALA MICAELA</option>
+          <option>REYNOSO ADRIS, IGNACIO GUSTAVO</option>
+          <option>RIVERO GONZALEZ, ROCIO EUGENIA</option>
+          <option>SANCHEZ SLAMOVITS, LUCAS AGUSTIN</option>
+          <option>SEQUILÁN, FACUNDO MIQUEAS</option>
+          <option>STORNI, MARTINIANO ALEJANDRO</option>
+          <option>TORRES ARCANDO, FATIMA</option>
+          <option>TROGLIA, CATALINA</option>
+          <option>TRUCCO, VALENTIN</option>
+          <option>VACA, SANTIAGO JESUS RAUL</option>
+          <option>VALAZZA, LUCA</option>
+        </select>
+        <div class="err-msg" id="err-duplicado">⚠ Este nombre ya fue registrado. Avisá al docente si es un error.</div>
+      </div>
+
+      <hr class="divider">
+
+      <p class="roles-nota"><strong>Nota:</strong> los roles de Arte y Cámaras/Iluminación tienen 2 lugares por grupo. El resto tiene 1 lugar.</p>
+
+      <div class="field">
+        <label for="rol1"><span class="label-num">1</span> Primer rol <span class="sublabel">— el que más te interesa</span></label>
+        <select id="rol1" onchange="actualizarRoles()">
+          <option value="">— Seleccioná un rol —</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="rol2"><span class="label-num">2</span> Segundo rol <span class="sublabel">— tu alternativa</span></label>
+        <select id="rol2" onchange="actualizarRoles()" disabled>
+          <option value="">— Primero elegí el rol 1 —</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="rol3"><span class="label-num">3</span> Tercer rol <span class="sublabel">— el que aceptarías</span></label>
+        <select id="rol3" disabled>
+          <option value="">— Primero elegí el rol 2 —</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" id="btn-enviar" onclick="enviar()" disabled>Enviar elección →</button>
+    </div>
+
+    <div class="success" id="success-container">
+      <div class="success-ring">
+        <div class="success-check">✓</div>
+      </div>
+      <h2>¡Listo, <span id="nombre-confirmado"></span>!</h2>
+      <p>Tu elección fue registrada.<br>El docente va a comunicar los grupos en clase.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DNI Modal -->
+<div class="modal-backdrop" id="dni-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-icon-wrap">
+      <div class="modal-icon-glow"></div>
+      <div class="modal-icon-bg"></div>
+      <svg class="modal-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <h2 id="modal-title">Verificá tu identidad</h2>
+    <p>Si realmente sos <strong id="modal-nombre"></strong>, escribí tu DNI a continuación:</p>
+    <input type="text" class="dni-input" id="dni-input" placeholder="· · · · · · · ·" inputmode="numeric" maxlength="10" autocomplete="off" />
+    <div class="dni-err" id="dni-err">DNI incorrecto. Intentá de nuevo.</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="cancelarDNI()">Cancelar</button>
+      <button class="btn-confirm" onclick="verificarDNI()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKv-8nzgPN_gk0UG4FZrWlSUyrWNckLASSS3AtGufYM0yADSD68W-qU0wW_zlTRlZB/exec";
+
+const ROLES = [
+  "Director","Productor general","Productor de piso/contenido",
+  "Playback","Sonido","Arte","Cámaras/Iluminación","Data manager"
+];
+
+const DNI_MAP = {
+  "ALTAMIRANO, JULIÁN DAVID":"47581334","ALTAMIRANO AREDES, JOAQUIN":"46311948",
+  "BADARO MARGONARI, ROCIO MERCEDES":"47004646","BASSINI JUAN, CATALINA":"45690374",
+  "BERSANO, THIAGO":"47664356","BERTORELLI DEL FABRO, CAMILA":"47305501",
+  "BOTTA, DAVID EZEQUIEL":"47466386","CAÑARTE PAGANI, JULIETA":"46126944",
+  "CASAS JACAMO, ROSARIO BERENICE":"47001362","CHAVERO ALTAMIRANO, XIMENA DANIELA":"43525594",
+  "FAORO MIRANDA, BRUNO":"47497097","FERNANDEZ SOTO, SOFIA":"52096934",
+  "FERRARIO, SANTIAGO":"46709003","GALLEANO, SOFIA":"47579675",
+  "GALVAN, DANA LOURDES":"42077565","GINGINS, ALEJO":"47463767",
+  "GITTO OVIEDO, PHOEBE":"47305001","HALISKA, WENCESLAO FACUNDO":"47969782",
+  "LEIBOVICH, MARIANO":"45488450","MANZANO, MICAELA MARIA":"47449878",
+  "MARTINEZ HERRERA, LAUTARO":"42476361","MENCHON, CANDELA":"44794675",
+  "MUÑOZ, PEDRO ANDRES":"47266131","MURACA, MAIA":"46483209",
+  "NAVARRO, SANTIAGO":"47351586","NEGRI SOUT, MARIA SOL":"46106729",
+  "NITZ, BELEN MAGALI":"47470498","NUÑEZ LIBREROS, SIMON":"47483545",
+  "PENDINO, NICOLAS ESTEBAN":"47739499","PETRONE, FRANCISCO MANUEL":"47352905",
+  "PIRES VILLARROEL, GALA MICAELA":"47576713","REYNOSO ADRIS, IGNACIO GUSTAVO":"47577329",
+  "RIVERO GONZALEZ, ROCIO EUGENIA":"46378136","SANCHEZ SLAMOVITS, LUCAS AGUSTIN":"47149120",
+  "SEQUILÁN, FACUNDO MIQUEAS":"47473936","STORNI, MARTINIANO ALEJANDRO":"46845264",
+  "TORRES ARCANDO, FATIMA":"46508190","TROGLIA, CATALINA":"47822742",
+  "TRUCCO, VALENTIN":"45952921","VACA, SANTIAGO JESUS RAUL":"46543210",
+  "VALAZZA, LUCA":"45936236"
+};
+
+let nombreVerificado = false;
+
+function poblarRoles() {
+  const sel = document.getElementById("rol1");
+  sel.innerHTML = '<option value="">— Seleccioná un rol —</option>';
+  ROLES.forEach(r => {
+    const o = document.createElement("option");
+    o.value = r; o.textContent = r; sel.appendChild(o);
+  });
+}
+
+function onNombreChange() {
+  const nombre = document.getElementById("nombre").value;
+  nombreVerificado = false;
+  resetRoles();
+  document.getElementById("err-duplicado").classList.remove("visible");
+  if (!nombre) return;
+  document.getElementById("modal-nombre").textContent = nombre.split(",")[0].trim();
+  document.getElementById("dni-input").value = "";
+  document.getElementById("dni-input").classList.remove("error");
+  document.getElementById("dni-err").classList.remove("visible");
+  document.getElementById("dni-modal").classList.add("open");
+  setTimeout(() => document.getElementById("dni-input").focus(), 120);
+}
+
+function cancelarDNI() {
+  document.getElementById("dni-modal").classList.remove("open");
+  document.getElementById("nombre").value = "";
+  nombreVerificado = false;
+  resetRoles();
+}
+
+function verificarDNI() {
+  const nombre = document.getElementById("nombre").value;
+  const dni = document.getElementById("dni-input").value.trim();
+  if (dni === DNI_MAP[nombre]) {
+    document.getElementById("dni-modal").classList.remove("open");
+    nombreVerificado = true;
+    checkDuplicate();
+  } else {
+    document.getElementById("dni-input").classList.add("error");
+    document.getElementById("dni-err").classList.add("visible");
+    document.getElementById("dni-input").select();
+  }
+}
+
+document.getElementById("dni-input").addEventListener("input", function() {
+  this.classList.remove("error");
+  document.getElementById("dni-err").classList.remove("visible");
+});
+document.getElementById("dni-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") verificarDNI();
+  if (e.key === "Escape") cancelarDNI();
+});
+
+function resetRoles() {
+  const sel1 = document.getElementById("rol1");
+  const sel2 = document.getElementById("rol2");
+  const sel3 = document.getElementById("rol3");
+  sel1.innerHTML = '<option value="">— Seleccioná un rol —</option>';
+  ROLES.forEach(r => { const o = document.createElement("option"); o.value = r; o.textContent = r; sel1.appendChild(o); });
+  sel2.innerHTML = '<option value="">— Primero elegí el rol 1 —</option>';
+  sel2.disabled = true;
+  sel3.innerHTML = '<option value="">— Primero elegí el rol 2 —</option>';
+  sel3.disabled = true;
+  document.getElementById("btn-enviar").disabled = true;
+}
+
+function actualizarRoles() {
+  const v1 = document.getElementById("rol1").value;
+  const v2 = document.getElementById("rol2").value;
+  const sel2 = document.getElementById("rol2");
+  const sel3 = document.getElementById("rol3");
+  sel2.disabled = !v1;
+  sel3.disabled = !sel2.value;
+  const d2 = ROLES.filter(r => r !== v1);
+  sel2.innerHTML = '<option value="">— Seleccioná un rol —</option>';
+  d2.forEach(r => { const o = document.createElement("option"); o.value = r; o.textContent = r; if (r === v2) o.selected = true; sel2.appendChild(o); });
+  const v2n = sel2.value;
+  const d3 = ROLES.filter(r => r !== v1 && r !== v2n);
+  sel3.innerHTML = '<option value="">— Seleccioná un rol —</option>';
+  d3.forEach(r => { const o = document.createElement("option"); o.value = r; o.textContent = r; sel3.appendChild(o); });
+  checkBtn();
+}
+
+document.getElementById("rol3").addEventListener("change", checkBtn);
+
+function checkBtn() {
+  const listo = nombreVerificado &&
+    document.getElementById("nombre").value &&
+    document.getElementById("rol1").value &&
+    document.getElementById("rol2").value &&
+    document.getElementById("rol3").value &&
+    !document.getElementById("err-duplicado").classList.contains("visible");
+  document.getElementById("btn-enviar").disabled = !listo;
+}
+
+async function checkDuplicate() {
+  const nombre = document.getElementById("nombre").value;
+  if (!nombre) return;
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const data = await res.json();
+    const yaReg = data.some(r => r["Nombre"] === nombre);
+    const err = document.getElementById("err-duplicado");
+    if (yaReg) { err.classList.add("visible"); document.getElementById("btn-enviar").disabled = true; }
+    else { err.classList.remove("visible"); checkBtn(); }
+  } catch(e) { checkBtn(); }
+}
+
+async function enviar() {
+  const nombre = document.getElementById("nombre").value;
+  const rol1 = document.getElementById("rol1").value;
+  const rol2 = document.getElementById("rol2").value;
+  const rol3 = document.getElementById("rol3").value;
+  if (!nombre || !rol1 || !rol2 || !rol3) return;
+  const btn = document.getElementById("btn-enviar");
+  btn.disabled = true; btn.textContent = "Enviando...";
+  try {
+    await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ nombre, rol1, rol2, rol3 }) });
+    document.getElementById("form-container").style.display = "none";
+    document.getElementById("success-container").style.display = "block";
+    const partes = nombre.split(",");
+    const primerNombre = partes.length > 1 ? partes[1].trim().split(" ")[0] : partes[0].trim();
+    document.getElementById("nombre-confirmado").textContent = primerNombre;
+  } catch(e) {
+    btn.disabled = false; btn.textContent = "Enviar elección →";
+    alert("Hubo un error al enviar. Intentá de nuevo.");
+  }
+}
+
+poblarRoles();
+</script>
+</body>
+</html>
