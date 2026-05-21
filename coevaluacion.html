@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coevaluación Grupal – TP2 Televisión I</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12;
+    --surface: #13131f;
+    --surface2: #1c1c2e;
+    --border: #2a2a42;
+    --accent: #7c5cfc;
+    --accent2: #fc5ca0;
+    --accent3: #5cf0c8;
+    --text: #f0f0fa;
+    --text-muted: #8888aa;
+    --star-on: #fbbf24;
+    --star-off: #2a2a42;
+    --error: #fc5c5c;
+    --success: #5cf0c8;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 0;
+    pointer-events: none;
+  }
+  body::before {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,92,252,0.18) 0%, transparent 70%);
+    top: -200px; left: -150px;
+  }
+  body::after {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(252,92,160,0.14) 0%, transparent 70%);
+    bottom: -150px; right: -100px;
+  }
+
+  .app-wrap {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 16px 80px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.7s ease both;
+  }
+  .header .tag {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(124,92,252,0.25), rgba(252,92,160,0.2));
+    border: 1px solid rgba(124,92,252,0.4);
+    color: var(--accent);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #fff 20%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  /* NOTICE una sola vez */
+  .once-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(251,191,36,0.08);
+    border: 1px solid rgba(251,191,36,0.25);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.84rem;
+    color: #fbbf24;
+    margin-bottom: 24px;
+    max-width: 640px;
+    width: 100%;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+  .once-notice .notice-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    width: 100%; max-width: 640px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .field-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .custom-select { position: relative; }
+  .custom-select select {
+    width: 100%;
+    appearance: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    padding: 14px 44px 14px 16px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .custom-select select:focus { border-color: var(--accent); }
+  .custom-select::after {
+    content: '▾';
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 1.1rem;
+  }
+  .custom-select select option { background: #1c1c2e; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(10,10,18,0.88);
+    backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    width: 100%; max-width: 420px;
+    animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+    text-align: center;
+  }
+  .modal .modal-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .modal h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem; font-weight: 700;
+    margin-bottom: 8px; color: var(--text);
+  }
+  .modal p {
+    font-size: 0.9rem; color: var(--text-muted);
+    margin-bottom: 24px; line-height: 1.55;
+  }
+  .modal p strong { color: var(--accent2); }
+  .modal input[type="text"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    padding: 14px 16px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 0.1em;
+    transition: border-color 0.2s;
+    margin-bottom: 12px;
+  }
+  .modal input[type="text"]:focus { border-color: var(--accent); }
+  .modal-error {
+    font-size: 0.82rem;
+    color: var(--error);
+    min-height: 18px;
+    margin-bottom: 16px;
+  }
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* FORM */
+  .form-section { display: none; width: 100%; max-width: 640px; }
+  .form-section.active { display: block; animation: fadeUp 0.5s ease both; }
+
+  /* Group header */
+  .group-header {
+    background: linear-gradient(135deg, rgba(124,92,252,0.15), rgba(252,92,160,0.1));
+    border: 1px solid rgba(124,92,252,0.3);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-bottom: 16px;
+  }
+  .group-header .grupo-tag {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .group-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .group-header .student-name {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  /* Instruccion */
+  .instruccion {
+    background: linear-gradient(135deg, rgba(92,240,200,0.07), rgba(124,92,252,0.07));
+    border: 1px solid rgba(92,240,200,0.18);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    font-size: 0.87rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 22px;
+  }
+  .instruccion strong { color: var(--accent3); }
+
+  /* Compañero card */
+  .companero-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .companero-card.has-error { border-color: var(--error); }
+  .companero-card .c-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .companero-card .c-name::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    flex-shrink: 0;
+  }
+
+  .criteria-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .criteria-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .star-group { display: flex; gap: 5px; }
+  .star-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 1.65rem; color: var(--star-off);
+    transition: color 0.12s, transform 0.1s;
+    padding: 0; line-height: 1;
+  }
+  .star-btn.on { color: var(--star-on); }
+  .star-btn:hover { transform: scale(1.15); }
+
+  .field-error {
+    font-size: 0.78rem;
+    color: var(--error);
+    margin-top: 8px;
+    min-height: 14px;
+  }
+
+  /* Destacar */
+  .destacar-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-top: 22px;
+  }
+  .destacar-section .sect-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .destacar-section .sect-title::before { content: '⭐'; font-size: 1rem; }
+  .destacar-section p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  /* Submit */
+  .submit-wrap {
+    margin-top: 28px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .btn-submit {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 18px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 30px rgba(124,92,252,0.3);
+    text-transform: uppercase;
+    position: relative;
+  }
+  .btn-submit:hover { opacity: 0.92; transform: translateY(-2px); box-shadow: 0 8px 40px rgba(124,92,252,0.45); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .submit-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  /* Sending overlay */
+  .sending-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(10,10,18,0.85);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  .sending-overlay.active { display: flex; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  .sending-overlay p {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem; font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  /* Error toast */
+  .toast {
+    display: none;
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 300;
+    background: #2a0a0a;
+    border: 1px solid var(--error);
+    border-radius: var(--radius-sm);
+    padding: 14px 22px;
+    font-size: 0.88rem;
+    color: var(--error);
+    white-space: nowrap;
+    animation: fadeUp 0.3s ease both;
+  }
+  .toast.active { display: block; }
+
+  /* Success */
+  .success-screen {
+    display: none; text-align: center;
+    max-width: 500px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .success-screen.active { display: block; }
+  .success-icon { font-size: 4rem; margin-bottom: 16px; }
+  .success-screen h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.9rem; font-weight: 900;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent3), var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 10px;
+  }
+  .success-screen p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+  @keyframes popIn    { from { opacity:0; transform:scale(0.85); }       to { opacity:1; transform:scale(1); } }
+  @keyframes spin     { to { transform: rotate(360deg); } }
+
+  @media (max-width: 480px) {
+    .card { padding: 20px 16px; }
+    .criteria-row { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="tag">Televisión I · TP2</div>
+    <h1>Coevaluación Grupal</h1>
+    <p>Unidad Narrativa Vertical</p>
+  </div>
+
+  <!-- AVISO UNA SOLA VEZ -->
+  <div class="once-notice">
+    <span class="notice-icon">⚠️</span>
+    <span>La coevaluación <strong>solo puede completarse una vez</strong>. Una vez enviada, no podrás modificar ni volver a completarla.</span>
+  </div>
+
+  <!-- STEP 1: SELECCIÓN -->
+  <div class="card" id="step-select">
+    <label class="field-label" for="student-select">¿Quién sos?</label>
+    <div class="custom-select">
+      <select id="student-select">
+        <option value="">— Seleccioná tu nombre —</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="form-section" id="form-section">
+    <div class="group-header" id="group-header">
+      <div class="grupo-tag" id="group-label">Grupo —</div>
+      <h2>TP2 · Unidad Narrativa Vertical</h2>
+      <div class="student-name" id="logged-name">—</div>
+    </div>
+
+    <div class="instruccion">
+      A través de este formulario, a la <strong>nota grupal</strong> que se hayan sacado podés <strong>restarle hasta 3 puntos</strong> a compañeros/as que no se hayan desempeñado como corresponde. La resta se determina según el promedio de votos del grupo: cuantos menos puntos les asignen sus compañeros/as, mayor será el descuento. A su vez, si alguien se destacó especialmente, se le podrá <strong>sumar hasta 1 punto extra</strong>. Completá la evaluación con honestidad; cada criterio tiene un máximo de <strong>5 estrellas</strong> (total: 10 por compañero/a).
+    </div>
+
+    <div id="companeros-container"></div>
+
+    <div class="destacar-section">
+      <div class="sect-title">Compañero/a a destacar</div>
+      <p>Si alguien del grupo se destacó por su dedicación, podés reconocerlo/a aquí. Esa persona podrá recibir hasta 1 punto extra.</p>
+      <label class="field-label" for="destacar-select">Seleccioná</label>
+      <div class="custom-select">
+        <select id="destacar-select">
+          <option value="ninguno">Ninguno/a, todos/as trabajamos por igual</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="btn-submit" id="btn-submit" onclick="submitForm()">Enviar coevaluación →</button>
+      <p class="submit-note">Una vez enviada no podrás modificar tus respuestas.</p>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✅</div>
+    <h2>¡Enviada!</h2>
+    <p>Tu coevaluación fue registrada correctamente. Los resultados serán tenidos en cuenta al momento de la calificación individual. ¡Gracias!</p>
+  </div>
+
+</div>
+
+<!-- DNI MODAL -->
+<div class="modal-overlay" id="dni-modal">
+  <div class="modal">
+    <div class="modal-icon">🔐</div>
+    <h3>Verificación de identidad</h3>
+    <p id="modal-text">Si sos <strong id="modal-name">—</strong>, ingresá tu DNI para continuar.</p>
+    <input type="text" id="dni-input" placeholder="Número de DNI" maxlength="10" inputmode="numeric" />
+    <div class="modal-error" id="modal-error"></div>
+    <button class="btn-primary" onclick="verifyDNI()">Confirmar identidad</button>
+  </div>
+</div>
+
+<!-- SENDING OVERLAY -->
+<div class="sending-overlay" id="sending-overlay">
+  <div class="spinner"></div>
+  <p>Enviando coevaluación…</p>
+</div>
+
+<!-- TOAST ERROR -->
+<div class="toast" id="toast-error">Hubo un error al enviar. Intentá de nuevo.</div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwM3-G-AGSgg-jdEbt7Lp9zaGJn73Rxwm6hzYX-B2PurCMjjc3rCw6bZ8QSi3fCL7lCmA/exec";
+
+const grupos = {
+  1: [
+    { dni: "47149120", nombre: "SANCHEZ SLAMOVITS, LUCAS AGUSTIN" },
+    { dni: "47822742", nombre: "TROGLIA, CATALINA" },
+    { dni: "47004646", nombre: "BADARO MARGONARI, ROCIO MERCEDES" },
+    { dni: "47739499", nombre: "PENDINO, NICOLAS ESTEBAN" }
+  ],
+  2: [
+    { dni: "46378136", nombre: "RIVERO GONZALEZ, ROCIO EUGENIA" },
+    { dni: "47470498", nombre: "NITZ, BELEN MAGALI" },
+    { dni: "47579675", nombre: "GALLEANO, SOFIA" },
+    { dni: "45690374", nombre: "BASSINI JUAN, CATALINA" }
+  ],
+  3: [
+    { dni: "47351586", nombre: "NAVARRO, SANTIAGO" },
+    { dni: "46126944", nombre: "CAÑARTE PAGANI, JULIETA" },
+    { dni: "47001362", nombre: "CASAS JACAMO, ROSARIO BERENICE" },
+    { dni: "47449878", nombre: "MANZANO, MICAELA MARIA" }
+  ],
+  4: [
+    { dni: "47577329", nombre: "REYNOSO ADRIS, IGNACIO GUSTAVO" },
+    { dni: "47466386", nombre: "BOTTA, DAVID EZEQUIEL" },
+    { dni: "47463767", nombre: "GINGINS, ALEJO" },
+    { dni: "47664356", nombre: "BERSANO, THIAGO" }
+  ],
+  5: [
+    { dni: "43525594", nombre: "CHAVERO ALTAMIRANO, XIMENA DANIELA" },
+    { dni: "46657202", nombre: "GUALCO, VALENTINA" },
+    { dni: "46483209", nombre: "MURACA, MAIA" },
+    { dni: "46709003", nombre: "FERRARIO, SANTIAGO" }
+  ],
+  6: [
+    { dni: "45936236", nombre: "VALAZZA, LUCA" },
+    { dni: "42077565", nombre: "GALVAN, DANA LOURDES" },
+    { dni: "47576713", nombre: "PIRES VILLARROEL, GALA MICAELA" },
+    { dni: "46508190", nombre: "TORRES ARCANDO, FATIMA" }
+  ],
+  7: [
+    { dni: "47483545", nombre: "NUÑEZ LIBREROS, SIMON" },
+    { dni: "45086307", nombre: "CASALI, JUAN DIEGO" },
+    { dni: "45932636", nombre: "HERRERA, IGNACIO" },
+    { dni: "46845264", nombre: "STORNI, MARTINIANO ALEJANDRO" }
+  ],
+  8: [
+    { dni: "47581334", nombre: "ALTAMIRANO, JULIAN DAVID" },
+    { dni: "44653105", nombre: "GUTIERREZ, MAXIMO TADEO" },
+    { dni: "47473936", nombre: "SEQUILAN, FACUNDO MIQUEAS" },
+    { dni: "46543210", nombre: "VACA, SANTIAGO JESUS RAUL" }
+  ],
+  9: [
+    { dni: "47497097", nombre: "FAORO MIRANDA, BRUNO" },
+    { dni: "47352905", nombre: "PETRONE, FRANCISCO MANUEL" },
+    { dni: "42476361", nombre: "MARTINEZ HERRERA, LAUTARO" },
+    { dni: "47629608", nombre: "GERA, TOMAS IGNACIO" }
+  ],
+  10: [
+    { dni: "52096934", nombre: "FERNANDEZ SOTO, SOFIA" },
+    { dni: "47305501", nombre: "BERTORELLI DEL FABRO, CAMILA" },
+    { dni: "46106729", nombre: "NEGRI SOUT, MARIA SOL" },
+    { dni: "46311948", nombre: "ALTAMIRANO AREDES, JOAQUIN" },
+    { dni: "44794675", nombre: "MENCHON, CANDELA" }
+  ],
+  11: [
+    { dni: "45488450", nombre: "LEIBOVICH, MARIANO" },
+    { dni: "47969782", nombre: "HALISKA, WENCESLAO FACUNDO" },
+    { dni: "47305001", nombre: "GITTO OVIEDO, PHOEBE" },
+    { dni: "47266131", nombre: "MUÑOZ, PEDRO ANDRES" }
+  ]
+};
+
+// Build sorted list
+const allStudents = [];
+for (const [g, members] of Object.entries(grupos)) {
+  members.forEach(m => allStudents.push({ ...m, grupo: parseInt(g) }));
+}
+allStudents.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+// Populate select
+const sel = document.getElementById('student-select');
+allStudents.forEach(s => {
+  const opt = document.createElement('option');
+  opt.value = s.dni;
+  opt.textContent = s.nombre;
+  sel.appendChild(opt);
+});
+
+let currentStudent = null;
+
+sel.addEventListener('change', function () {
+  const dni = this.value;
+  if (!dni) return;
+  const student = allStudents.find(s => s.dni === dni);
+  if (!student) return;
+  currentStudent = student;
+  showModal(student);
+});
+
+function showModal(student) {
+  document.getElementById('modal-name').textContent = toTitleCase(student.nombre);
+  document.getElementById('modal-error').textContent = '';
+  document.getElementById('dni-input').value = '';
+  document.getElementById('dni-modal').classList.add('active');
+  setTimeout(() => document.getElementById('dni-input').focus(), 300);
+}
+
+document.getElementById('dni-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') verifyDNI();
+});
+
+function verifyDNI() {
+  const input = document.getElementById('dni-input').value.trim();
+  const errEl = document.getElementById('modal-error');
+  if (!input) { errEl.textContent = 'Ingresá tu número de DNI.'; return; }
+  if (input !== currentStudent.dni) {
+    errEl.textContent = 'DNI incorrecto. Intentá de nuevo.';
+    document.getElementById('dni-input').value = '';
+    document.getElementById('dni-input').focus();
+    return;
+  }
+  document.getElementById('dni-modal').classList.remove('active');
+  loadForm(currentStudent);
+}
+
+function toTitleCase(str) {
+  return str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+function loadForm(student) {
+  const grupo = grupos[student.grupo];
+  const companeros = grupo.filter(m => m.dni !== student.dni);
+
+  document.getElementById('group-label').textContent = `Grupo ${student.grupo}`;
+  document.getElementById('logged-name').textContent = `Evaluando como: ${toTitleCase(student.nombre)}`;
+
+  const container = document.getElementById('companeros-container');
+  container.innerHTML = '';
+  const criterios = ['Comunicación con el equipo', 'Compromiso y desempeño'];
+
+  companeros.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'companero-card';
+    card.dataset.dni = c.dni;
+
+    let html = `<div class="c-name">${toTitleCase(c.nombre)}</div>`;
+    criterios.forEach((crit, ci) => {
+      const key = `${c.dni}_${ci}`;
+      html += `
+        <div class="criteria-row">
+          <span class="criteria-label">${crit}</span>
+          <div class="star-group" id="stars_${key}" data-key="${key}">
+            ${[1,2,3,4,5].map(n => `<button type="button" class="star-btn" data-val="${n}" onclick="setStar('${key}', ${n})">★</button>`).join('')}
+          </div>
+        </div>`;
+    });
+    html += `<div class="field-error" id="err_${c.dni}"></div>`;
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+
+  // Destacar select
+  const destSel = document.getElementById('destacar-select');
+  destSel.innerHTML = '<option value="ninguno">Ninguno/a, todos/as trabajamos por igual</option>';
+  companeros.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.dni;
+    opt.textContent = toTitleCase(c.nombre);
+    destSel.appendChild(opt);
+  });
+
+  document.getElementById('step-select').style.display = 'none';
+  document.getElementById('form-section').classList.add('active');
+}
+
+const ratings = {};
+
+function setStar(key, val) {
+  ratings[key] = val;
+  const group = document.getElementById(`stars_${key}`);
+  group.querySelectorAll('.star-btn').forEach(btn => {
+    btn.classList.toggle('on', parseInt(btn.dataset.val) <= val);
+  });
+}
+
+async function submitForm() {
+  const grupo = grupos[currentStudent.grupo];
+  const companeros = grupo.filter(m => m.dni !== currentStudent.dni);
+  let valid = true;
+  let firstError = null;
+
+  companeros.forEach(c => {
+    const errEl = document.getElementById(`err_${c.dni}`);
+    const card = document.querySelector(`.companero-card[data-dni="${c.dni}"]`);
+    let missing = false;
+    [0,1].forEach(ci => { if (!ratings[`${c.dni}_${ci}`]) missing = true; });
+    if (missing) {
+      errEl.textContent = 'Debés calificar ambos criterios con estrellas.';
+      card.classList.add('has-error');
+      if (!firstError) firstError = card;
+      valid = false;
+    } else {
+      errEl.textContent = '';
+      card.classList.remove('has-error');
+    }
+  });
+
+  if (!valid) {
+    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const destacadoDni = document.getElementById('destacar-select').value;
+
+  const payload = {
+    evaluador: {
+      dni: currentStudent.dni,
+      nombre: currentStudent.nombre,
+      grupo: currentStudent.grupo
+    },
+    evaluaciones: companeros.map(c => ({
+      evaluado: c.nombre,
+      dniEvaluado: c.dni,
+      comunicacion: ratings[`${c.dni}_0`] || 0,
+      compromiso:   ratings[`${c.dni}_1`] || 0
+    })),
+    destacado: destacadoDni,
+    timestamp: new Date().toISOString()
+  };
+
+  // Show spinner
+  document.getElementById('sending-overlay').classList.add('active');
+  document.getElementById('btn-submit').disabled = true;
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // no-cors returns opaque response; treat as success if no exception thrown
+    document.getElementById('sending-overlay').classList.remove('active');
+    document.getElementById('form-section').classList.remove('active');
+    document.getElementById('success-screen').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    document.getElementById('sending-overlay').classList.remove('active');
+    document.getElementById('btn-submit').disabled = false;
+    const toast = document.getElementById('toast-error');
+    toast.classList.add('active');
+    setTimeout(() => toast.classList.remove('active'), 4000);
+  }
+}
+</script>
+</body>
+</html>
