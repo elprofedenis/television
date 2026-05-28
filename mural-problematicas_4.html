@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mural de las Problemáticas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d0d; --surface: #161616; --surface2: #1e1e1e;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.16);
+  --text: #f0ede8; --muted: #888; --accent: #e8d5a0; --accent2: #c9956b;
+  --salud: #7ba4d4; --vejez: #82b89a; --edu: #b49fcc;
+}
+html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+
+.app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; width: 100vw; padding: 1.4vh 2vw 1vh; gap: 1vh; }
+
+header { display: flex; align-items: baseline; gap: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 1vh; flex-shrink: 0; }
+header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 4.2vw, 3.8rem); letter-spacing: 0.04em; color: var(--accent); line-height: 1; white-space: nowrap; }
+header p { font-size: clamp(0.8rem, 1.3vw, 1rem); color: var(--muted); }
+
+.main { display: grid; grid-template-columns: 1fr 1.15fr; gap: 1.5vw; min-height: 0; }
+
+.cards-col-wrap { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.cards-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1vh; padding-right: 6px; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+.cards-scroll::-webkit-scrollbar { width: 5px; }
+.cards-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: clamp(0.9rem,1.6vw,1.4rem); cursor: pointer; transition: border-color .2s, background .2s; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.card:hover { border-color: var(--border2); background: var(--surface2); }
+.card.active { border-color: var(--accent2) !important; background: var(--surface2); }
+.card-top { display: flex; align-items: center; gap: 0.7rem; }
+.pill { font-size: clamp(0.6rem,0.9vw,0.75rem); font-weight: 600; padding: 0.22em 0.85em; border-radius: 99px; letter-spacing: 0.06em; text-transform: uppercase; }
+.pill-salud { background: rgba(123,164,212,.15); color: var(--salud); }
+.pill-vejez { background: rgba(130,184,154,.15); color: var(--vejez); }
+.pill-edu   { background: rgba(180,159,204,.15); color: var(--edu); }
+.num { margin-left: auto; font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.2rem,2vw,1.8rem); color: var(--border2); }
+.card-quote { font-size: clamp(0.92rem,1.6vw,1.25rem); font-weight: 500; line-height: 1.5; color: var(--text); }
+.card-quote strong { color: var(--accent); font-weight: 600; }
+.card-source { font-size: clamp(0.65rem,0.95vw,0.8rem); color: var(--muted); }
+.card-btn { align-self: flex-start; margin-top: 0.3rem; font-size: clamp(0.65rem,0.95vw,0.8rem); padding: 0.38em 1em; border: 1px solid var(--border2); border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background .15s, color .15s; font-family: 'DM Sans', sans-serif; }
+.card-btn:hover { background: rgba(255,255,255,.06); color: var(--text); }
+
+.ia-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.ia-panel-header { padding: clamp(0.7rem,1.2vw,1rem) clamp(0.9rem,1.6vw,1.4rem); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; }
+.ia-panel-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1rem,1.8vw,1.5rem); letter-spacing: 0.04em; color: var(--accent); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background .3s; }
+.dot.online { background: #6fcf97; box-shadow: 0 0 5px #6fcf97; }
+#statusLabel { font-size: clamp(0.65rem,0.95vw,0.8rem); color: var(--muted); margin-left: auto; }
+
+.ia-messages { flex: 1; overflow-y: auto; padding: clamp(0.7rem,1.2vw,1rem) clamp(0.9rem,1.6vw,1.4rem); display: flex; flex-direction: column; gap: 0.9rem; scroll-behavior: smooth; min-height: 0; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+.ia-messages::-webkit-scrollbar { width: 4px; }
+.ia-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.msg { max-width: 94%; font-size: clamp(0.85rem,1.4vw,1.05rem); line-height: 1.65; border-radius: 10px; padding: 0.7em 1em; animation: fadeUp .25s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.msg-system { align-self: center; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: clamp(0.72rem,1.1vw,0.85rem); text-align: center; max-width: 80%; }
+.msg-user { align-self: flex-end; background: rgba(232,213,160,.1); border: 1px solid rgba(232,213,160,.2); color: var(--text); }
+.msg-ai { align-self: flex-start; background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+.msg-ai strong { color: var(--accent2); }
+.msg-ai p { margin-bottom: 0.5em; }
+.msg-ai p:last-child { margin-bottom: 0; }
+
+.typing { align-self: flex-start; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 0.8em 1em; display: flex; gap: 5px; align-items: center; }
+.typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }
+.typing span:nth-child(2){animation-delay:.2s} .typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+.ia-input-row { padding: clamp(0.6rem,1vw,0.9rem) clamp(0.9rem,1.6vw,1.4rem); border-top: 1px solid var(--border); display: flex; gap: 0.6rem; flex-shrink: 0; }
+.ia-input-row input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 0.6em 0.9em; font-size: clamp(0.85rem,1.3vw,1rem); color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; }
+.ia-input-row input:focus { border-color: var(--border2); }
+.ia-input-row input::placeholder { color: var(--muted); }
+.send-btn { background: var(--accent); color: #0d0d0d; border: none; border-radius: 9px; padding: 0 1.2em; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: clamp(0.82rem,1.2vw,0.95rem); cursor: pointer; white-space: nowrap; transition: opacity .15s; }
+.send-btn:hover{opacity:.85} .send-btn:disabled{opacity:.35;cursor:default}
+
+footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 0.8vh; flex-shrink: 0; }
+footer p { font-size: clamp(0.62rem,0.9vw,0.78rem); color: var(--muted); }
+.add-btn { font-size: clamp(0.65rem,0.95vw,0.8rem); padding: 0.38em 1.1em; border: 1px solid var(--border2); border-radius: 8px; background: none; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s, color .15s; }
+.add-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* MODAL */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 100; align-items: center; justify-content: center; }
+.modal-bg.open{display:flex}
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 1.8rem; width: min(500px,90vw); display: flex; flex-direction: column; gap: 1rem; }
+.modal h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; color: var(--accent); letter-spacing:.04em; }
+.modal select, .modal textarea { background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 0.6em 0.9em; font-size: 0.95rem; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; width: 100%; }
+.modal textarea{min-height:90px;resize:vertical}
+.modal-row{display:flex;gap:.7rem;justify-content:flex-end}
+.modal-cancel{padding:.5em 1.3em;border:1px solid var(--border2);border-radius:8px;background:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif}
+.modal-ok{padding:.5em 1.3em;background:var(--accent);color:#0d0d0d;border:none;border-radius:8px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+
+/* (estilos de overlay de API key eliminados) */
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>El Mural de las Problemáticas</h1>
+    <p>Casos reales que representan vulneración de derechos. Seleccioná una tarjeta para analizarla con IA.</p>
+  </header>
+
+  <div class="main">
+    <div class="cards-col-wrap">
+      <div class="cards-scroll" id="cardsCol">
+
+        <div class="card" onclick="analizar(this,0)">
+          <div class="card-top"><span class="pill pill-salud">Salud</span><span class="num">01</span></div>
+          <p class="card-quote">"<strong>Joven de 16 años</strong> denuncia que en el centro de salud le negaron anticonceptivos por no ir con sus padres."</p>
+          <p class="card-source">Redes sociales · adolescencia y salud sexual</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),0)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,1)">
+          <div class="card-top"><span class="pill pill-vejez">Vejez</span><span class="num">02</span></div>
+          <p class="card-quote">"Aumentan las consultas por <strong>ansiedad y soledad en adultos mayores</strong> tras el cierre del centro de jubilados."</p>
+          <p class="card-source">Nota periodística · adultez mayor y salud mental</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),1)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,2)">
+          <div class="card-top"><span class="pill pill-edu">Educación</span><span class="num">03</span></div>
+          <p class="card-quote">"Polémica en la escuela: <strong>un alumno con TEA</strong> no fue incluido en el viaje de egresados."</p>
+          <p class="card-source">Comunidad escolar · inclusión y discapacidad</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),2)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,3)">
+          <div class="card-top"><span class="pill pill-salud">Salud mental</span><span class="num">04</span></div>
+          <p class="card-quote">"<strong>Adolescente de 15 años</strong> fue suspendida por pedir turno de psicología en el colegio sin autorización de sus padres."</p>
+          <p class="card-source">Comunidad escolar · salud mental y autonomía</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),3)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,4)">
+          <div class="card-top"><span class="pill pill-edu">Educación</span><span class="num">05</span></div>
+          <p class="card-quote">"Una escuela secundaria <strong>expulsó a una alumna</strong> por publicar en redes su relato de abuso dentro del establecimiento."</p>
+          <p class="card-source">Medios digitales · violencia institucional</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),4)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,5)">
+          <div class="card-top"><span class="pill pill-vejez">Social</span><span class="num">06</span></div>
+          <p class="card-quote">"<strong>Joven de 17 años en situación de calle</strong> fue rechazado en un refugio municipal por no tener DNI actualizado."</p>
+          <p class="card-source">Informe ONG · habitabilidad y documentación</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),5)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,6)">
+          <div class="card-top"><span class="pill pill-salud">Salud</span><span class="num">07</span></div>
+          <p class="card-quote">"Centro de salud negó atención a <strong>adolescente trans</strong> por no coincidir su nombre legal con su identidad autopercibida."</p>
+          <p class="card-source">Comunidad LGBTQ+ · identidad de género</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),6)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,7)">
+          <div class="card-top"><span class="pill pill-edu">Educación</span><span class="num">08</span></div>
+          <p class="card-quote">"Alumno de 16 años fue <strong>separado del aula</strong> por usar el pañuelo verde durante un examen en una escuela privada."</p>
+          <p class="card-source">Redes sociales · libertad de expresión</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),7)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,8)">
+          <div class="card-top"><span class="pill pill-salud">Salud</span><span class="num">09</span></div>
+          <p class="card-quote">"<strong>Adolescente embarazada de 14 años</strong> fue presionada por personal de salud para continuar el embarazo contra su voluntad."</p>
+          <p class="card-source">Nota periodística · derechos sexuales y reproductivos</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),8)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,9)">
+          <div class="card-top"><span class="pill pill-edu">Educación</span><span class="num">10</span></div>
+          <p class="card-quote">"Tres estudiantes con <strong>discapacidad visual</strong> denuncian que su escuela no tiene materiales adaptados desde hace dos años."</p>
+          <p class="card-source">Defensoría del Pueblo · inclusión educativa</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),9)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,10)">
+          <div class="card-top"><span class="pill pill-salud">Salud mental</span><span class="num">11</span></div>
+          <p class="card-quote">"Jóvenes de <strong>barrios populares sin obra social</strong> esperan más de seis meses para acceder a tratamiento de salud mental."</p>
+          <p class="card-source">Informe ministerial · desigualdad en salud</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),10)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,11)">
+          <div class="card-top"><span class="pill pill-vejez">Social</span><span class="num">12</span></div>
+          <p class="card-quote">"Un <strong>menor de 16 años detenido</strong> por la policía estuvo más de 12 horas sin acceso a un defensor ni a su familia."</p>
+          <p class="card-source">CELS · sistema penal juvenil</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),11)">Analizar con IA →</button>
+        </div>
+
+        <div class="card" onclick="analizar(this,12)">
+          <div class="card-top"><span class="pill pill-edu">Educación</span><span class="num">13</span></div>
+          <p class="card-quote">"<strong>Escuela rural del norte argentino</strong> funciona sin agua potable ni baños en condiciones desde hace tres años."</p>
+          <p class="card-source">Periodismo local · condiciones edilicias</p>
+          <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),12)">Analizar con IA →</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="ia-panel">
+      <div class="ia-panel-header">
+        <div class="dot" id="statusDot"></div>
+        <h2>Análisis con IA</h2>
+        <span id="statusLabel">Seleccioná un caso</span>
+      </div>
+      <div class="ia-messages" id="messages">
+        <div class="msg msg-system">Seleccioná una tarjeta para comenzar el análisis, o escribí tu propia pregunta abajo.</div>
+      </div>
+      <div class="ia-input-row">
+        <input type="text" id="userInput" placeholder="Escribí tu pregunta aquí..." onkeydown="if(event.key==='Enter')enviar()" />
+        <button class="send-btn" id="sendBtn" onclick="enviar()">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Trabajo Social · Momento de Provocación · Vulneración de derechos</p>
+    <button class="add-btn" onclick="document.getElementById('modal').classList.add('open')">+ Agregar caso</button>
+  </footer>
+</div>
+
+<!-- MODAL AGREGAR CASO -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3>Agregar caso al mural</h3>
+    <select id="newTag">
+      <option value="salud">Salud</option>
+      <option value="vejez">Vejez</option>
+      <option value="edu">Educación</option>
+    </select>
+    <textarea id="newText" placeholder="Escribí la situación o frase aquí..."></textarea>
+    <div class="modal-row">
+      <button class="modal-cancel" onclick="document.getElementById('modal').classList.remove('open')">Cancelar</button>
+      <button class="modal-ok" onclick="agregarCaso()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- (overlay de API key eliminado - se usa Claude directamente) -->
+
+<script>
+const PROMPTS = [
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Joven de 16 años denuncia que en el centro de salud le negaron anticonceptivos por no ir con sus padres." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Aumentan las consultas por ansiedad y soledad en adultos mayores tras el cierre del centro de jubilados." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Polémica en la escuela: un alumno con TEA no fue incluido en el viaje de egresados." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Adolescente de 15 años fue suspendida por pedir turno de psicología en el colegio sin autorización de sus padres." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Una escuela secundaria expulsó a una alumna por publicar en redes su relato de abuso dentro del establecimiento." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Joven de 17 años en situación de calle fue rechazado en un refugio municipal por no tener DNI actualizado." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Centro de salud negó atención a adolescente trans por no coincidir su nombre legal con su identidad autopercibida." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Alumno de 16 años fue separado del aula por usar el pañuelo verde durante un examen en una escuela privada." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Adolescente embarazada de 14 años fue presionada por personal de salud para continuar el embarazo contra su voluntad." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Tres estudiantes con discapacidad visual denuncian que su escuela no tiene materiales adaptados desde hace dos años." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Jóvenes de barrios populares sin obra social esperan más de seis meses para acceder a tratamiento de salud mental." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Un menor de 16 años detenido por la policía estuvo más de 12 horas sin acceso a un defensor ni a su familia." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`,
+  `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "Escuela rural del norte argentino funciona sin agua potable ni baños en condiciones desde hace tres años." Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`
+];
+
+let busy = false;
+
+function setStatus(on) {
+  document.getElementById('statusDot').className = 'dot' + (on ? ' online' : '');
+  document.getElementById('statusLabel').textContent = on ? 'Consultando IA…' : 'Listo';
+}
+
+function addMsg(html, type) {
+  const box = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg msg-' + type;
+  d.innerHTML = html;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+  return d;
+}
+
+function addTyping() {
+  const box = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'typing';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+  return d;
+}
+
+function fmt(text) {
+  let t = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  return t.split(/\n{2,}/).map(p => {
+    const lines = p.split('\n').map(l => l.trim()).filter(Boolean);
+    return '<p>' + lines.join('<br>') + '</p>';
+  }).join('');
+}
+
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'Error ' + res.status);
+  }
+  const data = await res.json();
+  return data.content?.[0]?.text || 'Sin respuesta.';
+}
+
+async function analizar(card, idx) {
+  if (busy) return;
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  await runPrompt(card._customPrompt || PROMPTS[idx], null);
+}
+
+async function enviar() {
+  if (busy) return;
+  const input = document.getElementById('userInput');
+  const txt = input.value.trim();
+  if (!txt) return;
+  input.value = '';
+  const prompt = `Sos un asistente especializado en Trabajo Social para uso en clase universitaria argentina. Respondé en español rioplatense, de forma clara y didáctica, con títulos en negrita cuando sea necesario. Máximo 280 palabras.\n\nPregunta: ${txt}`;
+  await runPrompt(prompt, txt);
+}
+
+async function runPrompt(prompt, label) {
+  busy = true;
+  document.getElementById('sendBtn').disabled = true;
+  setStatus(true);
+  if (label) addMsg(label, 'user');
+  const typing = addTyping();
+  try {
+    const reply = await callClaude(prompt);
+    typing.remove();
+    addMsg(fmt(reply), 'ai');
+  } catch(e) {
+    typing.remove();
+    addMsg('Error: ' + e.message, 'system');
+  }
+  setStatus(false);
+  busy = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function agregarCaso() {
+  const tag = document.getElementById('newTag').value;
+  const txt = document.getElementById('newText').value.trim();
+  if (!txt) return;
+  const labels = { salud:['Salud','pill-salud'], vejez:['Vejez','pill-vejez'], edu:['Educación','pill-edu'] };
+  const [label, cls] = labels[tag];
+  const col = document.getElementById('cardsCol');
+  const num = String(col.children.length + 1).padStart(2,'0');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-top"><span class="pill ${cls}">${label}</span><span class="num">${num}</span></div>
+    <p class="card-quote">"${txt}"</p>
+    <p class="card-source">Agregado en clase</p>
+    <button class="card-btn" onclick="event.stopPropagation();analizar(this.closest('.card'),-1)">Analizar con IA →</button>`;
+  card._customPrompt = `Sos un asistente de Trabajo Social para una clase universitaria en Argentina. Analizá este caso: "${txt}". Respondé en español rioplatense, con títulos en negrita, en máximo 220 palabras. Incluí: **Derechos vulnerados**, **Marco legal argentino aplicable**, **Intervención del trabajador/a social**.`;
+  card.onclick = () => analizar(card, -1);
+  col.appendChild(card);
+  document.getElementById('newText').value = '';
+  document.getElementById('modal').classList.remove('open');
+}
+</script>
+</body>
+</html>
