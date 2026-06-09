@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados · Votación Streaming</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d0d0d;
+    color: #f0f0f0;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .icon-bar { font-size: 1.4rem; margin-bottom: 0.75rem; }
+  .header h1 { font-size: 1.6rem; font-weight: 700; color: #f5c518; margin-bottom: 0.25rem; }
+  .header .sub1 { font-size: 0.82rem; color: #888; text-transform: uppercase; letter-spacing: 0.6px; }
+  .header .sub2 { font-size: 0.78rem; color: #555; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 0.1rem; }
+
+  /* QR + CONTADOR ROW */
+  .qr-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .qr-wrap {
+    position: relative;
+  }
+
+  #qr-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-block;
+  }
+  #qr-box:hover { transform: scale(1.04); }
+  #qr-box canvas, #qr-box img { display: block; }
+
+  .qr-hint {
+    text-align: center;
+    color: #444;
+    font-size: 0.72rem;
+    margin-top: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+  }
+
+  .counter-block {
+    text-align: center;
+  }
+
+  .counter-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #555;
+    margin-bottom: 0.5rem;
+  }
+
+  .counter-number {
+    font-size: 5rem;
+    font-weight: 700;
+    color: #f5c518;
+    line-height: 1;
+    transition: transform 0.3s;
+  }
+
+  .counter-number.bump {
+    transform: scale(1.15);
+  }
+
+  .counter-sub {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 0.4rem;
+  }
+
+  .counter-total {
+    font-size: 0.75rem;
+    color: #444;
+    margin-top: 0.3rem;
+  }
+
+  /* LIGHTBOX */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-inner {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .lightbox-inner canvas, .lightbox-inner img { display: block; }
+
+  /* SECTION TITLE */
+  .section-title {
+    text-align: center;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: #444;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::before, .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #2a2a2a;
+  }
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 520px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .counter-number { font-size: 3.5rem; }
+    .qr-row { gap: 1.5rem; }
+  }
+
+  /* FLIP CARD */
+  .flip-card {
+    perspective: 1000px;
+    height: 200px;
+    cursor: pointer;
+  }
+
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flip-front, .flip-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    border: 1px solid #2a2a2a;
+  }
+
+  .flip-front {
+    background: #181818;
+  }
+
+  .flip-back {
+    background: #1a1500;
+    border-color: #4a3a00;
+    transform: rotateY(180deg);
+  }
+
+  .prog-num {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #555;
+    margin-bottom: 0.5rem;
+  }
+
+  .prog-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f0f0f0;
+    text-align: center;
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+  }
+
+  .flip-hint {
+    font-size: 0.68rem;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .flip-hint svg {
+    width: 13px;
+    height: 13px;
+    opacity: 0.5;
+  }
+
+  /* Back side */
+  .back-title {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #7a6000;
+    margin-bottom: 1rem;
+  }
+
+  .vote-rows {
+    width: 100%;
+  }
+
+  .vote-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #2a2000;
+    font-size: 0.8rem;
+  }
+
+  .vote-row:last-child { border-bottom: none; }
+
+  .vote-cat {
+    color: #888;
+    font-size: 0.72rem;
+  }
+
+  .vote-val {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #f5c518;
+  }
+
+  .back-total {
+    margin-top: 0.9rem;
+    font-size: 0.72rem;
+    color: #7a6000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .back-total span {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f5c518;
+    margin-left: 8px;
+  }
+
+  /* LOADING STATE */
+  .loading-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .loading-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #444;
+    animation: blink 1.2s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; }
+    40% { opacity: 1; background: #f5c518; }
+  }
+
+  .refresh-btn {
+    display: block;
+    margin: 2rem auto 0;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #555;
+    font-size: 0.78rem;
+    padding: 0.5rem 1.25rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .refresh-btn:hover { border-color: #f5c518; color: #f5c518; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="icon-bar">📡 🎬 📺</div>
+  <h1>Votación de Programas</h1>
+  <p class="sub1">Proyectos de Streaming · Evaluación entre pares</p>
+  <p class="sub2">TELEVISIÓN I · LA METRO</p>
+</div>
+
+<!-- QR + CONTADOR -->
+<div class="qr-row">
+  <div class="qr-wrap">
+    <div id="qr-box" onclick="abrirLightbox()" title="Clic para ampliar"></div>
+    <p class="qr-hint">↗ tocá para ampliar</p>
+  </div>
+
+  <div class="counter-block">
+    <p class="counter-label">Votos emitidos</p>
+    <div class="counter-number" id="counter-num">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+    <p class="counter-sub" id="counter-sub">de <strong id="counter-total">47</strong> estudiantes</p>
+    <p class="counter-total" id="counter-pct"></p>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
+  <div class="lightbox-inner" id="qr-large" onclick="event.stopPropagation()"></div>
+</div>
+
+<!-- PROGRAMAS -->
+<p class="section-title">Resultados por programa</p>
+
+<div class="cards-grid" id="cards-grid">
+  <!-- generado por JS -->
+</div>
+
+<button class="refresh-btn" onclick="cargarDatos()">↺ Actualizar datos</button>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5LAfBbRL1LqlGZ80mDWfENyVfiUtkTvL7CHrkpZtfOub2RQNvkp1a2eL7rAhESJF1/exec";
+const TOTAL_ESTUDIANTES = 47;
+
+const PROGRAMAS = [
+  { id: 1, nombre: "SinTonizame ésta",  emoji: "📺" },
+  { id: 2, nombre: "Poné la pava!",     emoji: "☕" },
+  { id: 3, nombre: "Sombras serranas",  emoji: "🏔️" },
+  { id: 4, nombre: "Locos X la Copa",   emoji: "⚽" }
+];
+
+let datosActuales = null;
+
+// --- QR ---
+new QRCode(document.getElementById("qr-box"), {
+  text: "http://elprofedenis.github.io/television/st.html",
+  width: 180,
+  height: 180,
+  colorDark: "#000000",
+  colorLight: "#ffffff",
+  correctLevel: QRCode.CorrectLevel.H
+});
+
+function abrirLightbox() {
+  const lb = document.getElementById("lightbox");
+  const container = document.getElementById("qr-large");
+  container.innerHTML = "";
+  new QRCode(container, {
+    text: "http://elprofedenis.github.io/television/st.html",
+    width: 420,
+    height: 420,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  lb.classList.add("open");
+}
+
+function cerrarLightbox() {
+  document.getElementById("lightbox").classList.remove("open");
+}
+
+// --- FLIP CARDS ---
+function buildCards(votos) {
+  const grid = document.getElementById("cards-grid");
+  grid.innerHTML = "";
+
+  PROGRAMAS.forEach((prog, i) => {
+    const d = votos ? votos[i] : null;
+    const v1 = d ? d.contenido : "—";
+    const v2 = d ? d.comercial : "—";
+    const v3 = d ? d.pitch : "—";
+    const total = d ? (d.contenido + d.comercial + d.pitch) : "—";
+
+    const card = document.createElement("div");
+    card.className = "flip-card";
+    card.id = `card-${prog.id}`;
+    card.innerHTML = `
+      <div class="flip-card-inner">
+        <div class="flip-front">
+          <p class="prog-num">Programa ${prog.id}</p>
+          <p class="prog-name">${prog.emoji} ${prog.nombre}</p>
+          <p class="flip-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4l8 8-8 8"/></svg>
+            Ver resultados
+          </p>
+        </div>
+        <div class="flip-back">
+          <p class="prog-name" style="font-size:0.95rem; margin-bottom:0.4rem;">${prog.emoji} ${prog.nombre}</p>
+          <p class="back-title">Votos recibidos</p>
+          <div class="vote-rows">
+            <div class="vote-row">
+              <span class="vote-cat">Mejor contenido</span>
+              <span class="vote-val">${v1}</span>
+            </div>
+            <div class="vote-row">
+              <span class="vote-cat">Potencial comercial</span>
+              <span class="vote-val">${v2}</span>
+            </div>
+            <div class="vote-row">
+              <span class="vote-cat">Pitch más convincente</span>
+              <span class="vote-val">${v3}</span>
+            </div>
+          </div>
+          <p class="back-total">Total <span>${total}</span></p>
+        </div>
+      </div>
+    `;
+    card.addEventListener("click", () => card.classList.toggle("flipped"));
+    grid.appendChild(card);
+  });
+}
+
+// --- CARGAR DATOS ---
+async function cargarDatos() {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + "?action=resultados&t=" + Date.now());
+    const data = await res.json();
+
+    // Contador de votantes
+    const votaron = data.votaron ?? 0;
+    const numEl = document.getElementById("counter-num");
+    animarContador(numEl, votaron);
+    document.getElementById("counter-pct").textContent =
+      Math.round((votaron / TOTAL_ESTUDIANTES) * 100) + "% de participación";
+
+    // Votos por programa
+    actualizarOCrearCards(data.votos);
+    datosActuales = data;
+
+  } catch(e) {
+    document.getElementById("counter-num").textContent = "?";
+    buildCards(null);
+    console.warn("Error al cargar datos:", e);
+  }
+}
+
+function animarContador(el, valor) {
+  el.innerHTML = valor;
+  el.classList.add("bump");
+  setTimeout(() => el.classList.remove("bump"), 350);
+}
+
+// Inicializar cards sin datos y luego cargar
+buildCards(null);
+
+function actualizarOCrearCards(votos) {
+  const existente = document.getElementById("card-1");
+  if (!existente) {
+    buildCards(votos);
+    return;
+  }
+  // Cards ya existen: solo actualizamos los valores sin tocar el estado flipped
+  PROGRAMAS.forEach((prog, i) => {
+    const d = votos ? votos[i] : null;
+    const v1 = d ? d.contenido : "—";
+    const v2 = d ? d.comercial : "—";
+    const v3 = d ? d.pitch : "—";
+    const total = d ? (d.contenido + d.comercial + d.pitch) : "—";
+    const card = document.getElementById("card-" + prog.id);
+    if (!card) return;
+    const vals = card.querySelectorAll(".vote-val");
+    if (vals[0]) vals[0].textContent = v1;
+    if (vals[1]) vals[1].textContent = v2;
+    if (vals[2]) vals[2].textContent = v3;
+    const bt = card.querySelector(".back-total span");
+    if (bt) bt.textContent = total;
+  });
+}
+
+cargarDatos();
+
+// Auto-refresh cada 30 segundos
+setInterval(cargarDatos, 30000);
+</script>
+</body>
+</html>
