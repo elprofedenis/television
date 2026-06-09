@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Votación Programas de Streaming</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d0d0d;
+    color: #f0f0f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .header .icon-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #f5c518;
+    margin-bottom: 0.3rem;
+  }
+
+  .header p {
+    font-size: 0.85rem;
+    color: #888;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: #181818;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .card h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #f5c518;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card h2::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: #f5c518;
+    border-radius: 2px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  select, input[type="text"] {
+    width: 100%;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #f0f0f0;
+    font-size: 0.95rem;
+    padding: 0.65rem 0.9rem;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+  }
+
+  select:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: #f5c518;
+  }
+
+  select option {
+    background: #181818;
+    color: #f0f0f0;
+  }
+
+  .dni-wrapper {
+    position: relative;
+  }
+
+  .dni-wrapper input {
+    letter-spacing: 2px;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: #f5c518;
+    color: #0d0d0d;
+    border: none;
+    border-radius: 8px;
+    padding: 0.8rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.3px;
+    margin-top: 0.25rem;
+  }
+
+  .btn-primary:hover { background: #ffd740; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-primary:disabled {
+    background: #444;
+    color: #777;
+    cursor: not-allowed;
+  }
+
+  .error-msg {
+    display: none;
+    background: #2a1010;
+    border: 1px solid #7f1f1f;
+    color: #f47f7f;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-top: 0.75rem;
+  }
+
+  .error-msg.show { display: block; }
+
+  .notice {
+    background: #1a1a0a;
+    border: 1px solid #555520;
+    color: #c8c86a;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .notice strong { color: #f5c518; }
+
+  .question-label {
+    font-size: 0.95rem;
+    color: #ddd;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    line-height: 1.4;
+    display: block;
+  }
+
+  .question-sublabel {
+    font-size: 0.78rem;
+    color: #888;
+    margin-bottom: 0.6rem;
+    display: block;
+    font-style: italic;
+  }
+
+  .vote-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .vote-group:last-child { margin-bottom: 0; }
+
+  #step-login { display: block; }
+  #step-vote { display: none; }
+  #step-confirm { display: none; }
+
+  .confirm-card {
+    text-align: center;
+    padding: 3rem 1.75rem;
+  }
+
+  .confirm-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .confirm-card h2 {
+    font-size: 1.4rem;
+    color: #f5c518;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+  }
+
+  .confirm-card h2::before { display: none; }
+
+  .confirm-card p {
+    color: #aaa;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .voter-name-display {
+    font-size: 1rem;
+    color: #f5c518;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .program-tag {
+    display: inline-block;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 0.15rem 0.65rem;
+    font-size: 0.78rem;
+    color: #aaa;
+    margin-bottom: 1rem;
+  }
+
+  .summary-list {
+    text-align: left;
+    margin-top: 1.25rem;
+    background: #111;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    border: 1px solid #2a2a2a;
+  }
+
+  .summary-list div {
+    padding: 0.45rem 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #1e1e1e;
+    line-height: 1.4;
+  }
+
+  .summary-list div:last-child { border-bottom: none; }
+
+  .summary-list span.q-label {
+    display: block;
+    font-size: 0.72rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 2px;
+  }
+
+  .summary-list span.q-val {
+    color: #f5c518;
+    font-weight: 600;
+  }
+
+  .select-wrapper {
+    position: relative;
+  }
+
+  .select-wrapper::after {
+    content: '▾';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #666;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="icon-bar">📡 🎬 📺</div>
+    <h1>Votación de Programas</h1>
+    <p>Proyectos de Streaming · Evaluación entre pares</p>
+    <p>TELEVISIÓN I · LA METRO</p>
+  </div>
+
+  <!-- PASO 1: LOGIN -->
+  <div id="step-login">
+    <div class="card">
+      <h2>Identificación</h2>
+
+      <label for="select-nombre">Tu nombre</label>
+      <div class="select-wrapper">
+        <select id="select-nombre">
+          <option value="">— Seleccioná tu nombre —</option>
+        </select>
+      </div>
+
+      <label for="input-dni">DNI (sin puntos)</label>
+      <div class="dni-wrapper">
+        <input type="text" id="input-dni" placeholder="Ej: 47305501" maxlength="9" inputmode="numeric" />
+      </div>
+
+      <button class="btn-primary" onclick="verificarLogin()">Ingresar</button>
+      <div class="error-msg" id="login-error"></div>
+    </div>
+  </div>
+
+  <!-- PASO 2: VOTACIÓN -->
+  <div id="step-vote">
+    <div class="card">
+      <h2>Votante</h2>
+      <div class="voter-name-display" id="voter-display"></div>
+      <div id="voter-programa-tag"></div>
+    </div>
+
+    <div class="notice">
+      <strong>Recordá:</strong> Los tres votos pueden ser para el mismo programa. No podés votar al programa del que formas parte.
+    </div>
+
+    <div class="card">
+      <h2>Tus votos</h2>
+
+      <div class="vote-group">
+        <span class="question-label">🎯 Mejor propuesta de contenido</span>
+        <span class="question-sublabel">El programa que realmente verías</span>
+        <div class="select-wrapper">
+          <select id="voto1">
+            <option value="">— Elegí un programa —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vote-group">
+        <span class="question-label">💰 Proyecto con mayor potencial comercial</span>
+        <span class="question-sublabel">Si fueras dueño de un canal o sponsor, ¿en cuál invertirías?</span>
+        <div class="select-wrapper">
+          <select id="voto2">
+            <option value="">— Elegí un programa —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="vote-group">
+        <span class="question-label">🎤 Pitch más convincente</span>
+        <span class="question-sublabel">La exposición que mejor vendió la propuesta</span>
+        <div class="select-wrapper">
+          <select id="voto3">
+            <option value="">— Elegí un programa —</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="enviarVoto()">Enviar mi voto</button>
+      <div class="error-msg" id="vote-error"></div>
+    </div>
+  </div>
+
+  <!-- PASO 3: CONFIRMACIÓN -->
+  <div id="step-confirm">
+    <div class="card confirm-card">
+      <div class="confirm-icon">✅</div>
+      <h2>¡Voto registrado!</h2>
+      <p id="confirm-name-msg"></p>
+      <div class="summary-list" id="summary-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PROGRAMAS = [
+  { id: 1, nombre: "SinTonizame ésta" },
+  { id: 2, nombre: "Poné la pava!" },
+  { id: 3, nombre: "Sombras serranas" },
+  { id: 4, nombre: "Locos X la Copa" }
+];
+
+const NULL_OPTS = [
+  "No vería ninguno",
+  "No invertiría en ninguno",
+  "Ningún pitch me convenció / estuvieron todos iguales"
+];
+
+const ESTUDIANTES = [
+  { dni: "34792370", nombre: "EL PROFE CALVO", programa: null },
+
+  { dni: "47581334", nombre: "ALTAMIRANO, JULIÁN DAVID", programa: 2 },
+  { dni: "46311948", nombre: "ALTAMIRANO AREDES, JOAQUIN", programa: 2 },
+  { dni: "47004646", nombre: "BADARO MARGONARI, ROCIO MERCEDES", programa: 4 },
+  { dni: "45690374", nombre: "BASSINI JUAN, CATALINA", programa: 3 },
+  { dni: "47664356", nombre: "BERSANO, THIAGO", programa: 1 },
+  { dni: "47305501", nombre: "BERTORELLI DEL FABRO, CAMILA", programa: 3 },
+  { dni: "47466386", nombre: "BOTTA, DAVID EZEQUIEL", programa: 3 },
+  { dni: "46126944", nombre: "CAÑARTE PAGANI, JULIETA", programa: 1 },
+  { dni: "45086307", nombre: "CASALI, JUAN DIEGO", programa: null },
+  { dni: "47001362", nombre: "CASAS JACAMO, ROSARIO BERENICE", programa: 2 },
+  { dni: "43525594", nombre: "CHAVERO ALTAMIRANO, XIMENA DANIELA", programa: 1 },
+  { dni: "47497097", nombre: "FAORO MIRANDA, BRUNO", programa: 3 },
+  { dni: "52096934", nombre: "FERNANDEZ SOTO, SOFIA", programa: 3 },
+  { dni: "46709003", nombre: "FERRARIO, SANTIAGO", programa: 4 },
+  { dni: "47579675", nombre: "GALLEANO, SOFIA", programa: 2 },
+  { dni: "42077565", nombre: "GALVAN, DANA LOURDES", programa: 1 },
+  { dni: "47629608", nombre: "GERA, TOMAS IGNACIO", programa: null },
+  { dni: "47463767", nombre: "GINGINS, ALEJO", programa: 2 },
+  { dni: "47305001", nombre: "GITTO OVIEDO, PHOEBE", programa: 2 },
+  { dni: "46657202", nombre: "GUALCO, VALENTINA", programa: null },
+  { dni: "44653105", nombre: "GUTIERREZ, MAXIMO TADEO", programa: null },
+  { dni: "47969782", nombre: "HALISKA, WENCESLAO FACUNDO", programa: 1 },
+  { dni: "45932636", nombre: "HERRERA, IGNACIO", programa: null },
+  { dni: "45273380", nombre: "LEIVA GUERRERO, JUAN IGNACIO", programa: null },
+  { dni: "47449878", nombre: "MANZANO, MICAELA MARIA", programa: 3 },
+  { dni: "42476361", nombre: "MARTINEZ HERRERA, LAUTARO", programa: 4 },
+  { dni: "44794675", nombre: "MENCHON, CANDELA", programa: 2 },
+  { dni: "47266131", nombre: "MUÑOZ, PEDRO ANDRES", programa: 4 },
+  { dni: "46483209", nombre: "MURACA, MAIA", programa: 2 },
+  { dni: "47351586", nombre: "NAVARRO, SANTIAGO", programa: 1 },
+  { dni: "46106729", nombre: "NEGRI SOUT, MARIA SOL", programa: 2 },
+  { dni: "47470498", nombre: "NITZ, BELEN MAGALI", programa: 2 },
+  { dni: "47483545", nombre: "NUÑEZ LIBREROS, SIMON", programa: 4 },
+  { dni: "47739499", nombre: "PENDINO, NICOLAS ESTEBAN", programa: 1 },
+  { dni: "47352905", nombre: "PETRONE, FRANCISCO MANUEL", programa: 1 },
+  { dni: "47576713", nombre: "PIRES VILLARROEL, GALA MICAELA", programa: 3 },
+  { dni: "47577329", nombre: "REYNOSO ADRIS, IGNACIO GUSTAVO", programa: 3 },
+  { dni: "46378136", nombre: "RIVERO GONZALEZ, ROCIO EUGENIA", programa: 3 },
+  { dni: "47149120", nombre: "SANCHEZ SLAMOVITS, LUCAS AGUSTIN", programa: 2 },
+  { dni: "47473936", nombre: "SEQUILÁN, FACUNDO MIQUEAS", programa: 4 },
+  { dni: "46845264", nombre: "STORNI, MARTINIANO ALEJANDRO", programa: 4 },
+  { dni: "46508190", nombre: "TORRES ARCANDO, FATIMA", programa: 3 },
+  { dni: "47822742", nombre: "TROGLIA, CATALINA", programa: 4 },
+  { dni: "46543210", nombre: "VACA, SANTIAGO JESUS RAUL", programa: 1 },
+  { dni: "45936236", nombre: "VALAZZA, LUCA", programa: 1 }
+];
+
+const votosEmitidos = new Set();
+let votanteActual = null;
+
+function init() {
+  const sel = document.getElementById('select-nombre');
+  const sorted = [...ESTUDIANTES].sort((a, b) => {
+    if (a.dni === "34792370") return -1;
+    if (b.dni === "34792370") return 1;
+    return a.nombre.localeCompare(b.nombre);
+  });
+  sorted.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.dni;
+    opt.textContent = e.nombre;
+    sel.appendChild(opt);
+  });
+}
+
+function verificarLogin() {
+  const dniSeleccionado = document.getElementById('select-nombre').value;
+  const dniIngresado = document.getElementById('input-dni').value.trim();
+  const err = document.getElementById('login-error');
+
+  err.classList.remove('show');
+
+  if (!dniSeleccionado) {
+    err.textContent = 'Por favor seleccioná tu nombre de la lista.';
+    err.classList.add('show');
+    return;
+  }
+
+  if (!dniIngresado) {
+    err.textContent = 'Por favor ingresá tu DNI.';
+    err.classList.add('show');
+    return;
+  }
+
+  if (dniIngresado !== dniSeleccionado) {
+    err.textContent = 'El DNI no coincide con el nombre seleccionado. Verificá los datos.';
+    err.classList.add('show');
+    return;
+  }
+
+  if (votosEmitidos.has(dniSeleccionado)) {
+    err.textContent = 'Este estudiante ya emitió su voto en esta sesión.';
+    err.classList.add('show');
+    return;
+  }
+
+  votanteActual = ESTUDIANTES.find(e => e.dni === dniSeleccionado);
+  mostrarVotacion();
+}
+
+function mostrarVotacion() {
+  document.getElementById('step-login').style.display = 'none';
+  document.getElementById('step-vote').style.display = 'block';
+
+  const display = document.getElementById('voter-display');
+  display.textContent = votanteActual.nombre;
+
+  const tagEl = document.getElementById('voter-programa-tag');
+  if (votanteActual.programa) {
+    const pNombre = PROGRAMAS.find(p => p.id === votanteActual.programa).nombre;
+    tagEl.innerHTML = `<span class="program-tag">Programa ${votanteActual.programa}: ${pNombre}</span>`;
+  } else {
+    tagEl.innerHTML = `<span class="program-tag">Sin grupo asignado</span>`;
+  }
+
+  const programasDisponibles = PROGRAMAS.filter(p => p.id !== votanteActual.programa);
+
+  ['voto1', 'voto2', 'voto3'].forEach((id, i) => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">— Elegí un programa —</option>';
+    programasDisponibles.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.nombre;
+      sel.appendChild(opt);
+    });
+    const noneOpt = document.createElement('option');
+    noneOpt.value = 'none';
+    noneOpt.textContent = NULL_OPTS[i];
+    sel.appendChild(noneOpt);
+  });
+}
+
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5LAfBbRL1LqlGZ80mDWfENyVfiUtkTvL7CHrkpZtfOub2RQNvkp1a2eL7rAhESJF1/exec";
+
+async function enviarVoto() {
+  const v1 = document.getElementById('voto1').value;
+  const v2 = document.getElementById('voto2').value;
+  const v3 = document.getElementById('voto3').value;
+  const err = document.getElementById('vote-error');
+  const btn = document.querySelector('#step-vote .btn-primary');
+
+  err.classList.remove('show');
+
+  if (!v1 || !v2 || !v3) {
+    err.textContent = 'Por favor respondé las tres preguntas antes de enviar.';
+    err.classList.add('show');
+    return;
+  }
+
+  const getLabel = (val, idx) => {
+    if (val === 'none') return NULL_OPTS[idx];
+    const p = PROGRAMAS.find(p => p.id == val);
+    return p.nombre;
+  };
+
+  const payload = {
+    dni: votanteActual.dni,
+    nombre: votanteActual.nombre,
+    programa: votanteActual.programa ? PROGRAMAS.find(p => p.id === votanteActual.programa).nombre : "Sin grupo",
+    voto1: getLabel(v1, 0),
+    voto2: getLabel(v2, 1),
+    voto3: getLabel(v3, 2),
+    timestamp: new Date().toLocaleString('es-AR')
+  };
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {
+    console.warn('Error al enviar al servidor:', e);
+  }
+
+  votosEmitidos.add(votanteActual.dni);
+
+  document.getElementById('step-vote').style.display = 'none';
+  document.getElementById('step-confirm').style.display = 'block';
+
+  const partes = votanteActual.nombre.split(',');
+  const primerNombre = partes.length > 1 ? partes[1].trim().split(' ')[0] : partes[0].trim();
+  document.getElementById('confirm-name-msg').textContent =
+    `¡Excelente, ${primerNombre}! Tu voto fue registrado.`;
+
+  const summary = document.getElementById('summary-list');
+  summary.innerHTML = `
+    <div>
+      <span class="q-label">Mejor propuesta de contenido</span>
+      <span class="q-val">${payload.voto1}</span>
+    </div>
+    <div>
+      <span class="q-label">Mayor potencial comercial</span>
+      <span class="q-val">${payload.voto2}</span>
+    </div>
+    <div>
+      <span class="q-label">Pitch más convincente</span>
+      <span class="q-val">${payload.voto3}</span>
+    </div>
+  `;
+
+  btn.disabled = false;
+  btn.textContent = 'Enviar mi voto';
+  votanteActual = null;
+}
+
+init();
+</script>
+</body>
+</html>
