@@ -472,10 +472,11 @@ function init() {
   });
 }
 
-function verificarLogin() {
+async function verificarLogin() {
   const dniSeleccionado = document.getElementById('select-nombre').value;
   const dniIngresado = document.getElementById('input-dni').value.trim();
   const err = document.getElementById('login-error');
+  const btn = document.querySelector('#step-login .btn-primary');
 
   err.classList.remove('show');
 
@@ -497,11 +498,28 @@ function verificarLogin() {
     return;
   }
 
-  if (votosEmitidos.has(dniSeleccionado)) {
-    err.textContent = 'Este estudiante ya emitió su voto en esta sesión.';
-    err.classList.add('show');
-    return;
+  // Verificar en el Sheet si ya votó
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=verificar&dni=' + dniSeleccionado + '&t=' + Date.now());
+    const data = await res.json();
+
+    if (data.yaVoto) {
+      err.innerHTML = '✅ <strong>' + ESTUDIANTES.find(e => e.dni === dniSeleccionado).nombre + '</strong> ya emitió su voto. ¡Gracias por participar!';
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Ingresar';
+      return;
+    }
+  } catch(e) {
+    // Si falla la verificación remota, dejar pasar (fallback)
+    console.warn('No se pudo verificar en el servidor:', e);
   }
+
+  btn.disabled = false;
+  btn.textContent = 'Ingresar';
 
   votanteActual = ESTUDIANTES.find(e => e.dni === dniSeleccionado);
   mostrarVotacion();
