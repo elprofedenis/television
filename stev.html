@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Evaluación 360° — Televisión I</title>
+<style>
+  :root{
+    --bg: #0e1116;
+    --panel: #161a22;
+    --panel-2: #1d212b;
+    --line: #2a2f3a;
+    --ink: #eef1f6;
+    --ink-dim: #9aa3b2;
+    --accent: #ff5b3d;     /* tally/REC red-orange */
+    --accent-2: #ffb400;   /* cue yellow */
+    --good: #3ddc97;
+    --font-display: 'Bebas Neue', 'Arial Narrow', sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+  @font-face{
+    font-family:'Bebas Neue';
+    src: local('Bebas Neue');
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,91,61,0.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(61,220,151,0.06), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  .scanline{
+    position:fixed; inset:0; pointer-events:none; z-index:50;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 2px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  header{
+    padding:28px 20px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .tally{
+    width:14px;height:14px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 14px 2px rgba(255,91,61,0.65);
+    animation:pulse 1.8s ease-in-out infinite;
+    flex-shrink:0;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .brand h1{
+    font-family:var(--font-display);
+    font-size:28px; letter-spacing:0.08em; margin:0;
+    text-transform:uppercase;
+  }
+  .brand span{color:var(--accent);}
+  .sub{
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-dim);
+    letter-spacing:0.12em; text-transform:uppercase;
+  }
+  main{max-width:880px; margin:0 auto; padding:36px 20px;}
+
+  /* ---------- LOGIN ---------- */
+  .login-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:36px 30px;
+    position:relative;
+    overflow:hidden;
+  }
+  .login-card::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11px; color:var(--accent-2);
+    letter-spacing:0.16em; text-transform:uppercase; margin-bottom:8px;
+  }
+  .login-card h2{
+    font-family:var(--font-display); font-size:32px; letter-spacing:0.03em;
+    margin:0 0 6px; text-transform:uppercase;
+  }
+  .login-card p.desc{color:var(--ink-dim); font-size:14.5px; line-height:1.55; margin:0 0 26px; max-width:54ch;}
+  label{
+    display:block; font-family:var(--font-mono); font-size:11px;
+    color:var(--ink-dim); letter-spacing:0.1em; text-transform:uppercase;
+    margin-bottom:7px;
+  }
+  select, input[type=text], input[type=password]{
+    width:100%; background:var(--panel-2); border:1px solid var(--line);
+    color:var(--ink); padding:13px 14px; border-radius:8px;
+    font-family:var(--font-body); font-size:15px; outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  select:focus, input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(255,91,61,0.15);
+  }
+  .field{margin-bottom:18px;}
+  .btn{
+    appearance:none; border:none; cursor:pointer;
+    font-family:var(--font-mono); font-size:13px; letter-spacing:0.08em; text-transform:uppercase;
+    padding:14px 22px; border-radius:8px; font-weight:600;
+    background:var(--accent); color:#1a0a05;
+    transition:transform .12s, box-shadow .12s, opacity .12s;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 6px 18px rgba(255,91,61,0.3);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn-ghost{
+    background:transparent; border:1px solid var(--line); color:var(--ink);
+  }
+  .btn-ghost:hover{border-color:var(--accent); box-shadow:none;}
+  .error-msg{
+    margin-top:14px; padding:11px 14px; border-radius:8px;
+    background:rgba(255,91,61,0.1); border:1px solid rgba(255,91,61,0.35);
+    color:#ffb3a3; font-size:13.5px; display:none; font-family:var(--font-mono);
+  }
+  .error-msg.show{display:block;}
+
+  /* ---------- MODAL DNI ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:100;
+    background:rgba(8,9,12,0.72);
+    backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+    animation:fadeIn .15s ease-out;
+  }
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+  .modal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:32px 28px; max-width:420px; width:100%; position:relative; overflow:hidden;
+    animation:slideUp .18s ease-out;
+  }
+  @keyframes slideUp{from{transform:translateY(14px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+  .modal-card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+  .modal-card h2{
+    font-family:var(--font-display); font-size:24px; letter-spacing:.03em;
+    margin:0 0 6px; text-transform:uppercase; color:var(--ink);
+  }
+  .modal-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:6px;}
+
+  /* ---------- IDENT BAR ---------- */
+  .ident-bar{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px 20px; margin-bottom:28px; gap:16px; flex-wrap:wrap;
+  }
+  .ident-bar .who{display:flex; align-items:center; gap:14px;}
+  .avatar-chip{
+    width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display); font-size:18px; color:#1a0a05; flex-shrink:0;
+  }
+  .who h3{margin:0; font-size:16px;}
+  .who .meta{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim); letter-spacing:.05em;}
+  .tag{
+    display:inline-block; padding:3px 9px; border-radius:20px;
+    background:rgba(61,220,151,0.12); border:1px solid rgba(61,220,151,0.3);
+    color:var(--good); font-family:var(--font-mono); font-size:10.5px;
+    letter-spacing:.08em; text-transform:uppercase; margin-right:6px;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  .section{margin-bottom:30px;}
+  .section-head{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:4px;
+  }
+  .section-num{
+    font-family:var(--font-display); font-size:15px; color:var(--accent);
+    letter-spacing:.05em;
+  }
+  .section-head h3{
+    font-family:var(--font-display); font-size:21px; letter-spacing:.03em;
+    text-transform:uppercase; margin:0;
+  }
+  .section-desc{color:var(--ink-dim); font-size:13px; margin:2px 0 16px; line-height:1.5;}
+
+  .person-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:18px 20px; margin-bottom:12px;
+  }
+  .person-card .pname{font-size:15.5px; font-weight:600; margin-bottom:1px;}
+  .person-card .prole{
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-dim);
+    letter-spacing:.06em; text-transform:uppercase; margin-bottom:14px;
+  }
+  .crit{margin-bottom:12px;}
+  .crit:last-child{margin-bottom:0;}
+  .crit-label{font-size:13px; color:var(--ink-dim); margin-bottom:6px; display:flex; justify-content:space-between;}
+  .crit-label .val{font-family:var(--font-mono); color:var(--accent-2); font-weight:600;}
+  .stars{display:flex; gap:4px; flex-wrap:wrap;}
+  .star{
+    cursor:pointer; font-size:25px; line-height:1; user-select:none;
+    color:#3a4150; transition:color .1s, transform .1s;
+  }
+  .star.lit{color:var(--accent-2); text-shadow:0 0 10px rgba(255,180,0,0.45);}
+  .star:hover{transform:scale(1.15);}
+
+  .submit-bar{
+    position:sticky; bottom:0; margin-top:36px;
+    background:linear-gradient(to top, var(--bg) 60%, transparent);
+    padding:24px 0 8px;
+  }
+  .submit-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .progress-txt{font-family:var(--font-mono); font-size:12px; color:var(--ink-dim);}
+  .progress-txt b{color:var(--good);}
+
+  /* ---------- DONE SCREEN ---------- */
+  .done-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:40px 32px; text-align:center;
+  }
+  .done-icon{
+    width:64px;height:64px;border-radius:50%; margin:0 auto 18px;
+    background:rgba(61,220,151,0.12); border:1px solid rgba(61,220,151,0.4);
+    display:flex; align-items:center; justify-content:center; font-size:30px; color:var(--good);
+  }
+  .done-card h2{font-family:var(--font-display); font-size:28px; letter-spacing:.03em; margin:0 0 8px; text-transform:uppercase;}
+  .done-card p{color:var(--ink-dim); font-size:14.5px; line-height:1.6; max-width:48ch; margin:0 auto 24px;}
+  .file-pill{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12.5px;
+    background:var(--panel-2); border:1px solid var(--line); padding:8px 14px; border-radius:8px; color:var(--ink-dim);
+    margin-bottom:24px;
+  }
+  .actions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
+
+  footer{
+    text-align:center; padding:30px 20px 10px; color:var(--ink-dim);
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.06em;
+  }
+  .hidden{display:none !important;}
+  @media (max-width:560px){
+    .login-card{padding:26px 20px;}
+    .brand h1{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<header>
+  <div class="brand">
+    <div class="tally"></div>
+    <h1>EVALUACIÓN <span>360°</span></h1>
+  </div>
+  <div class="sub">Televisión I · Programas de streaming</div>
+</header>
+
+<main>
+
+  <!-- ===== PANTALLA LOGIN ===== -->
+  <section id="screen-login" class="login-card">
+    <div class="eyebrow">Acceso</div>
+    <h2>Identificate</h2>
+    <p class="desc">Elegí tu nombre de la lista. Te vamos a pedir tu DNI para confirmar que sos vos.</p>
+
+    <div class="field">
+      <label for="nombre-select">Tu nombre</label>
+      <select id="nombre-select">
+        <option value="">— Seleccioná tu nombre —</option>
+      </select>
+    </div>
+
+    <div class="error-msg" id="login-error"></div>
+  </section>
+
+  <!-- ===== MODAL DNI ===== -->
+  <div class="modal-overlay hidden" id="dni-modal-overlay">
+    <div class="modal-card">
+      <div class="eyebrow">Verificación</div>
+      <h2 id="modal-name-display">—</h2>
+      <p class="desc">Para confirmar que sos vos, escribí tu DNI (sin puntos).</p>
+      <div class="field">
+        <label for="dni-modal-input">DNI</label>
+        <input type="text" id="dni-modal-input" inputmode="numeric" placeholder="Ej: 47581334" maxlength="9" autocomplete="off" />
+      </div>
+      <div class="error-msg" id="modal-error"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btn-modal-cancel">Cancelar</button>
+        <button class="btn" id="btn-modal-confirm">Confirmar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANTALLA EVALUACIÓN ===== -->
+  <section id="screen-eval" class="hidden">
+
+    <div class="ident-bar">
+      <div class="who">
+        <div class="avatar-chip" id="avatar-initials">--</div>
+        <div>
+          <h3 id="ident-name">—</h3>
+          <div class="meta"><span id="ident-group">—</span> · <span id="ident-role">—</span></div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" id="btn-logout">Cambiar usuario</button>
+    </div>
+
+    <div id="sections-container"></div>
+
+    <div class="section" id="destacado-section">
+      <div class="section-head">
+        <span class="section-num" id="destacado-num">·</span>
+        <h3>Compañero/a a destacar</h3>
+      </div>
+      <p class="section-desc">Si alguien de tu grupo se destacó por su dedicación, podés reconocerlo/a acá. Esa persona podrá recibir hasta 1 punto extra. Es opcional.</p>
+      <div class="person-card">
+        <label for="destacado-select">Elegí a quién destacar (o dejalo sin marcar)</label>
+        <select id="destacado-select" style="margin-top:8px;">
+          <option value="">— No destacar a nadie —</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="submit-bar">
+      <div class="submit-card">
+        <div>
+          <div class="progress-txt" id="progress-txt">0 de 0 evaluaciones completas</div>
+          <div class="progress-txt" id="send-status" style="margin-top:4px;"></div>
+        </div>
+        <button class="btn" id="btn-submit" disabled>Enviar evaluación</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PANTALLA FINAL ===== -->
+  <section id="screen-done" class="hidden">
+    <div class="done-card">
+      <div class="done-icon">✓</div>
+      <h2 id="done-title">Evaluación enviada</h2>
+      <p id="done-desc">Tu evaluación se registró correctamente. ¡Gracias por completar la entrega!</p>
+      <div class="file-pill hidden" id="file-name-pill">📄 evaluacion_....json</div>
+      <div class="actions">
+        <button class="btn btn-ghost hidden" id="btn-download-again">Descargar copia local</button>
+        <button class="btn" id="btn-restart">Volver al inicio</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Televisión I — Evaluación entre pares</footer>
+
+<script>
+/* ============== CONFIG ============== */
+// Pegá acá la URL de tu Web App de Apps Script (Implementar > Nueva implementación > Aplicación web)
+// Tiene que terminar en /exec
+const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwH1u5hWSPi30fG9kJu7AILIjP161cwBIt1iBNA7QY5mI04WqwloQMog4Sm0HoOJjn5/exec";
+
+/* ============== DATOS ============== */
+// ROSTER — Televisión I — Evaluación transversal
+// group: nombre del programa, o "GRUPO CERO" para coordinadores
+const ROSTER = [
+  // ===== DOCENTE =====
+  { dni: "34792370", name: "MOLINA, DENIS GUSTAVO", group: "DOCENCIA", role: "Profesor" },
+
+  // ===== GRUPO CERO (Coordinadores) =====
+  { dni: "46657202", name: "GUALCO, VALENTINA", group: "GRUPO CERO", role: "Producción" },
+  { dni: "45932636", name: "HERRERA, IGNACIO", group: "GRUPO CERO", role: "Sonido" },
+  { dni: "47629608", name: "GERA, TOMAS IGNACIO", group: "GRUPO CERO", role: "Sonido" },
+  { dni: "44653105", name: "GUTIERREZ, MAXIMO TADEO", group: "GRUPO CERO", role: "Arte" },
+  { dni: "45086307", name: "CASALI, JUAN DIEGO", group: "GRUPO CERO", role: "Foto" },
+
+  // ===== Sintonizame ésta =====
+  { dni: "47969782", name: "HALISKA, WENCESLAO FACUNDO", group: "Sintonizame ésta", role: "Dirección" },
+  { dni: "46126944", name: "CAÑARTE PAGANI, JULIETA", group: "Sintonizame ésta", role: "Producción" },
+  { dni: "42077565", name: "GALVAN, DANA LOURDES", group: "Sintonizame ésta", role: "Producción" },
+  { dni: "45936236", name: "VALAZZA, LUCA", group: "Sintonizame ésta", role: "Playback" },
+  { dni: "46543210", name: "VACA, SANTIAGO JESUS RAUL", group: "Sintonizame ésta", role: "Sonido" },
+  { dni: "43525594", name: "CHAVERO ALTAMIRANO, XIMENA DANIELA", group: "Sintonizame ésta", role: "Arte" },
+  { dni: "47351586", name: "NAVARRO, SANTIAGO", group: "Sintonizame ésta", role: "Arte" },
+  { dni: "47352905", name: "PETRONE, FRANCISCO MANUEL", group: "Sintonizame ésta", role: "Foto" },
+  { dni: "47664356", name: "BERSANO, THIAGO", group: "Sintonizame ésta", role: "Foto" },
+  { dni: "47739499", name: "PENDINO, NICOLAS ESTEBAN", group: "Sintonizame ésta", role: "Data manager" },
+
+  // ===== Poné la pava =====
+  { dni: "46311948", name: "ALTAMIRANO AREDES, JOAQUIN", group: "Poné la pava", role: "Dirección" },
+  { dni: "47581334", name: "ALTAMIRANO, JULIÁN DAVID", group: "Poné la pava", role: "Producción" },
+  { dni: "46106729", name: "NEGRI SOUT, MARIA SOL", group: "Poné la pava", role: "Producción" },
+  { dni: "47305001", name: "GITTO OVIEDO, PHOEBE", group: "Poné la pava", role: "Playback" },
+  { dni: "47149120", name: "SANCHEZ SLAMOVITS, LUCAS AGUSTIN", group: "Poné la pava", role: "Sonido" },
+  { dni: "47470498", name: "NITZ, BELEN MAGALI", group: "Poné la pava", role: "Arte" },
+  { dni: "46483209", name: "MURACA, MAIA", group: "Poné la pava", role: "Arte" },
+  { dni: "47463767", name: "GINGINS, ALEJO", group: "Poné la pava", role: "Foto" },
+  { dni: "47001362", name: "CASAS JACAMO, ROSARIO BERENICE", group: "Poné la pava", role: "Foto" },
+  { dni: "44794675", name: "MENCHON, CANDELA", group: "Poné la pava", role: "Data manager" },
+
+  // ===== Sombras serranas =====
+  { dni: "52096934", name: "FERNANDEZ SOTO, SOFIA", group: "Sombras serranas", role: "Dirección" },
+  { dni: "47305501", name: "BERTORELLI DEL FABRO, CAMILA", group: "Sombras serranas", role: "Producción" },
+  { dni: "47576713", name: "PIRES VILLARROEL, GALA MICAELA", group: "Sombras serranas", role: "Producción" },
+  { dni: "47449878", name: "MANZANO, MICAELA MARIA", group: "Sombras serranas", role: "Playback" },
+  { dni: "46508190", name: "TORRES ARCANDO, FATIMA", group: "Sombras serranas", role: "Sonido" },
+  { dni: "46378136", name: "RIVERO GONZALEZ, ROCIO EUGENIA", group: "Sombras serranas", role: "Arte" },
+  { dni: "47497097", name: "FAORO MIRANDA, BRUNO", group: "Sombras serranas", role: "Arte" },
+  { dni: "45690374", name: "BASSINI JUAN, CATALINA", group: "Sombras serranas", role: "Foto" },
+  { dni: "47466386", name: "BOTTA, DAVID EZEQUIEL", group: "Sombras serranas", role: "Foto" },
+  { dni: "47577329", name: "REYNOSO ADRIS, IGNACIO GUSTAVO", group: "Sombras serranas", role: "Data manager" },
+
+  // ===== Locos por la copa =====
+  { dni: "46709003", name: "FERRARIO, SANTIAGO", group: "Locos por la copa", role: "Dirección" },
+  { dni: "47579675", name: "GALLEANO, SOFIA", group: "Locos por la copa", role: "Producción" },
+  { dni: "47483545", name: "NUÑEZ LIBREROS, SIMON", group: "Locos por la copa", role: "Producción" },
+  { dni: "45488450", name: "LEIBOVICH, MARIANO", group: "Locos por la copa", role: "Playback" },
+  { dni: "47266131", name: "MUÑOZ, PEDRO ANDRES", group: "Locos por la copa", role: "Sonido" },
+  { dni: "47004646", name: "BADARO MARGONARI, ROCIO MERCEDES", group: "Locos por la copa", role: "Arte" },
+  { dni: "47822742", name: "TROGLIA, CATALINA", group: "Locos por la copa", role: "Arte" },
+  { dni: "47473936", name: "SEQUILÁN, FACUNDO MIQUEAS", group: "Locos por la copa", role: "Foto" },
+  { dni: "46845264", name: "STORNI, MARTINIANO ALEJANDRO", group: "Locos por la copa", role: "Foto" },
+  { dni: "42476361", name: "MARTINEZ HERRERA, LAUTARO", group: "Locos por la copa", role: "Data manager" },
+];
+
+const PROGRAMAS = ["Sintonizame ésta", "Poné la pava", "Sombras serranas", "Locos por la copa"];
+const TODOS_LOS_GRUPOS = ["GRUPO CERO", ...PROGRAMAS];
+
+// Devuelve la lista de personas que el "persona" debe evaluar, y la escala (max estrellas)
+function getEvaluatees(persona) {
+  if (persona.group === "GRUPO CERO") {
+    const companerosGrupoCero = ROSTER.filter(
+      (p) => p.group === "GRUPO CERO" && p.dni !== persona.dni
+    );
+    const mismoRolOtrosProgramas = ROSTER.filter(
+      (p) => p.role === persona.role && p.group !== "GRUPO CERO"
+    );
+    return {
+      companerosGrupoCero,
+      mismoRolOtrosProgramas,
+      esGrupoCero: true,
+    };
+  }
+
+  const equipo = ROSTER.filter((p) => p.group === persona.group && p.dni !== persona.dni);
+  const coordinadores = ROSTER.filter((p) => p.group === "GRUPO CERO" && p.role === persona.role);
+  const mismoRolOtrosGrupos = ROSTER.filter(
+    (p) => p.role === persona.role && p.group !== persona.group && p.group !== "GRUPO CERO"
+  );
+
+  return {
+    equipo,
+    coordinadores,
+    mismoRolOtrosGrupos,
+    max: 5,
+    esGrupoCero: false,
+  };
+}
+
+
+/* ============== ESTADO ============== */
+let currentUser = null;
+let evalStructure = null; // resultado de getEvaluatees
+let ratings = {}; // dni -> {comunicacion, compromiso}
+
+/* ============== INIT ============== */
+const selectEl = document.getElementById('nombre-select');
+const docentes = ROSTER.filter(p => p.role === 'Profesor');
+const estudiantesOrdenados = ROSTER.filter(p => p.role !== 'Profesor')
+  .sort((a,b)=>a.name.localeCompare(b.name,'es'));
+[...docentes, ...estudiantesOrdenados].forEach(p=>{
+  const opt = document.createElement('option');
+  opt.value = p.dni;
+  opt.textContent = p.role === 'Profesor' ? `${p.name} (Docente)` : p.name;
+  selectEl.appendChild(opt);
+});
+
+document.getElementById('btn-logout').addEventListener('click', ()=>location.reload());
+document.getElementById('btn-restart').addEventListener('click', ()=>location.reload());
+document.getElementById('btn-submit').addEventListener('click', submitEvaluation);
+document.getElementById('btn-download-again').addEventListener('click', ()=>downloadJSON(lastPayload, lastFileName));
+
+const modalOverlay = document.getElementById('dni-modal-overlay');
+const modalNameDisplay = document.getElementById('modal-name-display');
+const modalInput = document.getElementById('dni-modal-input');
+const modalError = document.getElementById('modal-error');
+
+selectEl.addEventListener('change', ()=>{
+  document.getElementById('login-error').classList.remove('show');
+  if(!selectEl.value) return;
+  const persona = ROSTER.find(p=>p.dni === selectEl.value);
+  openDniModal(persona);
+});
+
+function openDniModal(persona){
+  modalNameDisplay.textContent = persona.name;
+  modalInput.value = '';
+  modalError.classList.remove('show');
+  modalOverlay.classList.remove('hidden');
+  setTimeout(()=>modalInput.focus(), 50);
+}
+
+function closeDniModal(resetSelect){
+  modalOverlay.classList.add('hidden');
+  if(resetSelect) selectEl.value = '';
+}
+
+document.getElementById('btn-modal-cancel').addEventListener('click', ()=>closeDniModal(true));
+document.getElementById('btn-modal-confirm').addEventListener('click', handleLogin);
+modalInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
+
+function handleLogin(){
+  const dniSel = selectEl.value;
+  const dniTyped = modalInput.value.trim();
+
+  if(!dniTyped){
+    modalError.textContent = 'Escribí tu DNI para verificar tu identidad.';
+    modalError.classList.add('show');
+    return;
+  }
+  const persona = ROSTER.find(p=>p.dni === dniSel);
+  if(!persona || persona.dni !== dniTyped.replace(/\D/g,'')){
+    modalError.textContent = 'El DNI no coincide con el nombre seleccionado. Revisalo e intentá de nuevo.';
+    modalError.classList.add('show');
+    return;
+  }
+
+  const confirmBtn = document.getElementById('btn-modal-confirm');
+  modalError.classList.remove('show');
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = 'Verificando…';
+
+  fetch(`${SHEET_WEBAPP_URL}?dni=${encodeURIComponent(persona.dni)}`)
+    .then(res => res.json())
+    .then(data => {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Confirmar →';
+      if (data && data.yaVoto) {
+        modalError.textContent = 'Ya enviaste tu evaluación anteriormente. No podés volver a votar.';
+        modalError.classList.add('show');
+        return;
+      }
+      currentUser = persona;
+      closeDniModal(false);
+      startEvaluation();
+    })
+    .catch(err => {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Confirmar →';
+      modalError.textContent = 'No pudimos verificar tu estado (revisá tu conexión). Probá de nuevo.';
+      modalError.classList.add('show');
+      console.error(err);
+    });
+}
+
+function initials(name){
+  const apellido = name.split(',')[0].trim();
+  return apellido.slice(0,2).toUpperCase();
+}
+
+function startEvaluation(){
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('screen-eval').classList.remove('hidden');
+
+  document.getElementById('avatar-initials').textContent = initials(currentUser.name);
+  document.getElementById('ident-name').textContent = currentUser.name;
+  document.getElementById('ident-group').textContent = currentUser.group;
+  document.getElementById('ident-role').textContent = currentUser.role;
+
+  if(currentUser.role === 'Profesor'){
+    startEvaluacionProfesor();
+    return;
+  }
+
+  evalStructure = getEvaluatees(currentUser);
+
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+  ratings = {};
+
+  if(evalStructure.esGrupoCero){
+    container.appendChild(renderSection({
+      num:'01', title:'Tus compañeros del Grupo Cero',
+      desc:`Evaluá a los demás coordinadores del Grupo Cero (todos los roles). Escala de 1 a 5 estrellas.`,
+      people: evalStructure.companerosGrupoCero, max: 5
+    }));
+    if(evalStructure.mismoRolOtrosProgramas.length){
+      container.appendChild(renderSection({
+        num:'02', title:`Mismo rol en los programas · ${currentUser.role}`,
+        desc:`Evaluá a quienes hicieron ${currentUser.role} en los 4 programas. Como integrante del Grupo Cero, podés calificar de 1 a 10 estrellas.`,
+        people: evalStructure.mismoRolOtrosProgramas, max: 10
+      }));
+    }
+  } else {
+    container.appendChild(renderSection({
+      num:'01', title:'Tu equipo',
+      desc:`Compañeros con los que grabaste "${currentUser.group}". Evaluación obligatoria para todos.`,
+      people: evalStructure.equipo, max: 5
+    }));
+    if(evalStructure.coordinadores.length){
+      container.appendChild(renderSection({
+        num:'02', title:'Tu coordinador/a',
+        desc:`Coordinador/a de ${currentUser.role} en el Grupo Cero.`,
+        people: evalStructure.coordinadores, max: 5
+      }));
+    }
+    if(evalStructure.mismoRolOtrosGrupos.length){
+      container.appendChild(renderSection({
+        num: evalStructure.coordinadores.length ? '03':'02',
+        title:`Otros equipos · rol ${currentUser.role}`,
+        desc:`Compañeros que hicieron ${currentUser.role} en los otros programas.`,
+        people: evalStructure.mismoRolOtrosGrupos, max: 5
+      }));
+    }
+  }
+
+  // Compañero/a a destacar: siempre los integrantes de TU propio grupo
+  // (el programa para alumnos de equipo, o el Grupo Cero para coordinadores)
+  const propioGrupo = evalStructure.esGrupoCero
+    ? evalStructure.companerosGrupoCero
+    : evalStructure.equipo;
+
+  const destacadoSelect = document.getElementById('destacado-select');
+  destacadoSelect.innerHTML = '<option value="">— No destacar a nadie —</option>';
+  propioGrupo
+    .slice()
+    .sort((a,b)=>a.name.localeCompare(b.name,'es'))
+    .forEach(p=>{
+      const opt = document.createElement('option');
+      opt.value = p.dni;
+      opt.textContent = `${p.name} (${p.role})`;
+      destacadoSelect.appendChild(opt);
+    });
+
+  const sectionsRendered = container.querySelectorAll('.section').length;
+  document.getElementById('destacado-num').textContent = String(sectionsRendered + 1).padStart(2,'0');
+
+  updateProgress();
+}
+
+function renderEmptyState(){
+  return `<div class="person-card" style="text-align:center; color:var(--ink-dim); padding:30px;">
+    No tenés a nadie para evaluar en esta categoría (sos el único/a coordinador/a de tu rol). Igual podés enviar tu evaluación.
+  </div>`;
+}
+
+function renderSection({num,title,desc,people,max}){
+  const sec = document.createElement('div');
+  sec.className = 'section';
+  sec.innerHTML = `
+    <div class="section-head">
+      <span class="section-num">${num}</span>
+      <h3>${title}</h3>
+    </div>
+    <p class="section-desc">${desc}</p>
+  `;
+  people.forEach(p=>{
+    if(!ratings[p.dni]) ratings[p.dni] = {comunicacion:0, compromiso:0, max, target:p};
+    sec.appendChild(renderPersonCard(p, max));
+  });
+  return sec;
+}
+
+function renderPersonCard(p, max){
+  const card = document.createElement('div');
+  card.className = 'person-card';
+  card.innerHTML = `
+    <div class="pname">${p.name}</div>
+    <div class="prole">${p.role} · ${p.group}</div>
+    <div class="crit">
+      <div class="crit-label"><span>Comunicación con el equipo</span><span class="val" data-val="${p.dni}-comunicacion">0/${max}</span></div>
+      <div class="stars" data-stars="${p.dni}-comunicacion" data-max="${max}"></div>
+    </div>
+    <div class="crit">
+      <div class="crit-label"><span>Compromiso y desempeño</span><span class="val" data-val="${p.dni}-compromiso">0/${max}</span></div>
+      <div class="stars" data-stars="${p.dni}-compromiso" data-max="${max}"></div>
+    </div>
+  `;
+  ['comunicacion','compromiso'].forEach(crit=>{
+    const starsEl = card.querySelector(`[data-stars="${p.dni}-${crit}"]`);
+    for(let i=1;i<=max;i++){
+      const s = document.createElement('span');
+      s.className = 'star';
+      s.textContent = '★';
+      s.dataset.value = i;
+      s.addEventListener('click', ()=>setRating(p.dni, crit, i, max));
+      starsEl.appendChild(s);
+    }
+  });
+  return card;
+}
+
+function setRating(dni, crit, value, max){
+  ratings[dni][crit] = value;
+  const starsEl = document.querySelector(`[data-stars="${dni}-${crit}"]`);
+  [...starsEl.children].forEach((s,idx)=>{
+    s.classList.toggle('lit', idx < value);
+  });
+  document.querySelector(`[data-val="${dni}-${crit}"]`).textContent = `${value}/${max}`;
+  updateProgress();
+}
+
+function updateProgress(){
+  const entries = Object.values(ratings);
+  const total = entries.length * 2;
+  let done = 0;
+  entries.forEach(r=>{
+    if(r.comunicacion > 0) done++;
+    if(r.compromiso > 0) done++;
+  });
+  document.getElementById('progress-txt').innerHTML = `<b>${done}</b> de ${total} calificaciones completas`;
+  document.getElementById('btn-submit').disabled = total > 0 ? done !== total : false;
+}
+
+/* ============== FLUJO DEL PROFESOR (califica grupos, no personas) ============== */
+let notasGrupales = {}; // grupo -> nota (1 a 10)
+
+function startEvaluacionProfesor(){
+  document.getElementById('destacado-section').classList.add('hidden');
+  notasGrupales = {};
+
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+
+  const sec = document.createElement('div');
+  sec.className = 'section';
+  sec.innerHTML = `
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h3>Calificación grupal</h3>
+    </div>
+    <p class="section-desc">Asigná una nota de 1 a 10 a cada equipo, según el trabajo grupal del cuatrimestre.</p>
+  `;
+
+  const opciones = Array.from({length:10}, (_,i)=>i+1)
+    .map(n=>`<option value="${n}">${n}</option>`).join('');
+
+  TODOS_LOS_GRUPOS.forEach(grupo=>{
+    const card = document.createElement('div');
+    card.className = 'person-card';
+    card.innerHTML = `
+      <div class="pname">${grupo}</div>
+      <div class="field" style="margin-top:12px; margin-bottom:0;">
+        <label>Nota grupal (1 a 10)</label>
+        <select data-grupo-select="${grupo}">
+          <option value="">— Elegí una nota —</option>
+          ${opciones}
+        </select>
+      </div>
+    `;
+    sec.appendChild(card);
+  });
+
+  container.appendChild(sec);
+
+  container.querySelectorAll('[data-grupo-select]').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      const grupo = e.target.getAttribute('data-grupo-select');
+      const val = e.target.value;
+      if(val) notasGrupales[grupo] = Number(val);
+      else delete notasGrupales[grupo];
+      updateProgressProfesor();
+    });
+  });
+
+  updateProgressProfesor();
+}
+
+function updateProgressProfesor(){
+  const total = TODOS_LOS_GRUPOS.length;
+  const done = Object.keys(notasGrupales).length;
+  document.getElementById('progress-txt').innerHTML = `<b>${done}</b> de ${total} equipos calificados`;
+  document.getElementById('btn-submit').disabled = done !== total;
+}
+
+function submitEvaluacionProfesor(){
+  const payload = {
+    tipo: 'docente',
+    evaluador: {
+      dni: currentUser.dni,
+      name: currentUser.name,
+      group: currentUser.group,
+      role: currentUser.role
+    },
+    timestamp: new Date().toISOString(),
+    notasGrupales: TODOS_LOS_GRUPOS.map(g => ({ grupo: g, nota: notasGrupales[g] }))
+  };
+
+  const btn = document.getElementById('btn-submit');
+  const statusEl = document.getElementById('send-status');
+  btn.disabled = true;
+  statusEl.textContent = 'Enviando notas grupales…';
+  statusEl.style.color = 'var(--ink-dim)';
+
+  fetch(SHEET_WEBAPP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data && data.status === 'ok'){
+      showDoneScreen();
+    } else if (data && data.status === 'ya_voto'){
+      statusEl.textContent = 'Ya habías cargado las notas grupales anteriormente.';
+      statusEl.style.color = '#ffb3a3';
+    } else {
+      throw new Error((data && data.message) || 'Respuesta inesperada del servidor');
+    }
+  })
+  .catch(err => {
+    statusEl.textContent = 'No se pudo enviar (revisá tu conexión). Volvé a intentar.';
+    statusEl.style.color = '#ffb3a3';
+    btn.disabled = false;
+    console.error(err);
+  });
+}
+
+let lastPayload = null;
+let lastFileName = null;
+
+function submitEvaluation(){
+  if(currentUser.role === 'Profesor'){
+    submitEvaluacionProfesor();
+    return;
+  }
+  const evaluaciones = Object.values(ratings).map(r=>({
+    target_dni: r.target.dni,
+    target_name: r.target.name,
+    target_group: r.target.group,
+    target_role: r.target.role,
+    comunicacion: r.comunicacion,
+    compromiso: r.compromiso,
+    escala_max: r.max
+  }));
+
+  const destacadoSelect = document.getElementById('destacado-select');
+  const destacadoDni = destacadoSelect.value;
+  let destacado = null;
+  if(destacadoDni){
+    const p = ROSTER.find(x=>x.dni === destacadoDni);
+    if(p) destacado = { dni: p.dni, name: p.name, group: p.group, role: p.role };
+  }
+
+  const payload = {
+    evaluador: {
+      dni: currentUser.dni,
+      name: currentUser.name,
+      group: currentUser.group,
+      role: currentUser.role
+    },
+    timestamp: new Date().toISOString(),
+    evaluaciones,
+    destacado
+  };
+
+  const fileName = `evaluacion_${currentUser.dni}_${currentUser.name.replace(/[^a-zA-Z0-9]/g,'_')}.json`;
+  lastPayload = payload;
+  lastFileName = fileName;
+
+  const btn = document.getElementById('btn-submit');
+  const statusEl = document.getElementById('send-status');
+  btn.disabled = true;
+  statusEl.textContent = 'Enviando tu evaluación…';
+  statusEl.style.color = 'var(--ink-dim)';
+
+  fetch(SHEET_WEBAPP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS contra Apps Script
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data && data.status === 'ok'){
+      showDoneScreen(true);
+    } else if (data && data.status === 'ya_voto'){
+      statusEl.textContent = 'Ya habías enviado tu evaluación anteriormente.';
+      statusEl.style.color = '#ffb3a3';
+      btn.disabled = true;
+    } else {
+      throw new Error((data && data.message) || 'Respuesta inesperada del servidor');
+    }
+  })
+  .catch(err => {
+    statusEl.textContent = 'No se pudo enviar (revisá tu conexión). Volvé a intentar.';
+    statusEl.style.color = '#ffb3a3';
+    btn.disabled = false;
+    console.error(err);
+  });
+}
+
+function showDoneScreen(){
+  document.getElementById('screen-eval').classList.add('hidden');
+  document.getElementById('screen-done').classList.remove('hidden');
+}
+
+function downloadJSON(payload, fileName){
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
