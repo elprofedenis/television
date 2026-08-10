@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Televisión II — Ingreso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/board.css" />
+</head>
+<body>
+
+  <div class="card">
+    <div class="card__topbar">
+      <span class="eyebrow">Televisión II</span>
+      <div class="tally" id="tally" data-state="login">
+        <span class="tally__dot"></span>
+        <span class="tally__label" id="tally-label">INGRESO</span>
+      </div>
+    </div>
+
+    <div class="card__body">
+
+      <!-- PANTALLA 1: LOGIN -->
+      <section id="screen-login">
+        <h1>Ingresá para reservar tu rol</h1>
+        <p class="subtitle">
+          Elegí tu nombre y confirmá con tu DNI. El docente tiene que aprobar
+          tu ingreso antes de que puedas ver los roles disponibles.
+        </p>
+
+        <div class="field">
+          <label for="selectNombre">Tu nombre</label>
+          <select id="selectNombre"></select>
+        </div>
+
+        <div class="field hidden" id="campoDni">
+          <label for="inputDni">DNI</label>
+          <input
+            type="password"
+            id="inputDni"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Sin puntos, solo números"
+          />
+          <p class="hint">Se usa como contraseña para confirmar que sos vos.</p>
+        </div>
+
+        <button class="btn-primary" id="btnIngresar">Ingresar</button>
+        <p class="error" id="errorLogin"></p>
+      </section>
+
+      <!-- PANTALLA 2: ESPERANDO APROBACIÓN DEL DOCENTE -->
+      <section id="screen-pendiente" class="hidden">
+        <div class="status-block">
+          <div class="spinner"></div>
+          <div class="eyebrow">Solicitud enviada</div>
+          <div class="status-name" id="nombrePendiente"></div>
+          <p class="subtitle" style="margin-bottom: 0">
+            Esperando que el docente apruebe tu ingreso. Dejá el celular
+            encendido y no cierres esta pantalla.
+          </p>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-link" id="btnCerrarSesion">No soy yo / cambiar nombre</button>
+        </div>
+      </section>
+
+      <!-- PANTALLA 3: APROBADO, ESPERANDO QUE SE HABILITE EL BOARD -->
+      <section id="screen-aprobado" class="hidden">
+        <div class="status-block">
+          <div class="spinner spinner--ok"></div>
+          <div class="eyebrow">Acceso aprobado</div>
+          <div class="status-name" id="nombreAprobado"></div>
+          <p class="subtitle" style="margin-bottom: 0">
+            Ya podés elegir tu rol. Esperá a que el docente habilite el
+            tablero para que aparezcan los grupos.
+          </p>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-link" id="btnCerrarSesion2">No soy yo / cambiar nombre</button>
+        </div>
+      </section>
+
+      <!-- PANTALLA 4: BOARD EN VIVO -->
+      <section id="screen-board-placeholder" class="hidden">
+        <div class="board-header">
+          <div>
+            <div class="eyebrow">En vivo</div>
+            <div class="status-name" id="nombreBoard" style="margin: 2px 0 0"></div>
+          </div>
+          <button class="btn-link" id="btnCerrarSesion3">Salir</button>
+        </div>
+
+        <p class="mi-seleccion" id="miSeleccion"></p>
+        <div class="board-banner" id="boardBanner"></div>
+
+        <div class="board-scroll">
+          <table class="board-table" id="boardTabla"></table>
+        </div>
+
+        <p class="hint board-hint">
+          Tocá un casillero libre para reservarlo. Solo podés tener un rol a
+          la vez — cancelalo si querés cambiar de elección.
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

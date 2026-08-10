@@ -1,0 +1,223 @@
+
+/* =========================================================
+   Panel docente — estilos adicionales (se suman a los de login)
+   ========================================================= */
+
+.admin-card {
+  max-width: 720px;
+}
+
+.admin-body {
+  padding: 24px 22px 28px;
+}
+
+.admin-section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  background: var(--panel-2);
+}
+
+.admin-section h2 {
+  font-family: "Oswald", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.counts {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.count {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.count__value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 22px;
+}
+
+.count__label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.count--pendiente .count__value {
+  color: var(--tally-pendiente);
+}
+.count--aprobado .count__value {
+  color: var(--tally-aprobado);
+}
+
+/* Switch de "habilitar board" */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch__track {
+  position: absolute;
+  inset: 0;
+  background: #0f1216;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.switch__track::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.switch input:checked + .switch__track {
+  background: rgba(228, 54, 47, 0.15);
+  border-color: var(--tally-en-vivo);
+}
+
+.switch input:checked + .switch__track::before {
+  transform: translateX(20px);
+  background: var(--tally-en-vivo);
+}
+
+.btn-small {
+  width: auto;
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.btn-outline:hover:not(:disabled) {
+  border-color: var(--tally-aprobado);
+}
+
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--tally-en-vivo);
+  color: var(--tally-en-vivo);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(228, 54, 47, 0.1);
+}
+
+/* Lista de accesos */
+.access-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.access-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #0f1216;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.access-row__info {
+  min-width: 0;
+}
+
+.access-row__nombre {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.access-row__meta {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.access-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.chip {
+  font-family: "Oswald", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.chip--pendiente {
+  color: var(--tally-pendiente);
+  background: rgba(242, 184, 75, 0.12);
+  border: 1px solid rgba(242, 184, 75, 0.35);
+}
+
+.chip--aprobado {
+  color: var(--tally-aprobado);
+  background: rgba(63, 199, 176, 0.12);
+  border: 1px solid rgba(63, 199, 176, 0.35);
+}
+
+.empty-state {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 18px 0;
+}
+
+.gate {
+  max-width: 340px;
+  margin: 0 auto;
+}

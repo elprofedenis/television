@@ -1,0 +1,291 @@
+:root {
+  --bg: #0b0d10;
+  --panel: #14171c;
+  --panel-2: #191d24;
+  --line: #262b33;
+  --text: #edeef0;
+  --muted: #8a919c;
+
+  --tally-login: #4c5666;
+  --tally-pendiente: #f2b84b;
+  --tally-aprobado: #3fc7b0;
+  --tally-en-vivo: #e4362f;
+
+  --grupo1: #5b8def;
+  --grupo2: #9b6bef;
+  --grupo3: #f2a65a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  background-image: radial-gradient(
+    circle at 50% -10%,
+    #1a2530 0%,
+    var(--bg) 55%
+  );
+  color: var(--text);
+  font-family: "Inter", system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.eyebrow {
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.card__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-2);
+}
+
+/* --- Luz de tally: el elemento firma de esta pantalla --- */
+.tally {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tally__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tally-login);
+  box-shadow: 0 0 0 0 currentColor;
+}
+
+.tally__label {
+  font-family: "Oswald", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tally[data-state="login"] .tally__dot {
+  background: var(--tally-login);
+  color: var(--tally-login);
+}
+.tally[data-state="pendiente"] .tally__dot {
+  background: var(--tally-pendiente);
+  color: var(--tally-pendiente);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.tally[data-state="aprobado"] .tally__dot {
+  background: var(--tally-aprobado);
+  color: var(--tally-aprobado);
+}
+.tally[data-state="en-vivo"] .tally__dot {
+  background: var(--tally-en-vivo);
+  color: var(--tally-en-vivo);
+  animation: pulse 1s ease-in-out infinite;
+}
+.tally[data-state="pendiente"] .tally__label,
+.tally[data-state="aprobado"] .tally__label,
+.tally[data-state="en-vivo"] .tally__label {
+  color: var(--text);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+    opacity: 0.55;
+  }
+}
+
+.card__body {
+  padding: 28px 24px 30px;
+}
+
+h1 {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 22px;
+  margin: 6px 0 4px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 22px;
+  line-height: 1.5;
+}
+
+label {
+  display: block;
+  font-family: "Oswald", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+select,
+input[type="password"] {
+  width: 100%;
+  background: #0f1216;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  outline: none;
+  appearance: none;
+}
+
+input[type="password"] {
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.12em;
+}
+
+select:focus,
+input[type="password"]:focus {
+  border-color: var(--tally-en-vivo);
+}
+
+.field {
+  margin-bottom: 18px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 13px 16px;
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.btn-primary {
+  background: var(--tally-en-vivo);
+  color: #0b0d10;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.btn-link {
+  width: auto;
+  background: transparent;
+  color: var(--muted);
+  text-transform: none;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  letter-spacing: normal;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.error {
+  color: var(--tally-en-vivo);
+  font-size: 13px;
+  min-height: 18px;
+  margin-top: 10px;
+}
+
+.status-block {
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+.status-name {
+  font-family: "Oswald", sans-serif;
+  font-size: 17px;
+  text-transform: uppercase;
+  margin: 4px 0 14px;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: var(--tally-pendiente);
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner--ok {
+  border-top-color: var(--tally-aprobado);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.footer-actions {
+  margin-top: 22px;
+  text-align: center;
+}
+
+@media (max-width: 380px) {
+  .card__body {
+    padding: 22px 18px 26px;
+  }
+}
