@@ -246,6 +246,49 @@
   margin-top: 2px;
 }
 
+.slot__quitar {
+  width: auto;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 10.5px;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-top: 2px;
+}
+
+.slot__quitar:hover {
+  color: var(--tally-en-vivo);
+}
+
+.slot__asignar {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 7px 6px;
+  border-radius: 6px;
+  appearance: none;
+}
+
+.slot__asignar:hover {
+  border-color: var(--tally-aprobado);
+  color: var(--text);
+}
+
+.slot__asignar:focus {
+  border-color: var(--tally-en-vivo);
+  outline: none;
+}
+
 .slot__cancelar {
   width: auto;
   background: transparent;

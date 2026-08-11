@@ -5,10 +5,42 @@
 
 .admin-card {
   max-width: 720px;
+  width: 100%;
 }
 
 .admin-body {
   padding: 24px 22px 28px;
+}
+
+.admin-columns {
+  display: block;
+}
+
+.admin-columns .admin-section {
+  margin-bottom: 18px;
+}
+
+/* En pantallas anchas (computadora): board arriba a todo el ancho,
+   control general + accesos lado a lado debajo. */
+@media (min-width: 860px) {
+  .admin-card {
+    max-width: 1240px;
+  }
+
+  .admin-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 18px;
+  }
+
+  .admin-columns .admin-section {
+    margin-bottom: 0;
+  }
+
+  .admin-section--board .board-scroll {
+    max-height: 72vh;
+  }
 }
 
 .admin-section {
