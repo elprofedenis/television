@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SER FM Carnerillo · Automatización v3</title>
+<style>
+  /* Paleta: fondo oscuro neutro + UN solo acento (naranja). Verde = en el aire, rojo = detener. */
+  :root{
+    --bg:#0e1014; --panel:#14171d; --panel2:#1a1e26; --panel3:#222732; --line:#262b37;
+    --ink:#eceef3; --mut:#8b92a3;
+    --acc:#f0903c; --acc2:#f5b27a;
+    --ok:#3ddc84; --bad:#e5556a;
+    --c-tanda:#7dbbe0; --c-prog:#e3b072;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;display:flex;flex-direction:column;overflow:hidden;color-scheme:dark}
+
+  /* Barra fija superior */
+  header{flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);align-items:center;gap:16px;padding:10px 22px;background:var(--panel);
+         border-bottom:1px solid var(--line);z-index:5}
+  .marca{font-weight:900;font-size:26px;letter-spacing:.5px;color:var(--ink)}
+  .tag{display:block;margin-top:1px;color:var(--acc);font-weight:700;letter-spacing:5px;font-size:12px;text-transform:uppercase}
+  .izq{min-width:0;white-space:nowrap}
+  .der{display:flex;align-items:center;justify-content:flex-end;gap:14px}
+  .centro{text-align:center;min-width:0}
+  .centro .l1{font-size:22px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut)}
+  .centro .l2{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .centro.verde .l1{color:var(--ok)} .centro.verde .l2{color:var(--mut)}
+  .centro.espera .l1{color:var(--acc2)}
+  #reloj{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+  .chip{padding:6px 14px;border-radius:999px;font-size:14px;font-weight:800;letter-spacing:1px;background:var(--panel3);color:var(--mut)}
+  .chip.on{background:rgba(61,220,132,.14);color:var(--ok)}
+
+  main{flex:1;min-height:0;display:flex;flex-direction:row;width:100%}
+  #vu{flex:none;position:relative;width:100px;background:#0b0d11;border-left:1px solid var(--line)}
+  #vu canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 22px;cursor:pointer;color:#1a1005;background:var(--acc);transition:transform .08s,filter .15s,background .15s}
+  button:hover{filter:brightness(1.1)} button:active{transform:scale(.97)}
+  button:disabled{opacity:.4;cursor:not-allowed;filter:none}
+  button.sec{background:var(--panel2);border:1px solid var(--line);color:var(--ink)}
+  button.peligro{background:var(--bad);color:#fff}
+  #btnActivar{font-size:16px;padding:10px 20px}
+
+  /* Lista */
+  .panel{flex:1 1 auto;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--panel);overflow:hidden}
+  .panel-h{flex:none;display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line)}
+  .panel-h h2{margin:0;font-size:18px;flex:1;display:flex;align-items:center;gap:10px}
+  .panel-h h2 svg{color:var(--mut);flex:none}
+  #btnNuevo{background:var(--panel2);border:1px solid var(--line);color:var(--ink)}
+  #lista{flex:1;min-height:0;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+  #lista::-webkit-scrollbar{width:12px} #lista::-webkit-scrollbar-track{background:transparent}
+  #lista::-webkit-scrollbar-thumb{background:#2e3443;border-radius:10px;border:3px solid var(--panel)}
+  .vacio{margin:auto;color:var(--mut);text-align:center;padding:30px;font-size:18px}
+
+  .item{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:5px 8px 5px 4px;min-height:46px;position:relative}
+  .item.play{border-color:rgba(61,220,132,.7);background:rgba(61,220,132,.08)}
+  .item.arrastrado{opacity:.35}
+  .item.ins-antes::before,.item.ins-despues::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--acc);border-radius:3px}
+  .item.ins-antes::before{top:-5px} .item.ins-despues::after{bottom:-5px}
+  .grip{flex:none;cursor:grab;color:#5b6273;font-size:22px;padding:2px 6px;user-select:none;line-height:1}
+  .grip:active{cursor:grabbing}
+  .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--panel3);color:var(--mut);display:grid;place-items:center;font-weight:800;font-size:13px}
+  .badge{flex:none;font-size:11px;font-weight:900;letter-spacing:1.5px;padding:4px 10px;border-radius:999px}
+  .b-radio{background:rgba(139,146,163,.15);color:#a9b0c0}
+  .b-tanda{background:rgba(125,187,224,.15);color:var(--c-tanda)}
+  .b-programa{background:rgba(227,176,114,.15);color:var(--c-prog)}
+  .tit{flex:0 1 auto;max-width:42%;font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sub{flex:1;min-width:0;color:var(--mut);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dias{flex:none;color:var(--mut);font-size:12px;font-weight:700;letter-spacing:.8px;white-space:nowrap}
+  .hora{flex:none;font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;padding:6px 12px;border-radius:10px;background:var(--panel3);color:var(--ink)}
+  .hora.sin{background:transparent;color:var(--mut);font-weight:600;font-size:13px;border:1px dashed var(--line)}
+  .cola{flex:none;background:rgba(240,144,60,.14);color:var(--acc2);font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px}
+  .acc{flex:none;display:flex;gap:6px}
+  .acc button{padding:7px 12px;font-size:15px;background:var(--panel3);border:1px solid var(--line);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;min-width:38px}
+  .acc button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .acc button.go{color:var(--ink)}
+  .acc button.stop{background:var(--bad);border:0;color:#fff}
+  .acc button[data-a="del"]:hover{color:var(--bad)}
+  /* Lo que suena: todo en verde */
+  .item.play .grip,.item.play .tit{color:var(--ok)}
+  .item.play .num{background:var(--ok);color:#04210f}
+  .item.play .badge{background:rgba(61,220,132,.16);color:var(--ok)}
+  .item.play .hora{background:rgba(61,220,132,.16);color:var(--ok)}
+  .ayuda{flex:none;padding:12px 20px;border-top:1px solid var(--line);color:var(--mut);font-size:14px;line-height:1.5}
+  .ayuda b{color:var(--ink)}
+
+  /* Ventanita */
+  #modal,.overlay{position:fixed;inset:0;background:rgba(5,6,9,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+  .caja{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px;width:100%;max-width:520px;max-height:94vh;overflow:auto}
+  .caja h3{margin:0 0 18px;font-size:24px;color:var(--ink)}
+  label.f{display:block;margin:14px 0 6px;color:var(--mut);font-size:14px;font-weight:700;letter-spacing:.5px}
+  select,input[type=text],input[type=number],input[type=time]{width:100%;font:inherit;font-size:18px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;outline:none}
+  select:focus,input:focus{border-color:var(--acc)}
+  .hrow{display:flex;gap:10px;align-items:center}
+  .hrow input{flex:1}
+  .dias-sel{display:flex;gap:6px;transition:opacity .15s}
+  .dias-sel.off{opacity:.4}
+  .dias-sel button.dia{flex:1;min-width:0;padding:10px 0;font-size:13px;letter-spacing:.5px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--mut)}
+  .dias-sel button.dia.on{background:rgba(240,144,60,.16);border-color:var(--acc);color:var(--acc2)}
+  .diasnota{margin-top:6px;color:var(--mut);font-size:13px}
+  .pie{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+  .infoarch{margin-top:8px;color:var(--mut);font-size:14px}
+  .oculto{display:none}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel3);border:1px solid var(--line);color:var(--ink);padding:12px 20px;border-radius:14px;display:none;z-index:30;max-width:90vw}
+  @media(max-width:800px){.sub,.centro .l2{display:none}.marca{font-size:17px}.tag{letter-spacing:3px}.centro .l1{font-size:16px}}
+
+  /* Barra inferior fija */
+  footer{flex:none;position:relative;display:flex;align-items:center;gap:16px;padding:8px 22px;background:var(--panel);border-top:1px solid var(--line);z-index:6}
+  .cuenta{min-width:0}
+  .cuenta .c1{font-size:14px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+  .cuenta .c1 b{color:var(--ink)}
+  .cuenta .c2{font-size:36px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.05;color:var(--ink)}
+  .cuenta.dim .c2{opacity:.45}
+  .fbtns{display:flex;gap:10px;margin-left:auto}
+  .fbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px}
+  .fbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .fbtn.abierto{border-color:var(--acc);background:rgba(240,144,60,.14)}
+  .pop{position:absolute;right:22px;bottom:calc(100% + 8px);width:min(540px,calc(100vw - 24px));max-height:min(70vh,580px);display:none;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 -10px 40px rgba(0,0,0,.55);overflow:hidden}
+  .pop.abierto{display:flex}
+  .pop-h{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:800;font-size:18px}
+  .pop-h small{display:block;color:var(--mut);font-weight:500;font-size:13px;margin-top:2px}
+  #volLista{overflow-y:auto;padding:6px 18px 14px}
+  #volLista::-webkit-scrollbar{width:10px} #volLista::-webkit-scrollbar-thumb{background:#2e3443;border-radius:10px;border:2px solid var(--panel)}
+  .vsec{margin:14px 0 4px;color:var(--mut);font-size:12px;font-weight:800;letter-spacing:2px}
+  .vfila{display:grid;grid-template-columns:minmax(90px,1.2fr) 2fr auto auto;align-items:center;gap:10px;padding:6px 0}
+  .vn{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vr{width:100%;accent-color:var(--acc)}
+  .vnum{display:flex;align-items:center;gap:4px;color:var(--mut)}
+  input.vi{width:74px;font-size:16px;padding:6px 8px;text-align:right}
+  .vfila button{padding:5px 9px;font-size:12px;background:var(--panel2);border:1px solid var(--line);color:var(--ink)}
+  .vnota{grid-column:1/-1;color:var(--acc2);font-size:12px}
+  .cfila{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0}
+  .ctog,.seg button{padding:7px 14px;font-size:13px;letter-spacing:.8px;background:var(--panel2);border:1px solid var(--line);color:var(--mut)}
+  .ctog.on,.seg button.on{background:rgba(240,144,60,.16);border-color:var(--acc);color:var(--acc2)}
+  .seg{display:flex;gap:6px;transition:opacity .15s} .seg.off{opacity:.4}
+  .vvacio{color:var(--mut);font-size:14px;padding:6px 0}
+  .caja.ancha{max-width:700px}
+  .lrow{margin:12px 0}
+  .ln{font-weight:800;margin-bottom:6px}
+  .lline{display:flex;gap:8px}
+  .lline input{flex:1;font-size:14px;font-family:ui-monospace,Consolas,monospace}
+  .lline button{flex:none;padding:8px 16px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="izq">
+    <span class="marca">SER FM CARNERILLO</span>
+    <span class="tag">Automatización</span>
+  </div>
+  <div class="centro" id="centro">
+    <div class="l1" id="estL1">Automatización detenida</div>
+    <div class="l2" id="estL2">Tocá ACTIVAR para empezar a retransmitir.</div>
+  </div>
+  <div class="der">
+    <span id="reloj">--:--:--</span>
+    <span class="chip" id="chipEstado">DETENIDO</span>
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="panel-h">
+      <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="15" y2="6"/><line x1="3" y1="12" x2="12" y2="12"/><line x1="3" y1="18" x2="12" y2="18"/><polygon points="16,12 22,16 16,20" fill="currentColor" stroke="none"/></svg>Lista de reproducción</h2>
+      <button id="btnActivar">▶ ACTIVAR</button>
+      <button id="btnNuevo">+ Cargar nuevo...</button>
+    </div>
+    <div id="lista"></div>
+    <div class="ayuda">
+      <b>Con horario:</b> arranca solo a esa hora, en los días marcados. &nbsp;·&nbsp;
+      <b>Sin horario:</b> suena a continuación del ítem anterior, cuando éste termina. &nbsp;·&nbsp;
+      Al terminar una tanda o un bloque, vuelve a la emisora que estaba de fondo (que sigue corriendo en silencio).
+    </div>
+  </section>
+  <aside id="vu" title="Vúmetro estéreo (salida total)"><canvas id="vuCv"></canvas></aside>
+</main>
+
+<footer>
+  <div class="cuenta dim" id="cuenta">
+    <div class="c1" id="cuentaTit">Próximo: sin horarios programados</div>
+    <div class="c2" id="cuentaTiempo">--:--:--</div>
+  </div>
+  <div class="fbtns">
+    <button class="sec fbtn" id="btnVol" type="button"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>Volumen</button>
+    <button class="sec fbtn" id="btnInfo" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="17"/><circle cx="12" cy="7.6" r=".7" fill="currentColor"/></svg>Info</button>
+    <button class="sec fbtn" id="btnLinks" type="button"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Links</button>
+  </div>
+  <div class="pop" id="volPop">
+    <div class="pop-h">Volumen individual<small>Cada emisora, tanda o programa tiene su propio nivel. Va de 0 a 200 % y queda guardado.</small></div>
+    <div id="volLista"></div>
+  </div>
+</footer>
+
+<div id="modalInfo" class="overlay">
+  <div class="caja ancha">
+    <h3>Links de las emisoras</h3>
+    <div id="infoLista"></div>
+    <div class="pie"><button class="sec" id="infoCerrar" type="button">Cerrar</button></div>
+  </div>
+</div>
+
+<div id="modalLinks" class="overlay">
+  <div class="caja ancha">
+    <h3>Editar links de las emisoras</h3>
+    <div style="color:var(--mut);font-size:14px">Si cambiás un link, se actualiza en todos los ítems de esa emisora de la lista.</div>
+    <div id="linksLista"></div>
+    <div class="pie">
+      <button class="sec" id="linksCancelar" type="button">Cancelar</button>
+      <button id="linksGuardar" type="button">Guardar links</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal">
+  <div class="caja">
+    <h3 id="mTitulo">Cargar nuevo</h3>
+
+    <label class="f">¿QUÉ QUERÉS CARGAR?</label>
+    <select id="mTipo">
+      <option value="" disabled selected>Elegí una opción…</option>
+      <option value="lola">Track Radio Lola</option>
+      <option value="ser">Track Cadena Ser Argentina</option>
+      <option value="popu">Track Radio La Popu</option>
+      <option value="tanda">Tanda</option>
+      <option value="programa">Programa</option>
+    </select>
+
+    <div id="fNombre" class="oculto">
+      <label class="f" id="lNombre">NOMBRE</label>
+      <input type="text" id="mNombre" placeholder="">
+    </div>
+
+    <div id="fBloque" class="oculto">
+      <label class="f">NÚMERO DE BLOQUE</label>
+      <input type="number" id="mBloque" min="1" placeholder="Ej: 1">
+    </div>
+
+    <div id="fHora" class="oculto">
+      <label class="f">HORARIO (OPCIONAL)</label>
+      <div class="hrow">
+        <input type="time" id="mHora">
+        <button class="sec" type="button" id="mSinHora">Quitar</button>
+      </div>
+      <label class="f">DÍAS</label>
+      <div class="dias-sel" id="mDias"></div>
+      <div class="diasnota" id="mDiasNota">Se usan solo si ponés un horario.</div>
+    </div>
+
+    <div id="fArch" class="oculto">
+      <label class="f" id="lArch">ARCHIVOS</label>
+      <button class="sec" type="button" id="mElegir">Seleccionar…</button>
+      <div class="infoarch" id="mArchInfo">Ninguno seleccionado</div>
+    </div>
+
+    <div class="pie">
+      <button class="sec" id="mCancelar" type="button">Cancelar</button>
+      <button id="mOk" type="button" disabled>Agregar</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="pickCarpeta" webkitdirectory multiple hidden>
+<input type="file" id="pickArchivo" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac" hidden>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<script>
+(() => {
+'use strict';
+
+/* ================= Configuración ================= */
+const FADE = 700; // ms (< 1 s)
+const STOP_FADE = 1200; // ms: fundido al tocar DETENER
+const RADIOS = {
+  lola: {name:'Radio Lola',           url:'https://live-ar1.cdnrad.com/hls/lolafm/master.m3u8'},
+  ser:  {name:'Cadena Ser Argentina', url:'https://server.laradio.online:58381/live'},
+  popu: {name:'Radio La Popu',        url:'https://streaming.escuchanosonline.com:7243/stream'}
+};
+const ORIG = Object.fromEntries(Object.entries(RADIOS).map(([k, v]) => [k, v.url]));
+const $ = id => document.getElementById(id);
+const ORDEN = [1, 2, 3, 4, 5, 6, 0];   // Lunes primero (valores de Date.getDay)
+const DIA_CORTO = {1:'LUN', 2:'MAR', 3:'MIÉ', 4:'JUE', 5:'VIE', 6:'SÁB', 0:'DOM'};
+const DIA_LARGO = {1:'LUNES', 2:'MARTES', 3:'MIÉRCOLES', 4:'JUEVES', 5:'VIERNES', 6:'SÁBADO', 0:'DOMINGO'};
+const COMP_PRE = {   // th = umbral (dB), mk = ganancia de compensación
+  suave:  {th:-18, ratio:2, knee:20, att:.010, rel:.25, mk:1.15},
+  media:  {th:-24, ratio:4, knee:12, att:.005, rel:.20, mk:1.5},
+  fuerte: {th:-30, ratio:8, knee:6,  att:.003, rel:.15, mk:2}
+};
+const diaOk = (it, d) => !it.days || !it.days.length || it.days.includes(d);
+function textoDias(days){
+  const ds = ORDEN.filter(d => !days || !days.length || days.includes(d));
+  if (ds.length === 7) return 'TODOS LOS DÍAS';
+  if (ds.length <= 2) return ds.map(d => DIA_LARGO[d]).join(' y ');
+  const ix = ds.map(d => ORDEN.indexOf(d)), partes = [];
+  for (let i = 0; i < ds.length;){
+    let j = i;
+    while (j + 1 < ds.length && ix[j + 1] === ix[j] + 1) j++;
+    if (j - i + 1 >= 3) partes.push(DIA_CORTO[ds[i]] + ' a ' + DIA_CORTO[ds[j]]);
+    else for (let k = i; k <= j; k++) partes.push(DIA_CORTO[ds[k]]);
+    i = j + 1;
+  }
+  return partes.join(' - ');
+}
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esAudio = f => /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(f.name) || (f.type || '').startsWith('audio/');
+
+let toastT;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => t.style.display = 'none', 4000); }
+
+/* ================= Almacenamiento (IndexedDB) ================= */
+let db = null;
+function abrirDB(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('ser-fm-carnerillo-automatizacion', 1);
+    r.onupgradeneeded = () => {
+      r.result.createObjectStore('meta',  {keyPath:'key'});
+      r.result.createObjectStore('files', {keyPath:'id'});
+    };
+    r.onsuccess = () => { db = r.result; res(); };
+    r.onerror = () => rej(r.error);
+  });
+}
+const pReq = r => new Promise(res => { r.onsuccess = () => res(r.result); r.onerror = () => res(undefined); });
+async function cargarMeta(){ if (!db) return []; const r = await pReq(db.transaction('meta').objectStore('meta').get('items')); return r ? r.list : []; }
+function guardarMeta(){
+  if (!db) return Promise.resolve(false);
+  return new Promise(res => {
+    const t = db.transaction('meta', 'readwrite');
+    t.objectStore('meta').put({key:'items', list: items});
+    t.oncomplete = () => res(true); t.onerror = t.onabort = () => res(false);
+  });
+}
+async function cargarAjustes(){
+  if (!db) return;
+  const r = await pReq(db.transaction('meta').objectStore('meta').get('ajustes'));
+  if (!r) return;
+  ajustes.vol = r.vol || {};
+  ajustes.links = r.links || {};
+  if (r.comp) ajustes.comp = {on: r.comp.on !== false, nivel: COMP_PRE[r.comp.nivel] ? r.comp.nivel : 'media'};
+  for (const k in ajustes.links) if (RADIOS[k] && ajustes.links[k]) RADIOS[k].url = ajustes.links[k];
+}
+function guardarAjustes(){
+  if (!db) return;
+  try{ db.transaction('meta', 'readwrite').objectStore('meta').put({key: 'ajustes', vol: ajustes.vol, links: ajustes.links, comp: ajustes.comp}); }catch(e){}
+}
+function guardarArchivos(id, files){
+  if (!db) return Promise.resolve(false);
+  return new Promise(res => {
+    const t = db.transaction('files', 'readwrite');
+    t.objectStore('files').put({id, files});
+    t.oncomplete = () => res(true); t.onerror = t.onabort = () => res(false);
+  });
+}
+async function leerArchivos(id){ if (!db) return []; const r = await pReq(db.transaction('files').objectStore('files').get(id)); return r ? r.files : []; }
+function borrarArchivos(id){ if (!db) return; try{ db.transaction('files', 'readwrite').objectStore('files').delete(id); }catch(e){} }
+
+/* ================= Estado ================= */
+let items = [];          // lista de reproducción
+let ajustes = {vol: {}, links: {}, comp: {on: true, nivel: 'media'}};   // volúmenes (0-200) y links editados
+let activo = false;
+let cur = null;          // item "finito" (tanda/programa) sonando: {item, files, idx, closing, ended, pre}
+let curRadioId = null;   // id del item radio de fondo
+let lastRadioUrl = null; // emisora de fondo
+let queue = [];          // ids de items con horario esperando a que termine lo que suena
+const disparados = new Set();
+
+const titulo = it => it.type === 'radio' ? (RADIOS[it.radioKey] ? RADIOS[it.radioKey].name : it.name)
+                   : it.type === 'programa' ? it.name + (it.block ? ' · Bloque ' + it.block : '') : it.name;
+
+/* ================= Reproductores de radio (2, para pasar de una emisora a otra con fundido) ================= */
+const sinCors = new Set();   // links que no permiten CORS: no se pueden amplificar por encima de 100 %
+let ctx = null;
+function urlRadio(it){ return RADIOS[it.radioKey] ? RADIOS[it.radioKey].url : it.url; }
+function claveDe(url){ return Object.keys(RADIOS).find(k => RADIOS[k].url === url) || null; }
+function volDe(id){ return ajustes.vol[id] == null ? 100 : ajustes.vol[id]; }
+function setLvl(el, x){ el._lvl = x; aplicarNivel(el); }
+function puedeGanancia(el){ return el._esFin === true || el._cors === true; }
+let masterIn = null, masterComp = null, masterMk = null, masterLim = null, masterOut = null, anL = null, anR = null;
+function ensureCtx(){
+  if (!ctx){
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    masterIn = ctx.createGain();
+    masterComp = ctx.createDynamicsCompressor();
+    masterMk = ctx.createGain();
+    masterLim = ctx.createDynamicsCompressor();   // limitador final: evita saturar
+    masterLim.threshold.value = -2; masterLim.knee.value = 0; masterLim.ratio.value = 20;
+    masterLim.attack.value = .001; masterLim.release.value = .1;
+    masterOut = ctx.createGain();                  // salida final: de acá sale al parlante y al vúmetro
+    masterOut.connect(ctx.destination);
+    const sp = ctx.createChannelSplitter(2);
+    anL = ctx.createAnalyser(); anR = ctx.createAnalyser();
+    anL.fftSize = anR.fftSize = 1024; anL.smoothingTimeConstant = anR.smoothingTimeConstant = 0;
+    masterOut.connect(sp); sp.connect(anL, 0); sp.connect(anR, 1);
+    conectarMaster();
+  }
+  if (ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+function conectarMaster(){
+  if (!ctx) return;
+  [masterIn, masterComp, masterMk, masterLim].forEach(n => { try{ n.disconnect(); }catch(e){} });
+  const c = ajustes.comp;
+  if (c.on){
+    const p = COMP_PRE[c.nivel] || COMP_PRE.media;
+    masterComp.threshold.value = p.th; masterComp.ratio.value = p.ratio; masterComp.knee.value = p.knee;
+    masterComp.attack.value = p.att; masterComp.release.value = p.rel; masterMk.gain.value = p.mk;
+    masterIn.connect(masterComp); masterComp.connect(masterMk); masterMk.connect(masterLim); masterLim.connect(masterOut);
+  } else masterIn.connect(masterOut);
+}
+function crearGanancia(el){
+  try{
+    ensureCtx();
+    const src = ctx.createMediaElementSource(el);
+    const g = ctx.createGain();
+    src.connect(g); g.connect(masterIn);
+    el._gain = g;
+    return true;
+  }catch(e){ return false; }
+}
+// nivel final = fundido (0..1) x volumen individual (0..2)
+function aplicarNivel(el){
+  const g = el._g == null ? 1 : el._g;
+  const x = el._lvl == null ? 0 : el._lvl;
+  if (!el._gain && !el._sinGanancia && puedeGanancia(el)){
+    if (!crearGanancia(el)) el._sinGanancia = true;
+  }
+  if (el._gain){ el.volume = Math.max(0, Math.min(1, x)); el._gain.gain.value = g; }
+  else el.volume = Math.max(0, Math.min(1, x * Math.min(g, 1)));
+}
+function nuevoEl(p){
+  const old = p.el;
+  const el = new Audio();
+  el._lvl = old && old._lvl != null ? old._lvl : 0;
+  el._g = 1;
+  if (old){
+    try{ old.pause(); old.removeAttribute('src'); old.load(); }catch(e){}
+    fades.forEach(f => { if (f.el === old) f.el = el; });
+  }
+  p.el = el;
+  const bien = () => { p.ok = true; p.lastOk = Date.now(); };
+  el.addEventListener('playing', () => {
+    if (p.el !== el) return;
+    bien();
+    if (el.crossOrigin === 'anonymous'){ el._cors = true; aplicarNivel(el); }
+  });
+  el.addEventListener('timeupdate', () => { if (p.el === el) bien(); });
+  ['waiting','stalled','emptied'].forEach(ev => el.addEventListener(ev, () => { if (p.el === el) p.ok = false; }));
+  el.addEventListener('error', () => {
+    if (p.el !== el) return;
+    p.ok = false;
+    const u = p.url;
+    if (!u || p.hls) return;
+    if (el.crossOrigin === 'anonymous' && !el._cors){
+      // El stream no pudo cargarse en modo CORS. Se reintenta en modo normal
+      // para priorizar que la radio siga sonando, aunque Web Audio no pueda procesarla.
+      sinCors.add(u);
+      if (pop.classList.contains('abierto')) pintarVol();
+      toast('Esta emisora no permite procesar el audio desde el navegador. Se reproduce normalmente, pero el compresor y el volumen sobre 100 % pueden no funcionar.');
+      cargarStream(p, u);
+      return;
+    }
+    setTimeout(() => { if (p.url === u && p.el === el) cargarStream(p, u); }, 5000);
+  });
+  aplicarNivel(el);
+  return el;
+}
+function crearPlayer(){
+  const p = {el: null, hls: null, url: null, key: null, ok: false, lastOk: Date.now()};
+  nuevoEl(p);
+  return p;
+}
+const players = [crearPlayer(), crearPlayer()];
+let act = 0;             // player activo
+let radioTok = 0;
+
+function detenerPlayer(p){
+  if (p.hls){ try{ p.hls.destroy(); }catch(e){} p.hls = null; }
+  try{ p.el.pause(); p.el.removeAttribute('src'); p.el.load(); }catch(e){}
+  p.url = null; p.ok = false;
+}
+function cargarStream(p, url){
+  if (p.hls){ try{ p.hls.destroy(); }catch(e){} p.hls = null; }
+  const el = nuevoEl(p);     // elemento nuevo en cada carga (conserva el nivel del fundido)
+  p.url = url; p.ok = false; p.lastOk = Date.now(); p.key = claveDe(url);
+  el._g = volDe(p.key) / 100;
+  const esM3u8 = /\.m3u8(\?|$)/i.test(url);
+  if (esM3u8 && window.Hls && Hls.isSupported()){
+    el._cors = true;   // hls.js entrega el audio por MediaSource: se puede amplificar
+    const h = new Hls({liveSyncDurationCount: 3, enableWorker: true});
+    p.hls = h;
+    h.loadSource(url);
+    h.attachMedia(el);
+    h.on(Hls.Events.MANIFEST_PARSED, () => el.play().catch(() => {}));
+    h.on(Hls.Events.ERROR, (_, d) => {
+      if (!d.fatal) return;
+      p.ok = false;
+      if (d.type === Hls.ErrorTypes.NETWORK_ERROR) setTimeout(() => { if (p.hls === h) h.startLoad(); }, 3000);
+      else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) h.recoverMediaError();
+      else setTimeout(() => { if (p.url === url && p.hls === h) cargarStream(p, url); }, 5000);
+    });
+  } else {
+    if (!esM3u8 && !sinCors.has(url)) el.crossOrigin = 'anonymous';
+    el.src = url;
+    el.play().catch(() => {});
+  }
+  aplicarNivel(el);
+}
+const waiters = [];
+const esperarPlaying = (p, ms) => new Promise(res => { if (p.ok) return res(); waiters.push({p, t0: Date.now(), ms, res}); });
+
+function precargarRadio(url){
+  const p = players[act], q = players[1 - act];
+  if (p.url === url || q.url === url) return;
+  quitarFade(q.el); setLvl(q.el, 0);
+  cargarStream(q, url);
+}
+async function irARadio(url){
+  if (!url) return;
+  const tok = ++radioTok;
+  const p = players[act];
+  if (p.url === url){
+    if (p.el.paused) p.el.play().catch(() => {});
+    fadeTo(p.el, 1, FADE);
+    return;
+  }
+  const q = players[1 - act];
+  if (q.url !== url){ quitarFade(q.el); setLvl(q.el, 0); cargarStream(q, url); }
+  await esperarPlaying(q, 8000);
+  if (tok !== radioTok) return;
+  fadeTo(q.el, 1, FADE);
+  if (p.url){
+    fadeTo(p.el, 0, FADE);
+    setTimeout(() => { if (tok === radioTok) detenerPlayer(p); }, FADE + 80);
+  }
+  act = 1 - act;
+}
+
+/* ================= Fundidos ================= */
+let fades = [];
+function quitarFade(el){ fades = fades.filter(f => f.el !== el); }
+function fadeTo(el, to, ms){ quitarFade(el); fades.push({el, from: el._lvl == null ? 0 : el._lvl, to, t0: performance.now(), ms}); }
+function pasoFades(){
+  const n = performance.now();
+  fades = fades.filter(f => {
+    const k = Math.min(1, (n - f.t0) / f.ms);
+    setLvl(f.el, Math.max(0, Math.min(1, f.from + (f.to - f.from) * k)));
+    return k < 1;
+  });
+}
+
+/* ================= Reproductor de audios (tandas / programas) ================= */
+const finEl = new Audio();
+finEl._esFin = true;
+finEl.preload = 'auto';
+let finUrl = null, finTok = 0;
+function liberarFin(){ if (finUrl){ URL.revokeObjectURL(finUrl); finUrl = null; } }
+
+function decidirDespues(commit){
+  queue = queue.filter(id => items.some(i => i.id === id));
+  let item = null;
+  if (queue.length){
+    item = items.find(i => i.id === queue[0]);
+    if (commit) queue.shift();
+  } else if (cur){
+    const i = items.findIndex(x => x.id === cur.item.id);
+    const nx = i >= 0 ? items[i + 1] : null;
+    if (nx && !nx.time) item = nx;
+  }
+  return {item, url: item && item.type === 'radio' ? urlRadio(item) : lastRadioUrl};
+}
+const esFinito = pl => pl.item && pl.item.type !== 'radio';
+function aplicarRadio(pl){
+  if (pl.item && pl.item.type === 'radio'){ lastRadioUrl = urlRadio(pl.item); curRadioId = pl.item.id; }
+  if (lastRadioUrl) irARadio(lastRadioUrl);
+}
+
+async function reproducirItem(item){
+  if (!item || !activo) return;
+  if (item.type === 'radio'){
+    interrumpirFinito();
+    lastRadioUrl = urlRadio(item); curRadioId = item.id;
+    irARadio(lastRadioUrl);
+    pintar();
+    return;
+  }
+  const files = await leerArchivos(item.id);
+  if (!files.length){
+    toast('"' + titulo(item) + '" no tiene audios guardados.');
+    cur = null; if (lastRadioUrl) irARadio(lastRadioUrl); pintar();
+    return;
+  }
+  const desdeRadio = !cur;
+  cur = {item, files, idx: 0, closing: false, ended: false, pre: false};
+  reproducirArchivo(desdeRadio);
+}
+function reproducirArchivo(conFundido){
+  const f = cur.files[cur.idx];
+  liberarFin();
+  finUrl = URL.createObjectURL(f.blob);
+  ++finTok;
+  quitarFade(finEl);
+  finEl._g = volDe(cur.item.id) / 100;
+  finEl.src = finUrl;
+  if (conFundido){
+    setLvl(finEl, 0);
+    fadeTo(finEl, 1, FADE);
+    fadeTo(players[act].el, 0, FADE);   // la radio sigue corriendo, en silencio
+  } else {
+    setLvl(finEl, 1);
+  }
+  finEl.play().catch(() => avanzar());
+  pintar();
+}
+function avanzar(){
+  if (!cur || cur.ended) return;
+  if (cur.idx < cur.files.length - 1){ cur.idx++; reproducirArchivo(false); }
+  else terminarCur();
+}
+finEl.addEventListener('ended', avanzar);
+finEl.addEventListener('error', () => { if (cur && !cur.ended) avanzar(); });
+
+function terminarCur(){
+  const c = cur;
+  if (!c) return;
+  if (c.closing){            // ya hizo el fundido hacia la radio
+    c.ended = true; cur = null; finEl.pause(); liberarFin(); pintar(); return;
+  }
+  c.ended = true;
+  const pl = decidirDespues(true);
+  if (esFinito(pl)){ reproducirItem(pl.item); }   // continúa directo (ej: bloque 2 después del bloque 1)
+  else { cur = null; finEl.pause(); liberarFin(); aplicarRadio(pl); }
+  pintar();
+}
+function interrumpirFinito(){
+  if (!cur) return;
+  const mi = ++finTok;
+  cur.ended = true; cur = null;
+  fadeTo(finEl, 0, FADE);
+  setTimeout(() => { if (finTok === mi){ finEl.pause(); liberarFin(); } }, FADE + 60);
+}
+function detenerFinito(){
+  if (!cur) return;
+  interrumpirFinito();
+  if (lastRadioUrl) irARadio(lastRadioUrl);
+  pintar();
+}
+function disparar(item){
+  if (cur){ if (!queue.includes(item.id)) queue.push(item.id); pintar(); }
+  else reproducirItem(item);
+}
+
+/* ================= Reloj / planificador (Worker: no se frena en segundo plano) ================= */
+let ultimoSeg = -1, ultimoWatch = 0;
+function tick(){
+  pasoFades();
+
+  // esperas de "ya está sonando"
+  for (let i = waiters.length - 1; i >= 0; i--){
+    const w = waiters[i];
+    if (w.p.ok || Date.now() - w.t0 > w.ms){ waiters.splice(i, 1); w.res(); }
+  }
+
+  // cierre del último audio: precarga y fundido hacia la radio
+  if (cur && !cur.ended && !cur.closing && cur.idx === cur.files.length - 1){
+    const d = finEl.duration, c = finEl.currentTime;
+    if (isFinite(d) && d > 0){
+      const rem = d - c;
+      if (rem <= 8 && !cur.pre){
+        cur.pre = true;
+        const pl = decidirDespues(false);
+        if (!esFinito(pl) && pl.url) precargarRadio(pl.url);
+      }
+      if (rem <= FADE / 1000 + 0.05){
+        const pl = decidirDespues(false);
+        if (!esFinito(pl)){
+          cur.closing = true;
+          decidirDespues(true);
+          aplicarRadio(pl);
+          fadeTo(finEl, 0, FADE);
+        }
+      }
+    }
+  }
+
+  const ahora = new Date();
+  const seg = ahora.getSeconds();
+  if (seg === ultimoSeg) return;
+  ultimoSeg = seg;
+  $('reloj').textContent = ahora.toLocaleTimeString('es-AR', {hour12: false});
+  pintarCuenta();
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+
+  if (activo){
+    const hhmm = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
+    const fecha = ahora.toDateString();
+    for (const it of items){
+      if (!it.time || it.time !== hhmm || !diaOk(it, ahora.getDay())) continue;
+      const k = fecha + '|' + it.id + '|' + it.time;
+      if (disparados.has(k)) continue;
+      disparados.add(k);
+      disparar(it);
+    }
+    // vigilancia de la emisora
+    if (Date.now() - ultimoWatch > 5000){
+      ultimoWatch = Date.now();
+      const p = players[act];
+      if (p.url){
+        if (p.el.paused) p.el.play().catch(() => {});
+        if (Date.now() - p.lastOk > 25000) cargarStream(p, p.url);
+      }
+    }
+  }
+  if (seg % 2 === 0) pintarEstado();
+}
+const worker = new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),50)'], {type: 'text/javascript'})));
+worker.onmessage = tick;
+
+/* ================= Pantalla ================= */
+function proximo(){
+  const ahora = new Date();
+  let mejor = null;
+  for (const it of items){
+    if (!it.time) continue;
+    const [H, M] = it.time.split(':').map(Number);
+    for (let off = 0; off <= 7; off++){
+      const f = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + off, H, M, 0);
+      if (f <= ahora || !diaOk(it, f.getDay())) continue;
+      if (!mejor || f < mejor.f) mejor = {f, it, off};
+      break;
+    }
+  }
+  return mejor;
+}
+const cuando = pr => pr.off === 0 ? '' : pr.off === 1 ? ' (mañana)' : ' (el ' + DIA_LARGO[pr.f.getDay()].toLowerCase() + ')';
+function hhmm(f){ return f.toLocaleTimeString('es-AR', {hour: '2-digit', minute: '2-digit', hour12: false}); }
+function pintarCuenta(){
+  const pr = proximo();
+  $('cuenta').classList.toggle('dim', !activo);
+  if (!pr){
+    $('cuentaTit').textContent = 'Próximo: sin horarios programados';
+    $('cuentaTiempo').textContent = '--:--:--';
+    return;
+  }
+  $('cuentaTit').innerHTML = 'Próximo: <b>' + esc(titulo(pr.it)) + '</b> a ' + hhmm(pr.f) + ' hs' + cuando(pr);
+  const s = Math.max(0, Math.round((pr.f - new Date()) / 1000));
+  const H = Math.floor(s / 3600), M = Math.floor(s % 3600 / 60), S = s % 60;
+  $('cuentaTiempo').textContent = [H, M, S].map(n => String(n).padStart(2, '0')).join(':');
+}
+function pintarEstado(){
+  $('chipEstado').className = 'chip' + (activo ? ' on' : '');
+  $('chipEstado').textContent = activo ? 'ACTIVO' : 'DETENIDO';
+  const p = players[act];
+  const pr = proximo();
+  let cls = '', l1 = '', l2 = '';
+  if (!activo){
+    l1 = 'Automatización detenida'; l2 = 'Tocá ACTIVAR para empezar a retransmitir.';
+  } else if (cur){
+    cls = 'verde';
+    l1 = '📢 Sonando: ' + titulo(cur.item);
+    l2 = (cur.files.length > 1 ? 'Audio ' + (cur.idx + 1) + ' de ' + cur.files.length + ' · ' : '') + 'la emisora sigue de fondo, en silencio';
+  } else if (lastRadioUrl){
+    const it = items.find(i => i.id === curRadioId);
+    const nombre = it ? titulo(it) : 'emisora';
+    if (p.ok){
+      cls = 'verde'; l1 = '🔴 EN VIVO: ' + nombre;
+      l2 = pr ? 'Hasta las ' + hhmm(pr.f) + ' hs' + cuando(pr) : 'Todo funcionando';
+    } else { cls = 'espera'; l1 = '⏳ Conectando con ' + nombre + '…'; l2 = 'Si tarda, revisá internet. Reintenta solo.'; }
+  } else {
+    l1 = 'En espera'; l2 = 'No hay emisora de fondo. Tocá ▶ en un ítem de la lista.';
+  }
+  $('centro').className = 'centro ' + cls;
+  $('estL1').textContent = l1;
+  $('estL2').textContent = l2;
+  pintarCuenta();
+}
+
+function pintar(){
+  pintarEstado();
+  if (arrastrando) return;
+  const box = $('lista');
+  const st = box.scrollTop;
+  if (!items.length){
+    box.innerHTML = '<div class="vacio">La lista está vacía.<br>Tocá <b>+ Cargar nuevo...</b> para agregar emisoras, tandas o programas.</div>';
+    return;
+  }
+  box.innerHTML = items.map((it, i) => {
+    const suena = activo && ((cur && cur.item.id === it.id) || (!cur && it.type === 'radio' && it.id === curRadioId));
+    const finSuena = cur && cur.item.id === it.id;
+    const enCola = queue.includes(it.id);
+    let sub = '';
+    if (it.type === 'radio') sub = 'Emisora en vivo';
+    else if (it.type === 'tanda') sub = (it.fileNames ? it.fileNames.length : 0) + ' audio(s)';
+    else sub = it.fileNames && it.fileNames[0] ? it.fileNames[0] : '';
+    return `<div class="item ${suena ? 'play' : ''}" data-id="${it.id}">
+      <span class="grip" title="Arrastrá para cambiar el orden">⠿</span>
+      <span class="num">${i + 1}</span>
+      <span class="badge b-${it.type}">${it.type.toUpperCase()}</span>
+      <span class="tit">${esc(titulo(it))}</span>
+      <span class="sub">${esc(sub)}</span>
+      ${enCola ? '<span class="cola">EN COLA</span>' : ''}
+      ${it.time ? '<span class="dias">' + esc(textoDias(it.days)) + '</span>' : ''}
+      <span class="hora ${it.time ? '' : 'sin'}">${it.time ? '🕒 ' + it.time : 'Sin horario'}</span>
+      <span class="acc">
+        ${finSuena ? '<button class="stop" data-a="stop" title="Detener y volver a la emisora">■</button>' : '<button class="go" data-a="play" title="Reproducir ahora">▶</button>'}
+        <button data-a="edit" title="Editar">✎</button>
+        <button data-a="dup" title="Duplicar (queda una copia debajo)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <button data-a="del" title="Borrar">✕</button>
+      </span>
+    </div>`;
+  }).join('');
+  box.scrollTop = st;
+}
+
+$('lista').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const row = b.closest('.item'); if (!row) return;
+  const id = row.dataset.id;
+  const i = items.findIndex(x => x.id === id); if (i < 0) return;
+  const it = items[i], a = b.dataset.a;
+  if (a === 'play'){
+    if (!activo){ toast('Primero tocá ACTIVAR.'); return; }
+    reproducirItem(it);
+  } else if (a === 'stop') detenerFinito();
+  else if (a === 'edit') abrirModal(it);
+  else if (a === 'dup') duplicar(id);
+  else if (a === 'del'){
+    if (!confirm('¿Borrar "' + titulo(it) + '" de la lista?')) return;
+    if (cur && cur.item.id === id) detenerFinito();
+    items.splice(i, 1);
+    borrarArchivos(id);
+    delete ajustes.vol[id]; guardarAjustes();
+    await guardarMeta();
+    pintar();
+  }
+});
+
+async function duplicar(id){
+  const it = items.find(x => x.id === id); if (!it) return;
+  const copia = JSON.parse(JSON.stringify(it));
+  copia.id = 'i' + Date.now() + Math.random().toString(36).slice(2, 6);
+  if (it.type !== 'radio'){
+    const files = await leerArchivos(it.id);
+    if (files.length && !(await guardarArchivos(copia.id, files))){ toast('No se pudo duplicar (¿falta espacio en el disco?).'); return; }
+    if (ajustes.vol[it.id] != null){ ajustes.vol[copia.id] = ajustes.vol[it.id]; guardarAjustes(); }
+  }
+  const pos = items.findIndex(x => x.id === id);
+  items.splice(pos < 0 ? items.length : pos + 1, 0, copia);
+  await guardarMeta();
+  pintar();
+  const fila = $('lista').querySelector('.item[data-id="' + copia.id + '"]');
+  if (fila) fila.scrollIntoView({block: 'nearest'});
+  toast('Duplicado: "' + titulo(copia) + '". Tocá ✎ en la copia para cambiarle el horario.');
+}
+
+/* ================= Arrastrar para reordenar ================= */
+let arrastrando = false, dragId = null;
+const listaEl = $('lista');
+function limpiarMarcas(){ listaEl.querySelectorAll('.ins-antes,.ins-despues').forEach(r => r.classList.remove('ins-antes', 'ins-despues')); }
+function filaDebajo(y){
+  const rows = [...listaEl.querySelectorAll('.item:not(.arrastrado)')];
+  if (!rows.length) return null;
+  for (const row of rows){
+    const b = row.getBoundingClientRect();
+    if (y < b.top + b.height / 2) return {row, antes: true};
+  }
+  return {row: rows[rows.length - 1], antes: false};
+}
+function finDrag(){ arrastrando = false; dragId = null; limpiarMarcas(); pintar(); }
+listaEl.addEventListener('mousedown', e => { const g = e.target.closest('.grip'); if (g) g.closest('.item').draggable = true; });
+listaEl.addEventListener('mouseup', () => { listaEl.querySelectorAll('.item[draggable="true"]').forEach(r => r.draggable = false); });
+listaEl.addEventListener('dragstart', e => {
+  const r = e.target.closest ? e.target.closest('.item') : null;
+  if (!r || !r.draggable) return;
+  arrastrando = true; dragId = r.dataset.id;
+  r.classList.add('arrastrado');
+  e.dataTransfer.effectAllowed = 'move';
+  try{ e.dataTransfer.setData('text/plain', dragId); }catch(_){}
+});
+listaEl.addEventListener('dragover', e => {
+  if (!arrastrando) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  limpiarMarcas();
+  const t = filaDebajo(e.clientY);
+  if (t) t.row.classList.add(t.antes ? 'ins-antes' : 'ins-despues');
+});
+listaEl.addEventListener('drop', async e => {
+  if (!arrastrando) return;
+  e.preventDefault();
+  const t = filaDebajo(e.clientY);
+  const from = items.findIndex(x => x.id === dragId);
+  if (from >= 0 && t){
+    const [it] = items.splice(from, 1);
+    let to = items.findIndex(x => x.id === t.row.dataset.id);
+    if (to < 0) to = items.length; else if (!t.antes) to++;
+    items.splice(to, 0, it);
+    await guardarMeta();
+  }
+  finDrag();
+});
+listaEl.addEventListener('dragend', finDrag);
+
+/* ================= Ventanita "Cargar nuevo" ================= */
+let editando = null, pendientes = null;
+
+$('mDias').innerHTML = ORDEN.map(d => `<button type="button" class="dia on" data-d="${d}" aria-pressed="true">${DIA_CORTO[d]}</button>`).join('');
+function setDias(arr){
+  $('mDias').querySelectorAll('.dia').forEach(b => {
+    const on = arr.includes(Number(b.dataset.d));
+    b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+  });
+}
+const getDias = () => [...$('mDias').querySelectorAll('.dia.on')].map(b => Number(b.dataset.d));
+function diasSinHora(){ $('mDias').classList.toggle('off', !$('mHora').value); }
+$('mDias').addEventListener('click', e => {
+  const b = e.target.closest('.dia'); if (!b) return;
+  b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on'));
+});
+$('mHora').addEventListener('input', diasSinHora);
+$('mHora').addEventListener('change', diasSinHora);
+
+function descArchivos(it){
+  if (!it.fileNames || !it.fileNames.length) return 'sin archivos';
+  return it.type === 'tanda' ? it.fileNames.length + ' audio(s)' : it.fileNames[0];
+}
+function actualizarCampos(){
+  const v = $('mTipo').value;
+  const esT = v === 'tanda', esP = v === 'programa';
+  $('fNombre').classList.toggle('oculto', !(esT || esP));
+  $('fBloque').classList.toggle('oculto', !esP);
+  $('fHora').classList.toggle('oculto', !v);
+  $('fArch').classList.toggle('oculto', !(esT || esP));
+  $('lNombre').textContent = esP ? 'NOMBRE DEL PROGRAMA' : 'NOMBRE DE LA TANDA';
+  $('mNombre').placeholder = esP ? 'Ej: Hora de Tango' : 'Ej: Tanda mañana';
+  $('lArch').textContent = esP ? 'ARCHIVO DEL BLOQUE' : 'CARPETA CON LOS AUDIOS';
+  $('mElegir').textContent = esP ? '📄 Seleccionar archivo…' : '📂 Seleccionar carpeta…';
+  $('mOk').disabled = !v;
+}
+function abrirModal(it){
+  editando = it || null;
+  pendientes = null;
+  $('mTitulo').textContent = it ? 'Editar' : 'Cargar nuevo';
+  $('mOk').textContent = it ? 'Guardar' : 'Agregar';
+  $('mTipo').value = it ? (it.type === 'radio' ? it.radioKey : it.type) : '';
+  $('mTipo').disabled = !!it;
+  $('mNombre').value = it && it.type !== 'radio' ? it.name : '';
+  $('mBloque').value = it && it.block ? it.block : '';
+  $('mHora').value = it && it.time ? it.time : '';
+  $('mArchInfo').textContent = it && it.type !== 'radio' ? 'Actual: ' + descArchivos(it) + ' (elegí otro para reemplazarlo)' : 'Ninguno seleccionado';
+  setDias(it && it.days && it.days.length ? it.days : ORDEN);
+  diasSinHora();
+  actualizarCampos();
+  $('modal').style.display = 'flex';
+}
+const cerrarModal = () => { $('modal').style.display = 'none'; };
+$('btnNuevo').onclick = () => abrirModal(null);
+$('mTipo').onchange = actualizarCampos;
+$('mCancelar').onclick = cerrarModal;
+$('mSinHora').onclick = () => { $('mHora').value = ''; diasSinHora(); };
+$('mElegir').onclick = () => { ($('mTipo').value === 'programa' ? $('pickArchivo') : $('pickCarpeta')).click(); };
+
+function procesarSeleccion(lista, esCarpeta){
+  let audios = lista.filter(esAudio);
+  if (esCarpeta){
+    const soloRaiz = audios.filter(f => (f.webkitRelativePath || '').split('/').length === 2);
+    if (soloRaiz.length) audios = soloRaiz;
+  }
+  audios.sort((a, b) => a.name.localeCompare(b.name, 'es', {numeric: true}));
+  if (!audios.length){ toast('No encontré audios (mp3, wav…) ahí.'); return; }
+  pendientes = audios;
+  $('mArchInfo').textContent = esCarpeta ? '✔ ' + audios.length + ' audio(s) seleccionados' : '✔ ' + audios[0].name;
+  if (!$('mNombre').value.trim() && !esCarpeta) $('mNombre').value = audios[0].name.replace(/\.[^.]+$/, '');
+}
+$('pickCarpeta').addEventListener('change', e => { const l = [...e.target.files]; e.target.value = ''; if (l.length) procesarSeleccion(l, true); });
+$('pickArchivo').addEventListener('change', e => { const l = [...e.target.files]; e.target.value = ''; if (l.length) procesarSeleccion(l, false); });
+
+$('mOk').onclick = async () => {
+  const v = $('mTipo').value; if (!v) return;
+  const time = $('mHora').value || '';
+  const dias = getDias();
+  if (time && !dias.length){ toast('Marcá al menos un día.'); return; }
+  const it = editando || {id: 'i' + Date.now() + Math.random().toString(36).slice(2, 6)};
+  if (RADIOS[v]){
+    it.type = 'radio'; it.radioKey = v; it.url = RADIOS[v].url; it.name = RADIOS[v].name; it.time = time;
+  } else {
+    if (!editando && !pendientes){ toast(v === 'tanda' ? 'Elegí la carpeta con los audios.' : 'Elegí el archivo del programa.'); return; }
+    it.type = v; it.time = time;
+    it.name = $('mNombre').value.trim() || (v === 'tanda' ? 'Tanda ' + (items.filter(x => x.type === 'tanda').length + (editando ? 0 : 1))
+                                                          : (pendientes ? pendientes[0].name.replace(/\.[^.]+$/, '') : 'Programa'));
+    it.block = v === 'programa' ? $('mBloque').value.trim() : '';
+    if (pendientes){
+      $('mOk').disabled = true; $('mOk').textContent = 'Guardando…';
+      const ok = await guardarArchivos(it.id, pendientes.map(f => ({name: f.name, blob: f})));
+      $('mOk').disabled = false; $('mOk').textContent = editando ? 'Guardar' : 'Agregar';
+      if (!ok){ toast('No se pudieron guardar los audios (¿falta espacio en el disco?).'); return; }
+      it.fileNames = pendientes.map(f => f.name);
+    }
+  }
+  it.days = dias;
+  if (!editando) items.push(it);
+  await guardarMeta();
+  cerrarModal();
+  pintar();
+};
+
+/* ================= Barra inferior: Volumen / Info / Links ================= */
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+let guardarT;
+function setVol(id, v){
+  v = clamp(Math.round(v), 0, 200);
+  ajustes.vol[id] = v;
+  const g = v / 100;
+  players.forEach(p => { if (p.url && p.key === id){ p.el._g = g; aplicarNivel(p.el); } });
+  if (cur && cur.item.id === id){ finEl._g = g; aplicarNivel(finEl); }
+  clearTimeout(guardarT);
+  guardarT = setTimeout(guardarAjustes, 250);
+}
+function filaVol(id, nombre, nota){
+  const v = volDe(id);
+  return `<div class="vfila" data-k="${esc(id)}">
+    <span class="vn" title="${esc(nombre)}">${esc(nombre)}</span>
+    <input type="range" class="vr" min="0" max="200" step="1" value="${v}">
+    <span class="vnum"><input type="number" class="vi" min="0" max="200" step="1" value="${v}">%</span>
+    <button type="button" data-r="1" title="Volver a 100 %">100</button>
+    ${nota ? '<span class="vnota">' + nota + '</span>' : ''}
+  </div>`;
+}
+function pintarVol(){
+  const c = ajustes.comp;
+  let h = '<div class="vsec">COMPRESOR GENERAL</div><div class="cfila"><button type="button" class="ctog' + (c.on ? ' on' : '') + '" data-comp="tog">' + (c.on ? 'ENCENDIDO' : 'APAGADO') + '</button>'
+    + '<div class="seg' + (c.on ? '' : ' off') + '">' + ['suave', 'media', 'fuerte'].map(n => '<button type="button" data-comp="' + n + '" class="' + (c.nivel === n ? 'on' : '') + '">' + n[0].toUpperCase() + n.slice(1) + '</button>').join('') + '</div></div>';
+  const noC = Object.keys(RADIOS).filter(k => sinCors.has(RADIOS[k].url)).map(k => RADIOS[k].name);
+  if (noC.length) h += '<div class="vnota">Sin compresor (el servidor no lo permite): ' + esc(noC.join(', ')) + '.</div>';
+  h += '<div class="vsec">EMISORAS</div>';
+  for (const k of Object.keys(RADIOS)){
+    const nota = sinCors.has(RADIOS[k].url) ? 'Modo compatible: puede sonar, pero no permite amplificación sobre 100 %, compresor ni lectura real del vúmetro.' : '';
+    h += filaVol(k, RADIOS[k].name, nota);
+  }
+  const fin = items.filter(i => i.type !== 'radio');
+  h += '<div class="vsec">TANDAS Y PROGRAMAS</div>';
+  h += fin.length ? fin.map(i => filaVol(i.id, titulo(i))).join('') : '<div class="vvacio">Todavía no cargaste tandas ni programas.</div>';
+  $('volLista').innerHTML = h;
+}
+const pop = $('volPop');
+function cerrarPop(){ pop.classList.remove('abierto'); $('btnVol').classList.remove('abierto'); }
+$('btnVol').onclick = () => {
+  const abre = !pop.classList.contains('abierto');
+  pop.classList.toggle('abierto', abre);
+  $('btnVol').classList.toggle('abierto', abre);
+  if (abre) pintarVol();
+};
+document.addEventListener('click', e => {
+  if (pop.classList.contains('abierto') && !e.target.closest('#volPop') && !e.target.closest('#btnVol')) cerrarPop();
+});
+$('volLista').addEventListener('input', e => {
+  const fila = e.target.closest('.vfila'); if (!fila) return;
+  const id = fila.dataset.k;
+  if (e.target.classList.contains('vr')){
+    const v = Number(e.target.value);
+    fila.querySelector('.vi').value = v;
+    setVol(id, v);
+  } else if (e.target.classList.contains('vi')){
+    const v = parseFloat(e.target.value);
+    if (isNaN(v)) return;
+    const c = clamp(Math.round(v), 0, 200);
+    fila.querySelector('.vr').value = c;
+    setVol(id, c);
+  }
+});
+$('volLista').addEventListener('change', e => {
+  if (!e.target.classList.contains('vi')) return;
+  const fila = e.target.closest('.vfila');
+  e.target.value = volDe(fila.dataset.k);
+});
+$('volLista').addEventListener('click', e => {
+  const cb = e.target.closest('button[data-comp]');
+  if (!cb) return;
+  const v = cb.dataset.comp;
+  if (v === 'tog') ajustes.comp.on = !ajustes.comp.on; else { ajustes.comp.nivel = v; ajustes.comp.on = true; }
+  guardarAjustes();
+  if (ajustes.comp.on) ensureCtx();
+  conectarMaster();
+  players.forEach(p => aplicarNivel(p.el)); aplicarNivel(finEl);
+  pintarVol();
+});
+$('volLista').addEventListener('click', e => {
+  const b = e.target.closest('button[data-r]'); if (!b) return;
+  const fila = b.closest('.vfila');
+  fila.querySelector('.vr').value = 100;
+  fila.querySelector('.vi').value = 100;
+  setVol(fila.dataset.k, 100);
+});
+
+function copiar(txt, btn){
+  const ok = () => { const t = btn.textContent; btn.textContent = '¡Copiado!'; setTimeout(() => { btn.textContent = t; }, 1500); };
+  const alt = () => {
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); ok(); }catch(e){ toast('No se pudo copiar.'); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok).catch(alt);
+  else alt();
+}
+$('btnInfo').onclick = () => {
+  cerrarPop();
+  $('infoLista').innerHTML = Object.keys(RADIOS).map(k =>
+    `<div class="lrow"><div class="ln">${esc(RADIOS[k].name)}</div>
+      <div class="lline"><input type="text" class="lurl" readonly value="${esc(RADIOS[k].url)}"><button type="button" data-k="${k}">Copiar</button></div></div>`).join('');
+  $('modalInfo').style.display = 'flex';
+};
+$('infoLista').addEventListener('click', e => {
+  const b = e.target.closest('button[data-k]'); if (!b) return;
+  copiar(RADIOS[b.dataset.k].url, b);
+});
+$('infoCerrar').onclick = () => { $('modalInfo').style.display = 'none'; };
+
+$('btnLinks').onclick = () => {
+  cerrarPop();
+  $('linksLista').innerHTML = Object.keys(RADIOS).map(k =>
+    `<div class="lrow"><div class="ln">${esc(RADIOS[k].name)}</div>
+      <div class="lline"><input type="text" class="lurl" data-k="${k}" spellcheck="false" value="${esc(RADIOS[k].url)}"><button type="button" class="sec" data-r="${k}" title="Volver al link original">Restaurar</button></div></div>`).join('');
+  $('modalLinks').style.display = 'flex';
+};
+$('linksLista').addEventListener('click', e => {
+  const b = e.target.closest('button[data-r]'); if (!b) return;
+  const inp = $('linksLista').querySelector('input[data-k="' + b.dataset.r + '"]');
+  if (inp) inp.value = ORIG[b.dataset.r];
+});
+$('linksCancelar').onclick = () => { $('modalLinks').style.display = 'none'; };
+$('linksGuardar').onclick = () => {
+  const cambios = [];
+  for (const inp of $('linksLista').querySelectorAll('input[data-k]')){
+    const k = inp.dataset.k, u = inp.value.trim();
+    if (!/^https?:\/\/\S+$/i.test(u)){ toast('El link de ' + RADIOS[k].name + ' no es válido (tiene que empezar con http:// o https://).'); return; }
+    if (u !== RADIOS[k].url) cambios.push([k, RADIOS[k].url, u]);
+  }
+  for (const [k, viejo, nuevo] of cambios){
+    RADIOS[k].url = nuevo;
+    if (nuevo === ORIG[k]) delete ajustes.links[k]; else ajustes.links[k] = nuevo;
+    players.forEach(p => { if (p.url === viejo) cargarStream(p, nuevo); });
+    if (lastRadioUrl === viejo) lastRadioUrl = nuevo;
+  }
+  guardarAjustes();
+  $('modalLinks').style.display = 'none';
+  pintar();
+  if (cambios.length) toast('Links actualizados.');
+};
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  cerrarPop();
+  $('modalInfo').style.display = 'none';
+  $('modalLinks').style.display = 'none';
+});
+
+/* ================= Activar / detener ================= */
+let wake = null, stopT = null;
+function cortarTodo(){
+  clearTimeout(stopT); stopT = null;
+  fades = [];
+  finEl.pause(); liberarFin();
+  players.forEach(detenerPlayer);
+}
+async function pedirWake(){ try{ if (navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); }catch(e){} }
+document.addEventListener('visibilitychange', () => { if (activo && document.visibilityState === 'visible') pedirWake(); });
+
+$('btnActivar').onclick = () => {
+  if (!activo){
+    if (stopT) cortarTodo();   // si todavía se estaba apagando, termina de cortar
+    activo = true;
+    finEl.muted = true; finEl.play().catch(() => {}); finEl.pause(); finEl.muted = false;   // desbloqueo por clic
+    pedirWake();
+    try{ ensureCtx(); aplicarNivel(finEl); }catch(e){}
+    $('btnActivar').textContent = '■ DETENER';
+    $('btnActivar').classList.add('peligro');
+    window.onbeforeunload = e => { e.preventDefault(); e.returnValue = ''; };
+    const primero = items.find(i => !i.time);
+    if (primero) reproducirItem(primero);
+  } else {
+    if (!confirm('¿Detener la automatización? Se corta el audio y no saltarán los horarios.')) return;
+    activo = false; radioTok++;
+    cur = null; queue = [];
+    lastRadioUrl = null; curRadioId = null;
+    fadeTo(finEl, 0, STOP_FADE);                                   // leve fade out
+    players.forEach(p => { if (p.url) fadeTo(p.el, 0, STOP_FADE); });
+    clearTimeout(stopT); stopT = setTimeout(cortarTodo, STOP_FADE + 80);
+    if (wake){ try{ wake.release(); }catch(e){} wake = null; }
+    $('btnActivar').textContent = '▶ ACTIVAR';
+    $('btnActivar').classList.remove('peligro');
+    window.onbeforeunload = null;
+  }
+  pintar();
+};
+
+/* ================= Vúmetro estéreo ================= */
+const VU_REF = 18;   // 0 del vúmetro = -18 dBFS (nivel RMS). Subilo/bajalo para "calibrar" el medidor.
+const VU_ROWS = [8, 6, 4, 2, 0, -2, -4, -8, -12, -16, -20, -28, -40, -60];
+const VU_COL = db => db >= 6 ? '#ff4d4d' : db >= 2 ? '#f5a623' : db >= 1 ? '#f2d230' : '#34d96a';
+(() => {
+  const cv = $('vuCv'), g2 = cv.getContext && cv.getContext('2d');
+  if (!g2) return;
+  const bufL = new Float32Array(1024), bufR = new Float32Array(1024);
+  const niv = [-90, -90];
+  let W = 0, H = 0, dpr = 1, tPrev = performance.now();
+  const rmsDb = (an, buf) => {
+    an.getFloatTimeDomainData(buf);
+    let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i];
+    const r = Math.sqrt(s / buf.length);
+    return r > 0 ? Math.max(-90, 20 * Math.log10(r) + VU_REF) : -90;
+  };
+  function medir(i, an, buf, dt){
+    const v = an ? rmsDb(an, buf) : -90;
+    niv[i] = v > niv[i] ? niv[i] + (v - niv[i]) * 0.65 : Math.max(v, niv[i] - dt * 50);   // sube rápido, baja suave
+  }
+  function ajustar(){
+    const w = cv.clientWidth, h = cv.clientHeight, d = window.devicePixelRatio || 1;
+    if (w === W && h === H && d === dpr) return;
+    W = w; H = h; dpr = d; cv.width = Math.round(W * d); cv.height = Math.round(H * d);
+    g2.setTransform(d, 0, 0, d, 0, 0);
+  }
+  function dibujar(t){
+    requestAnimationFrame(dibujar);
+    const dt = Math.min(0.2, (t - tPrev) / 1000); tPrev = t;
+    ajustar(); if (!W || !H) return;
+    medir(0, anL, bufL, dt); medir(1, anR, bufR, dt);
+    g2.clearRect(0, 0, W, H);
+    const top = 10, bot = 26, n = VU_ROWS.length, rh = (H - top - bot) / n;
+    const xN = 31, barW = 26, xL = 37, xR = 37 + barW + 6;
+    g2.font = '600 11px system-ui,Segoe UI,Arial,sans-serif'; g2.textAlign = 'right'; g2.textBaseline = 'middle';
+    VU_ROWS.forEach((db, r) => {
+      const y = top + r * rh, col = VU_COL(db);
+      g2.fillStyle = db === 0 ? '#eceef3' : '#8b92a3';
+      g2.fillText((db > 0 ? '+' : '') + db, xN, y + rh / 2);
+      [[xL, niv[0]], [xR, niv[1]]].forEach(([x, lv]) => {
+        const on = lv >= db;
+        g2.globalAlpha = on ? 1 : 0.14;
+        g2.fillStyle = col;
+        g2.beginPath(); g2.roundRect ? g2.roundRect(x, y + 1, barW, Math.max(2, rh - 2), 2) : g2.rect(x, y + 1, barW, Math.max(2, rh - 2));
+        g2.fill();
+      });
+    });
+    g2.globalAlpha = 1; g2.fillStyle = '#8b92a3'; g2.textAlign = 'center'; g2.textBaseline = 'alphabetic';
+    g2.font = '800 12px system-ui,Segoe UI,Arial,sans-serif';
+    g2.fillText('L', xL + barW / 2, H - 8); g2.fillText('R', xR + barW / 2, H - 8);
+  }
+  requestAnimationFrame(dibujar);
+})();
+
+/* ================= Inicio ================= */
+(async () => {
+  try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  try{ await abrirDB(); items = await cargarMeta(); await cargarAjustes(); }
+  catch(e){ alert('No se pudo abrir el almacenamiento del navegador: lo cargado no se va a guardar.'); }
+  pintar();
+})();
+})();
+</script>
+</body>
+</html>
