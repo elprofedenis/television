@@ -252,29 +252,34 @@
   .ctog.on,.seg button.on{background:rgba(240,144,60,.16);border-color:var(--acc);color:var(--acc2)}
   .seg{display:flex;gap:6px;transition:opacity .15s} .seg.off{opacity:.4}
   .vvacio{color:var(--mut);font-size:13px;padding:6px 0}
-  .caja.ancha{max-width:700px}
-  .lrow{margin:12px 0}
-  .ln{font-weight:800;margin-bottom:6px}
-  .lline{display:flex;gap:8px;align-items:center}
-  .lline .rp{flex:none;display:flex;align-items:center;gap:6px;width:76px;font-size:12px;font-weight:700;color:var(--mut);cursor:pointer}
-  .lline .rp input{flex:none;width:auto;margin:0;accent-color:var(--acc)}
-  .lline .rp input:checked + span{color:var(--acc2)}
-  .lrow:not(.conalt) .rp{display:none}
-  .lrow:not(.conalt) .lline.lalt,.lrow:not(.conalt) .lest.lalt{display:none}
-  .lrow.conalt .balt{display:none}
-  .lrow .lline.lalt{margin-top:8px}
-  .lest{margin:4px 0 0 84px;font-size:11.5px;min-height:1em;color:var(--mut)}
-  .lrow:not(.conalt) .lest{margin-left:0}
-  .lest[data-s="ok"]{color:#2ce08a} .lest[data-s="nocors"]{color:#f5b84a} .lest[data-s="caido"]{color:#ff7b8a}
-  .lline input{flex:1;font-size:13px;font-family:ui-monospace,Consolas,monospace}
-  .lline button{flex:none;padding:7px 13px}
-  .ln input{font-size:14px;font-weight:800;padding:8px 12px}
-  .nueva{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
-  .nueva .ln{margin-bottom:2px}
-  .nlinea{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .nlinea input{font-size:13.5px;padding:9px 11px}
-  .nlinea .nn{flex:1 1 150px;min-width:0} .nlinea .nu{flex:3 1 240px;min-width:0;font-family:ui-monospace,Consolas,monospace}
-  .nlinea button{flex:none}
+  /* ----- Ventana de links: ancha, nombres grandes, principal y alternativo lado a lado ----- */
+  .caja.links{max-width:min(96vw,1200px);padding:26px 30px}
+  .caja.links h3{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin:0 0 20px;font:700 26px var(--f-ui);letter-spacing:.01em}
+  .caja.links h3 small{font:400 14px var(--f-ui);color:var(--mut);letter-spacing:0}
+  #linksLista{display:flex;flex-direction:column;gap:12px}
+  .lrow{display:grid;grid-template-columns:minmax(170px,250px) minmax(0,1fr) auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:rgba(15,37,72,.55)}
+  .ln{min-width:0;font:700 26px/1.12 var(--f-ui);color:#fff;letter-spacing:.01em;overflow-wrap:anywhere}
+  .ln input{font:700 22px var(--f-ui);padding:9px 12px}
+  .lcell{min-width:0}
+  .lhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;min-height:17px;margin-bottom:5px}
+  .lab{font:700 12px var(--f-ui);letter-spacing:.14em;color:var(--mut)}
+  .lest{font:600 12px var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut);cursor:help}
+  .lest[data-s="ok"]{color:#2ce08a} .lest[data-s="nocors"]{color:#f5b84a} .lest[data-s="nohls"],.lest[data-s="caido"]{color:#ff7b8a} .lest[data-s="mixto"]{color:#f5b84a}
+  .lcell input.lurl{font:13.5px ui-monospace,Consolas,monospace;padding:10px 12px}
+  .lswap{align-self:end;width:42px;height:42px;padding:0;font-size:18px;border-radius:50%}
+  .lact{align-self:end;display:flex;gap:8px}
+  .lact button{height:42px;padding:0 16px;font-size:13px}
+  .nueva{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+  .nlinea{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .nlinea .nt{flex:none;font:700 12px var(--f-ui);letter-spacing:.14em;color:var(--mut)}
+  .nlinea input{font-size:14px;padding:10px 12px}
+  .nlinea .nn{flex:1 1 200px;min-width:0} .nlinea .nu{flex:3 1 320px;min-width:0;font-family:ui-monospace,Consolas,monospace}
+  .nlinea button{flex:none;height:42px}
+  @media (max-width:900px){
+    .lrow{grid-template-columns:minmax(0,1fr)}
+    .lswap{justify-self:start;border-radius:.6rem;width:auto;padding:0 16px}
+    .lact{align-self:start}
+  }
 
 
   /* ---------- Botón VER CALENDARIO ---------- */
@@ -300,7 +305,7 @@
   .cal-meses button.act{background:linear-gradient(180deg,#1b66e6,#1450b9);color:#fff;border-color:#3a86ff}
   .cal-body{flex:1;min-height:0;overflow:auto;position:relative}
   .cal-body::-webkit-scrollbar{width:.8rem} .cal-body::-webkit-scrollbar-thumb{background:#1f4172;border-radius:10px;border:3px solid transparent;background-clip:padding-box}
-  .cal-g{display:grid;grid-template-columns:4.4rem repeat(7,minmax(9rem,1fr));min-width:70rem}
+  .cal-g{display:grid;grid-template-columns:4.4rem repeat(7,minmax(10rem,1fr));min-width:75rem}
   .cal-g>div{border-right:1px solid rgba(40,92,155,.28);border-bottom:1px solid rgba(40,92,155,.28)}
   .cal-g .dh{position:sticky;top:0;z-index:3;text-align:center;padding:.5rem .3rem;background:#0c2142;border-bottom:2px solid var(--line)}
   .cal-g .dh b{display:block;font:700 .95rem var(--f-ui);letter-spacing:.05em;color:#dbe8fb}
@@ -327,10 +332,11 @@
 
   /* Calendario por bloques: la radio ocupa todo el tiempo hasta el próximo cambio; tandas/programas se muestran encima */
   .cal-g .ctime{position:sticky;left:0;z-index:2;background:#0a1a33}
-  .cal-g .ctime .ch{position:static;height:3.6rem;border-bottom:1px solid rgba(40,92,155,.28)}
-  .cal-g .cday{position:relative;height:86.4rem;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(3.6rem - 1px),rgba(40,92,155,.28) calc(3.6rem - 1px),rgba(40,92,155,.28) 3.6rem)}
+  .cal-g .ctime .ch{position:static;height:2.4rem;border-bottom:1px solid rgba(40,92,155,.28)}
+  .cal-g .cday{position:relative;height:57.6rem;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(2.4rem - 1px),rgba(40,92,155,.28) calc(2.4rem - 1px),rgba(40,92,155,.28) 2.4rem)}
   .cal-g .cday.hoy{background-color:rgba(30,110,220,.08)}
-  .bk{position:absolute;left:2px;right:2px;overflow:hidden;border-left:3px solid;border-radius:.35rem;padding:.12rem .5rem;font:500 .85rem/1.25 var(--f-ui);white-space:nowrap;text-overflow:ellipsis}
+  .bk{position:absolute;left:2px;right:2px;overflow:hidden;border-left:3px solid;border-radius:.35rem;padding:.12rem .5rem;font:500 1.05rem/1.2 var(--f-ui)}
+  .bk .bt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--ln,1);line-clamp:var(--ln,1);overflow:hidden;white-space:normal;word-break:break-word;text-overflow:ellipsis}
   .bk b{font-weight:700;font-variant-numeric:tabular-nums;margin-right:.35rem}
   .bk.radio{background:rgba(18,173,120,.2);border-color:#2fd39c;color:#c9f8e6}
   .bk.radio.ini{border-top:2px solid #2fd39c}
@@ -456,20 +462,17 @@
       </div>
       <button type="button" class="sec cal-x" id="calCerrar" title="Cerrar">✕</button>
     </div>
-    <div class="cal-meses" id="calMeses"></div>
     <div class="cal-body" id="calBody"><div class="cal-g" id="calGrid"></div></div>
   </div>
 </div>
 
 <div id="modalLinks" class="overlay">
-  <div class="caja ancha">
-    <h3>Editar links de las emisoras</h3>
-    <div style="color:var(--mut);font-size:12.5px;line-height:1.5">Si cambiás un link, se actualiza en todos los ítems de esa emisora de la lista. Con <b>+ Alternativa</b> cargás otro link de la misma emisora: elegís cuál es el <b>principal</b> y, si el principal no conecta, se prueba el otro de forma provisoria.</div>
+  <div class="caja links">
+    <h3>Links de las emisoras<small>Si el principal no conecta, se usa el alternativo.</small></h3>
     <div id="linksLista"></div>
     <div class="nueva">
-      <div class="ln">Añadir una emisora nueva</div>
-      <div style="color:var(--mut);font-size:12px">Se agrega al instante y aparece como opción en <b>+ Cargar nuevo...</b> (como «Track …») y en Volumen.</div>
       <div class="nlinea">
+        <span class="nt">EMISORA NUEVA</span>
         <input type="text" class="nn" id="nrNombre" placeholder="Nombre (ej: Radio Mitre)" spellcheck="false">
         <input type="text" class="nu" id="nrUrl" placeholder="https://…" spellcheck="false">
         <button type="button" id="nrAdd">+ Añadir</button>
@@ -536,13 +539,15 @@
 /* ================= Configuración ================= */
 const FADE = 700; // ms (< 1 s)
 const STOP_FADE = 1200; // ms: fundido al tocar DETENER
+const DEF_VER = 1;   // subí este número si cambiás los links por defecto: se descartan los links viejos guardados de Lola y Ser
 const RADIOS = {
-  lola: {name:'Radio Lola',           url:'https://live-ar1.cdnrad.com/hls/lolafm/master.m3u8'},
-  ser:  {name:'Cadena Ser Argentina', url:'https://server.laradio.online:58381/live'},
+  lola: {name:'Radio Lola',           url:'https://live-ar1.cdnrad.com/hls/lolafm/master.m3u8', alt:'http://direct-ar1.cdnrad.com:8088/listen/lolafm.mp3'},
+  ser:  {name:'Cadena Ser Argentina', url:'https://glassy-delta-0141.de.deplexo.com/stream',    alt:'https://server.laradio.online:58381/live'},
   popu: {name:'Radio La Popu',        url:'https://streaming.escuchanosonline.com:7243/stream'},
   cadena3: {name:'Radio Cadena 3',     url:'https://27693.live.streamtheworld.com/RADIO3.mp3'}
 };
 const ORIG = Object.fromEntries(Object.entries(RADIOS).map(([k, v]) => [k, v.url]));
+const ORIG_ALT = Object.fromEntries(Object.entries(RADIOS).filter(([k, v]) => v.alt).map(([k, v]) => [k, v.alt]));
 const $ = id => document.getElementById(id);
 const ICO = {
   play: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor" stroke="none"/></svg>',
@@ -619,16 +624,27 @@ async function cargarAjustes(){
   ajustes.vol = r.vol || {};
   ajustes.links = r.links || {};
   ajustes.ext = r.ext || {};
+  ajustes.defVer = r.defVer || 0;
+  let migrar = false;
+  if (ajustes.defVer < DEF_VER){   // links por defecto nuevos: se descartan los guardados de Lola y Ser para que mande lo nuevo
+    ['lola', 'ser'].forEach(k => { delete ajustes.links[k]; delete ajustes.ext[k]; });
+    ajustes.defVer = DEF_VER; migrar = true;
+  }
   ajustes.master = typeof r.master === 'number' ? Math.max(0, Math.min(200, Math.round(r.master))) : 100;
   ajustes.custom = Array.isArray(r.custom) ? r.custom.filter(c => c && c.key && c.name && /^https?:\/\//i.test(c.url || '')) : [];
   ajustes.custom.forEach(c => { RADIOS[c.key] = c; });   // misma referencia: editar RADIOS[k] actualiza lo guardado
   if (r.comp) ajustes.comp = {on: r.comp.on !== false, nivel: COMP_PRE[r.comp.nivel] ? r.comp.nivel : 'media'};
   for (const k in ajustes.links) if (RADIOS[k] && ORIG[k] && ajustes.links[k]) RADIOS[k].url = ajustes.links[k];
-  for (const k in ajustes.ext) if (RADIOS[k] && ORIG[k] && ajustes.ext[k] && ajustes.ext[k].alt){ RADIOS[k].alt = ajustes.ext[k].alt; RADIOS[k].pref = ajustes.ext[k].pref === 'alt' ? 'alt' : 'url'; }
+  for (const k in ajustes.ext){
+    const e = ajustes.ext[k]; if (!RADIOS[k] || !ORIG[k] || !e) continue;
+    if (e.alt){ RADIOS[k].alt = e.alt; RADIOS[k].pref = e.pref === 'alt' ? 'alt' : 'url'; }
+    else { delete RADIOS[k].alt; delete RADIOS[k].pref; }   // el usuario quitó el alternativo por defecto
+  }
+  if (migrar) guardarAjustes();
 }
 function guardarAjustes(){
   if (!db) return;
-  try{ db.transaction('meta', 'readwrite').objectStore('meta').put({key: 'ajustes', vol: ajustes.vol, links: ajustes.links, ext: ajustes.ext, comp: ajustes.comp, master: ajustes.master, custom: ajustes.custom}); }catch(e){}
+  try{ db.transaction('meta', 'readwrite').objectStore('meta').put({key: 'ajustes', vol: ajustes.vol, links: ajustes.links, ext: ajustes.ext, comp: ajustes.comp, master: ajustes.master, custom: ajustes.custom, defVer: ajustes.defVer}); }catch(e){}
 }
 function guardarArchivos(id, files){
   if (!db) return Promise.resolve(false);
@@ -643,7 +659,7 @@ function borrarArchivos(id){ if (!db) return; try{ db.transaction('files', 'read
 
 /* ================= Estado ================= */
 let items = [];          // lista de reproducción
-let ajustes = {vol: {}, links: {}, ext: {}, comp: {on: true, nivel: 'media'}, master: 100, custom: []};   // volúmenes (0-200) y links editados
+let ajustes = {vol: {}, links: {}, ext: {}, comp: {on: true, nivel: 'media'}, master: 100, custom: [], defVer: DEF_VER};   // volúmenes (0-200) y links editados
 let activo = false;
 let cur = null;          // item "finito" (tanda/programa) sonando: {item, files, idx, closing, ended, pre}
 let curRadioId = null;   // id del item radio de fondo
@@ -1722,15 +1738,18 @@ const esCustom = k => ajustes.custom.some(c => c.key === k);
 const URL_OK = u => /^https?:\/\/\S+$/i.test(u);
 
 /* ----- Verificación de cada link: ¿permite controlar el audio (vúmetro, volumen, compresor)? ----- */
-const EST_TXT = {
-  chk: 'Verificando…',
-  ok: '✔ Permite controles: vúmetro, volumen sobre 100 % y compresor.',
-  nocors: '⚠ Suena, pero NO permite controles: sin vúmetro real, sin volumen sobre 100 % y sin compresor.',
-  nohls: '✖ El servidor no lo habilita para este navegador: probablemente no se pueda reproducir.',
-  caido: '✖ No respondió en la prueba (puede estar caído o el navegador lo bloquea).'
+const EST_TXT = {mixto: '⚠ Bloqueado en https', chk: 'Verificando…', ok: '✔ Control total', nocors: '⚠ Sin controles', nohls: '✖ No compatible', caido: '✖ No responde'};
+const EST_LARGO = {
+  mixto: 'Este link es http:// y la página está en https://: Chrome lo bloquea. Funciona si abrís el archivo desde la PC, o si en Chrome permitís «Contenido no seguro» para este sitio.',
+  chk: 'Verificando el link…',
+  ok: 'Permite controles: vúmetro, volumen sobre 100 % y compresor.',
+  nocors: 'Suena, pero NO permite controles: sin vúmetro real, sin volumen sobre 100 % y sin compresor.',
+  nohls: 'El servidor no lo habilita para este navegador: probablemente no se pueda reproducir.',
+  caido: 'No respondió en la prueba (puede estar caído o el navegador lo bloquea).'
 };
 const corsEstado = new Map();
 async function probarCors(url){
+  if (location.protocol === 'https:' && /^http:\/\//i.test(url)) return 'mixto';
   const intento = async modo => {
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 7000);
     try{
@@ -1750,40 +1769,41 @@ async function probarCors(url){
 async function verLinea(el, url){
   if (!el) return;
   const tk = el._v = (el._v || 0) + 1;
-  if (!URL_OK(url)){ delete el.dataset.s; el.textContent = ''; return; }
+  if (!URL_OK(url)){ delete el.dataset.s; el.textContent = ''; el.title = ''; return; }
   let st = corsEstado.get(url);
   if (!st){
-    el.dataset.s = 'chk'; el.textContent = EST_TXT.chk;
+    el.dataset.s = 'chk'; el.textContent = EST_TXT.chk; el.title = EST_LARGO.chk;
     st = await probarCors(url);
     corsEstado.set(url, st);
     if (st === 'nocors') sinCors.add(url); else if (st === 'ok') sinCors.delete(url);
   }
   if (el._v !== tk) return;
-  el.dataset.s = st; el.textContent = EST_TXT[st];
+  el.dataset.s = st; el.textContent = EST_TXT[st]; el.title = EST_LARGO[st];
 }
 function verTodos(){
   $('linksLista').querySelectorAll('.lrow').forEach(row => {
     ['url', 'alt'].forEach(l => {
       const inp = row.querySelector('input.lurl[data-l="' + l + '"]');
       if (!inp) return;
-      if (l === 'alt' && !row.classList.contains('conalt')) return;
       verLinea(row.querySelector('.lest[data-l="' + l + '"]'), inp.value.trim());
     });
   });
 }
 
 function filaLink(k){
-  const r = RADIOS[k], cu = esCustom(k), conAlt = !!r.alt, pref = conAlt && r.pref === 'alt' ? 'alt' : 'url';
-  const pri = (v, on) => `<label class="rp" title="Usar este link como principal de la emisora"><input type="radio" name="pri-${esc(k)}" value="${v}"${on ? ' checked' : ''}><span>Principal</span></label>`;
-  return `<div class="lrow${conAlt ? ' conalt' : ''}" data-row="${esc(k)}"><div class="ln">${cu
-      ? `<input type="text" class="lname" data-n="${esc(k)}" spellcheck="false" placeholder="Nombre" value="${esc(r.name)}">`
-      : esc(r.name)}</div>
-    <div class="lline">${pri('url', pref === 'url')}<input type="text" class="lurl" data-k="${esc(k)}" data-l="url" spellcheck="false" value="${esc(r.url)}">${cu
+  const r = RADIOS[k], cu = esCustom(k);
+  const inv = !!r.alt && r.pref === 'alt';          // si el principal elegido era el alternativo, se muestran invertidos
+  const p = inv ? r.alt : r.url, al = inv ? r.url : (r.alt || '');
+  const cel = (l, lab, v, ph) => `<div class="lcell"><div class="lhead"><span class="lab">${lab}</span><span class="lest" data-l="${l}"></span></div><input type="text" class="lurl" data-k="${esc(k)}" data-l="${l}" spellcheck="false" placeholder="${ph}" value="${esc(v)}"></div>`;
+  return `<div class="lrow" data-row="${esc(k)}">
+    <div class="ln">${cu ? `<input type="text" class="lname" data-n="${esc(k)}" spellcheck="false" placeholder="Nombre" value="${esc(r.name)}">` : esc(r.name)}</div>
+    ${cel('url', 'PRINCIPAL', p, 'https://…')}
+    <button type="button" class="sec lswap" data-swap="${esc(k)}" title="Intercambiar principal y alternativo">⇄</button>
+    ${cel('alt', 'ALTERNATIVO', al, 'Opcional')}
+    <div class="lact">${cu
       ? `<button type="button" class="sec" data-del="${esc(k)}" title="Borrar esta emisora">Borrar</button>`
-      : `<button type="button" class="sec" data-r="${esc(k)}" title="Volver al link original">Restaurar</button>`}<button type="button" class="sec balt" data-alt="${esc(k)}" title="Cargar otro link de la misma emisora">+ Alternativa</button></div>
-    <div class="lest" data-l="url"></div>
-    <div class="lline lalt">${pri('alt', pref === 'alt')}<input type="text" class="lurl" data-k="${esc(k)}" data-l="alt" spellcheck="false" placeholder="Link alternativo de la misma emisora" value="${esc(r.alt || '')}"><button type="button" class="sec" data-noalt="${esc(k)}" title="Quitar el link alternativo">Quitar</button></div>
-    <div class="lest lalt" data-l="alt"></div></div>`;
+      : `<button type="button" class="sec" data-r="${esc(k)}" title="Volver a los links originales">Restaurar</button>`}</div>
+  </div>`;
 }
 $('btnLinks').onclick = () => {
   cerrarPop();
@@ -1800,18 +1820,16 @@ $('linksLista').addEventListener('change', e => {
 });
 $('linksLista').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  const row = b.closest('.lrow');
+  const row = b.closest('.lrow'); if (!row) return;
+  const iu = row.querySelector('input.lurl[data-l="url"]'), ia = row.querySelector('input.lurl[data-l="alt"]');
+  const eu = row.querySelector('.lest[data-l="url"]'), ea = row.querySelector('.lest[data-l="alt"]');
   if (b.dataset.r){
-    const inp = row.querySelector('input.lurl[data-l="url"]');
-    if (inp && ORIG[b.dataset.r]){ inp.value = ORIG[b.dataset.r]; verLinea(row.querySelector('.lest[data-l="url"]'), inp.value); }
-  } else if (b.dataset.alt){
-    row.classList.add('conalt');
-    const inp = row.querySelector('input.lurl[data-l="alt"]'); if (inp) inp.focus();
-  } else if (b.dataset.noalt){
-    row.classList.remove('conalt');
-    row.querySelector('input.lurl[data-l="alt"]').value = '';
-    const u = row.querySelector('input[type=radio][value="url"]'); if (u) u.checked = true;
-    verLinea(row.querySelector('.lest[data-l="alt"]'), '');
+    const k = b.dataset.r;
+    iu.value = ORIG[k] || iu.value; ia.value = ORIG_ALT[k] || '';
+    verLinea(eu, iu.value.trim()); verLinea(ea, ia.value.trim());
+  } else if (b.dataset.swap){
+    const t = iu.value; iu.value = ia.value; ia.value = t;
+    verLinea(eu, iu.value.trim()); verLinea(ea, ia.value.trim());
   } else if (b.dataset.del){
     const k = b.dataset.del; if (!RADIOS[k]) return;
     if (items.some(i => i.type === 'radio' && i.radioKey === k)){ toast('Primero sacá de la lista de reproducción los ítems de "' + RADIOS[k].name + '".'); return; }
@@ -1820,7 +1838,7 @@ $('linksLista').addEventListener('click', e => {
     ajustes.custom = ajustes.custom.filter(c => c.key !== k);
     delete ajustes.vol[k];
     guardarAjustes();
-    if (row) row.remove();
+    row.remove();
   }
 });
 $('nrAdd').onclick = () => {
@@ -1846,29 +1864,29 @@ $('linksGuardar').onclick = () => {
     const k = row.dataset.row; if (!RADIOS[k]) continue;
     const nom = RADIOS[k].name;
     const u = row.querySelector('input.lurl[data-l="url"]').value.trim();
-    const a = row.classList.contains('conalt') ? row.querySelector('input.lurl[data-l="alt"]').value.trim() : '';
+    const a = row.querySelector('input.lurl[data-l="alt"]').value.trim();
     if (!URL_OK(u)){ toast('El link de ' + nom + ' no es válido (tiene que empezar con http:// o https://).'); return; }
     if (a && !URL_OK(a)){ toast('El link alternativo de ' + nom + ' no es válido (tiene que empezar con http:// o https://).'); return; }
     if (a && a === u){ toast('El link alternativo de ' + nom + ' es igual al principal.'); return; }
     for (const x of [u, a]){ if (!x) continue; if (vistos.has(x)){ toast('Hay dos emisoras con el mismo link.'); return; } vistos.add(x); }
-    const sel = row.querySelector('input[type=radio]:checked');
-    const pref = a && sel && sel.value === 'alt' ? 'alt' : 'url';
     let nuevoNombre = null;
     if (esCustom(k)){
       const ni = row.querySelector('input.lname');
       nuevoNombre = ni ? ni.value.trim() : nom;
       if (!nuevoNombre){ toast('Poné un nombre para la emisora.'); return; }
     }
-    datos.push({k, u, a, pref, nuevoNombre});
+    datos.push({k, u, a, nuevoNombre});
   }
   for (const d of datos){
     const r = RADIOS[d.k], antes = radUrl(d.k);
     if (d.nuevoNombre) r.name = d.nuevoNombre;
     r.url = d.u;
-    if (d.a){ r.alt = d.a; r.pref = d.pref; } else { delete r.alt; delete r.pref; }
+    if (d.a){ r.alt = d.a; r.pref = 'url'; } else { delete r.alt; delete r.pref; }
     if (ORIG[d.k]){
       if (d.u === ORIG[d.k]) delete ajustes.links[d.k]; else ajustes.links[d.k] = d.u;
-      if (d.a) ajustes.ext[d.k] = {alt: d.a, pref: d.pref}; else delete ajustes.ext[d.k];
+      if (ORIG_ALT[d.k]){   // emisora con alternativo por defecto: se guarda solo si cambió (o si lo quitaron)
+        if (d.a === ORIG_ALT[d.k]) delete ajustes.ext[d.k]; else ajustes.ext[d.k] = {alt: d.a, pref: 'url'};
+      } else if (d.a) ajustes.ext[d.k] = {alt: d.a, pref: 'url'}; else delete ajustes.ext[d.k];
     }
     const despues = radUrl(d.k);
     if (antes !== despues){
@@ -2026,7 +2044,8 @@ function calSonando(it){
   if (cur) return cur.item.id === it.id;
   return it.type === 'radio' && it.id === curRadioId;
 }
-const CAL_REM = 0.06;   // alto en rem por minuto (1 hora = 3,6 rem)
+const CAL_REM = 0.04;   // alto en rem por minuto (1 hora = 2,4 rem)
+const lineas = (h, pad) => Math.max(1, Math.floor((h - pad - 0.24 + 0.03) / 1.26));   // líneas de texto (1,26 rem c/u) que entran en el bloque
 const calDurFin = it => { const t = Array.isArray(it.durs) ? it.durs.reduce((x, y) => x + y, 0) : 0; return t > 0 ? t : 180; };
 function renderCal(conservar){
   const body = $('calBody'), sc = body.scrollTop;
@@ -2037,7 +2056,6 @@ function renderCal(conservar){
   $('calMes').textContent = d0.getMonth() === d6.getMonth() ? mA + ' ' + d0.getFullYear()
     : d0.getFullYear() === d6.getFullYear() ? mA + ' – ' + mB + ' ' + d6.getFullYear() : mA + ' ' + d0.getFullYear() + ' – ' + mB + ' ' + d6.getFullYear();
   $('calSem').textContent = 'Semana del ' + d0.getDate() + (d0.getMonth() !== d6.getMonth() ? ' de ' + mA.toLowerCase() : '') + ' al ' + d6.getDate() + ' de ' + mB.toLowerCase();
-  $('calMeses').innerHTML = MESES.map((m, i) => '<button type="button" data-m="' + i + '" class="' + (i === calAncla.getMonth() ? 'act' : '') + '">' + m.slice(0, 3) + '</button>').join('');
   const esHoy = d => d.toDateString() === hoy.toDateString();
   const ymd = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k);
   const hm = it => it.time.split(':').map(Number);
@@ -2080,7 +2098,7 @@ function renderCal(conservar){
     for (const f of fo){
       if (f.fin <= ds || f.ini >= de) continue;
       const s = Math.max(f.ini, ds), e = Math.min(f.fin, de);
-      let top = min(s) * CAL_REM; const h = Math.max((e - s) / 60000 * CAL_REM, 1.25);
+      let top = min(s) * CAL_REM; const h = Math.max((e - s) / 60000 * CAL_REM, 1.55);
       if (top < ultimoFondo) top = ultimoFondo + 0.05;
       if (top + h > 1440 * CAL_REM) top = 1440 * CAL_REM - h;
       ultimoFondo = top + h;
@@ -2088,8 +2106,8 @@ function renderCal(conservar){
       const cont = f.ini < ds;
       const dTxt = fmtDur(calDurFin(f.it));
       ovs.push({fin: f.fin, ini: f.ini, bottom: top + h});
-      html += '<div class="bk ' + f.it.type + (sona ? ' sona' : f.fin <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem" title="' + esc(f.it.time + ' hs · ' + f.it.type.toUpperCase() + ' · ' + titulo(f.it) + ' · dura ' + dTxt + ' · interrumpe la emisora y después vuelve') + '">'
-        + (cont ? '↳ ' : '<b>' + esc(f.it.time) + '</b>') + esc(titulo(f.it)) + ' · ' + dTxt + '</div>';
+      html += '<div class="bk ' + f.it.type + (sona ? ' sona' : f.fin <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;--ln:' + lineas(h, 0) + '" title="' + esc(f.it.time + ' hs · ' + f.it.type.toUpperCase() + ' · ' + titulo(f.it) + ' · dura ' + dTxt + ' · interrumpe la emisora y después vuelve') + '">'
+        + '<span class="bt">' + (cont ? '↳ ' : '<b>' + esc(f.it.time) + '</b>') + esc(titulo(f.it)) + ' · ' + dTxt + '</span></div>';
     }
     // 2) emisora: ocupa TODO el tiempo hasta el próximo cambio, partida donde la interrumpe una tanda/programa
     let r = base;
@@ -2115,7 +2133,7 @@ function renderCal(conservar){
         const hora = new Date(t.s);
         const et = inicio ? '<b>' + pad2(hora.getHours()) + ':' + pad2(hora.getMinutes()) + '</b>' + esc(nombreR(m.it))
           : t.tras ? '↳ ' + esc(nombreR(m.it)) + ' (continúa)' : '↳ ' + esc(nombreR(m.it));
-        html += '<div class="bk radio' + (inicio ? ' ini' : '') + (sona ? ' sona' : t.e <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;padding-top:' + (pad + 0.12).toFixed(3) + 'rem" title="' + esc(nombreR(m.it) + ' · emisora en vivo hasta el próximo cambio') + '">' + et + '</div>';
+        html += '<div class="bk radio' + (inicio ? ' ini' : '') + (sona ? ' sona' : t.e <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;padding-top:' + (pad + 0.12).toFixed(3) + 'rem;--ln:' + lineas(h, pad) + '" title="' + esc(nombreR(m.it) + ' · emisora en vivo hasta el próximo cambio') + '"><span class="bt">' + et + '</span></div>';
       });
     });
     const linea = esHoy(d) ? '<div class="nowl" style="top:' + REM(min(ahoraMs)) + '"><i>AHORA ' + pad2(hoy.getHours()) + ':' + pad2(hoy.getMinutes()) + '</i></div>' : '';
@@ -2148,10 +2166,6 @@ $('calM+').onclick = () => calMover(1, 0);
 $('calS-').onclick = () => calMover(0, -7);
 $('calS+').onclick = () => calMover(0, 7);
 $('calHoy').onclick = () => { calAncla = new Date(); renderCal(false); };
-$('calMeses').addEventListener('click', e => {
-  const b = e.target.closest('button[data-m]'); if (!b) return;
-  calAncla = new Date(calAncla.getFullYear(), Number(b.dataset.m), 1); renderCal(false);
-});
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && calAbierto) cerrarCal(); });
 setInterval(() => { if (calAbierto) renderCal(true); }, 15000);
 
