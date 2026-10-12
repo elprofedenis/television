@@ -21,19 +21,19 @@
   }
   *{box-sizing:border-box}
   html{height:100%;font-size:clamp(10px,calc(100vw / 120),22px)}
-  body{margin:0;height:100%;color:var(--ink);font-family:var(--f-ui);font-size:1.15rem;display:flex;flex-direction:column;overflow:hidden;color-scheme:dark;
+  body{margin:0;height:100%;color:var(--ink);font-family:var(--f-ui);font-size:1rem;display:flex;flex-direction:column;overflow:hidden;color-scheme:dark;
        background:radial-gradient(120% 90% at 50% 0%,#0b2350 0%,#061428 52%,#030a16 100%)}
 
   /* ---------- Encabezado ---------- */
-  header{flex:none;height:7.6rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:.4rem 2rem .4rem 2.2rem;
+  header{flex:none;height:6.4rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:.4rem 2rem .4rem 2.2rem;
          border-bottom:1px solid #12305a;background:linear-gradient(180deg,rgba(11,32,66,.92),rgba(5,16,36,.92));z-index:5}
   .brand{display:flex;align-items:center;gap:1.4rem;min-width:0}
-  .logo{flex:none;display:block;width:6.4rem;height:6.4rem;object-fit:contain}
-  .sep{flex:none;width:2px;height:5.2rem;margin:0 .5rem;background:linear-gradient(180deg,transparent,#31558c 20%,#31558c 80%,transparent)}
-  .t-main{font:500 1.75rem var(--f-wide);letter-spacing:.42em;white-space:nowrap;color:#fff;line-height:1.2}
-  .t-sub{font:300 .98rem var(--f-wide);letter-spacing:.42em;white-space:nowrap;color:#b3c6e0;margin-top:.55rem}
-  .onair{justify-self:center;display:flex;align-items:center;gap:1rem;padding:.65rem 2rem;border-radius:999px;font:700 1.9rem var(--f-ui);letter-spacing:.01em;white-space:nowrap}
-  .onair i{flex:none;width:1.45rem;height:1.45rem;border-radius:50%}
+  .logo{flex:none;display:block;width:5.2rem;height:5.2rem;object-fit:contain}
+  .sep{flex:none;width:2px;height:4.2rem;margin:0 .5rem;background:linear-gradient(180deg,transparent,#31558c 20%,#31558c 80%,transparent)}
+  .t-main{font:500 1.4rem var(--f-wide);letter-spacing:.42em;white-space:nowrap;color:#fff;line-height:1.2}
+  .t-sub{font:300 .8rem var(--f-wide);letter-spacing:.42em;white-space:nowrap;color:#b3c6e0;margin-top:.55rem}
+  .onair{justify-self:center;display:flex;align-items:center;gap:1rem;padding:.5rem 1.6rem;border-radius:999px;font:700 1.5rem var(--f-ui);letter-spacing:.01em;white-space:nowrap}
+  .onair i{flex:none;width:1.1rem;height:1.1rem;border-radius:50%}
   .onair.on{color:#ff3a4e;background:linear-gradient(180deg,rgba(110,12,30,.6),rgba(55,6,20,.6));border:1px solid rgba(255,60,80,.28);box-shadow:0 0 26px rgba(255,40,60,.2)}
   .onair.on i{background:#ff2b40;box-shadow:0 0 12px #ff2b40,0 0 26px rgba(255,43,64,.65)}
   .onair.wait{color:#ffbf55;background:rgba(80,55,10,.45);border:1px solid rgba(255,190,80,.3)}
@@ -41,150 +41,151 @@
   .onair.off{color:#7f93b3;background:rgba(18,38,72,.7);border:1px solid #1c3d6e}
   .onair.off i{background:#455a7d}
   .der{justify-self:end;text-align:center;line-height:1}
-  #reloj{display:block;font:700 3.25rem var(--f-ui);font-variant-numeric:tabular-nums;letter-spacing:.01em;color:#fff}
-  #fecha{display:block;margin-top:.35rem;font:500 1.05rem var(--f-ui);color:#eef4ff}
+  #reloj{display:block;font:700 2.6rem var(--f-ui);font-variant-numeric:tabular-nums;letter-spacing:.01em;color:#fff}
+  #fecha{display:block;margin-top:.4rem;font:500 .9rem var(--f-ui);color:#eef4ff}
 
   /* ---------- Cuerpo ---------- */
-  main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 21.6rem;gap:.9rem;padding:.9rem 1rem .6rem .8rem}
-  .lcol,.rcol{display:flex;flex-direction:column;gap:.7rem;min-height:0;min-width:0}
+  main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 21.6rem;gap:1.1rem;padding:1.1rem 1.2rem .8rem 1rem}
+  .lcol,.rcol{display:flex;flex-direction:column;gap:.9rem;min-height:0;min-width:0}
   .box{border:1px solid var(--borde);border-radius:1rem;background:var(--caja)}
 
-  button{font:inherit;font-weight:700;border:0;border-radius:.7rem;padding:.7rem 1.3rem;cursor:pointer;color:#fff;background:linear-gradient(180deg,#1b66e6,#1450b9);transition:transform .08s,filter .15s}
+  button{font:inherit;font-size:.9rem;font-weight:700;border:0;border-radius:.6rem;padding:.55rem 1.05rem;cursor:pointer;color:#fff;background:linear-gradient(180deg,#1b66e6,#1450b9);transition:transform .08s,filter .15s}
   button:hover{filter:brightness(1.12)} button:active{transform:scale(.97)}
   button:disabled{opacity:.4;cursor:not-allowed;filter:none}
   button.sec{background:rgba(12,34,70,.85);border:1px solid #1f4a86;color:var(--ink)}
   button.peligro{background:linear-gradient(180deg,#ff2f47,#c3112a);color:#fff}
 
   /* Ahora al aire */
-  .aire{flex:none;display:flex;align-items:center;gap:1.4rem;padding:.85rem 1.4rem;border-radius:1rem;border:2px solid #17c985;
+  .aire{flex:none;display:flex;align-items:center;gap:1.5rem;padding:1.05rem 1.6rem;border-radius:1rem;border:2px solid #17c985;
         background:linear-gradient(90deg,rgba(14,112,92,.5),rgba(9,62,72,.5) 55%,rgba(8,40,72,.5));box-shadow:0 0 22px rgba(23,201,133,.2)}
   .aire.wait{border-color:#d9a032;background:linear-gradient(90deg,rgba(110,80,10,.4),rgba(8,40,72,.5));box-shadow:0 0 18px rgba(217,160,50,.15)}
   .aire.off{border-color:#1f4172;background:rgba(10,30,60,.6);box-shadow:none}
-  .a-ico{flex:none;width:4.6rem;height:4.6rem;border-radius:50%;display:grid;place-items:center;color:#2ce08a;border:2px solid rgba(60,230,150,.45);background:rgba(20,120,90,.25)}
-  .a-ico svg{width:2.5rem;height:2.5rem}
+  .a-ico{flex:none;width:3.8rem;height:3.8rem;border-radius:50%;display:grid;place-items:center;color:#2ce08a;border:2px solid rgba(60,230,150,.45);background:rgba(20,120,90,.25)}
+  .a-ico svg{width:2.1rem;height:2.1rem}
   .aire.wait .a-ico{color:#ffbf55;border-color:rgba(255,190,80,.45);background:rgba(120,80,10,.25)}
   .aire.off .a-ico{color:#7f93b3;border-color:#2a4a7a;background:rgba(20,40,75,.4)}
   .a-txt{min-width:0}
-  .a-lab{font:700 1.15rem var(--f-ui);color:#2ce08a;letter-spacing:.01em}
+  .a-lab{font:700 .95rem var(--f-ui);color:#2ce08a;letter-spacing:.01em}
   .aire.wait .a-lab{color:#ffbf55} .aire.off .a-lab{color:#7f93b3}
-  .a-tit{font:700 2.05rem/1.15 var(--f-ui);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .a-sub{font:500 1.1rem var(--f-ui);color:#cfe0f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .a-rest{flex:none;margin-left:auto;text-align:center;padding:.45rem 1.7rem .5rem;border-radius:.9rem;border:2px solid rgba(30,200,170,.55);background:rgba(5,40,52,.6)}
-  .a-rest b{display:block;font:600 2.3rem/1.1 var(--f-ui);color:#2ce08a;font-variant-numeric:tabular-nums}
-  .a-rest small{display:block;font:500 .85rem var(--f-ui);color:#bfe6ff}
+  .a-tit{font:700 1.65rem/1.2 var(--f-ui);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .a-sub{font:500 .92rem var(--f-ui);color:#cfe0f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .a-rest{flex:none;margin-left:auto;margin-top:-.55rem;margin-bottom:-.55rem;height:5.2rem;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:0 1.5rem;border-radius:.9rem;border:2px solid rgba(30,200,170,.55);background:rgba(5,40,52,.6)}
+  .a-rest b{display:block;font:600 2.5rem/1 var(--f-ui);color:#2ce08a;font-variant-numeric:tabular-nums}
+  .a-rest small{display:block;margin-top:.5rem;font:500 .7rem var(--f-ui);color:#bfe6ff}
   .aire.off .a-rest{border-color:#2a4a7a} .aire.off .a-rest b{color:#7f93b3}
 
   /* Tabla */
   .tabla{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-  .thead,.item{display:grid;grid-template-columns:2rem 1.8rem 7.4rem minmax(0,1fr) 6rem 11rem 9.6rem 13rem;align-items:center;column-gap:.8rem;padding:0 1.1rem}
-  .thead{flex:none;height:3.4rem;font:600 1.2rem var(--f-ui);letter-spacing:.03em;border-bottom:1px solid var(--borde);color:#f1f6ff}
+  .thead,.item{display:grid;grid-template-columns:1.8rem 1.6rem 6.4rem minmax(0,1fr) 5.2rem 9.6rem 8.4rem 11rem;align-items:center;column-gap:1.1rem;padding:0 1.5rem}
+  .thead{flex:none;height:3rem;font:600 .95rem var(--f-ui);letter-spacing:.03em;border-bottom:1px solid var(--borde);color:#f1f6ff}
   .thead .c{text-align:center}
   #lista{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
   #lista::-webkit-scrollbar{width:.8rem} #lista::-webkit-scrollbar-thumb{background:#1f4172;border-radius:10px;border:3px solid transparent;background-clip:padding-box}
-  .vacio{margin:auto;color:var(--mut);text-align:center;padding:2rem;font-size:1.3rem;line-height:1.5}
-  .item{flex:none;min-height:4.3rem;padding-top:.35rem;padding-bottom:.35rem;border:2px solid transparent;border-bottom-color:rgba(40,92,155,.3);position:relative;cursor:default}
+  .vacio{margin:auto;color:var(--mut);text-align:center;padding:2rem;font-size:1.05rem;line-height:1.6}
+  .item{flex:none;min-height:4.4rem;padding-top:.6rem;padding-bottom:.6rem;border:2px solid transparent;border-bottom-color:rgba(40,92,155,.3);position:relative;cursor:default}
   .item.sel:not(.play){background:rgba(30,110,220,.14);box-shadow:inset 3px 0 0 var(--acc)}
-  .item.play{border-color:#1fd48a;border-radius:.8rem;background:linear-gradient(90deg,rgba(16,132,100,.42),rgba(10,72,92,.3));box-shadow:0 0 14px rgba(31,212,138,.28)}
+  .item.play{border-color:#ff3b4f;border-radius:.8rem;background:linear-gradient(90deg,rgba(160,20,40,.45),rgba(90,14,34,.3));box-shadow:0 0 14px rgba(255,59,79,.3)}
   .item.arrastrado{opacity:.35}
   .item.ins-antes::before,.item.ins-despues::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--acc);border-radius:3px}
   .item.ins-antes::before{top:-3px} .item.ins-despues::after{bottom:-3px}
-  .grip{cursor:grab;color:#2a86f0;font-size:1.7rem;user-select:none;line-height:1;text-align:center}
+  .grip{cursor:grab;color:#2a86f0;font-size:1.4rem;user-select:none;line-height:1;text-align:center}
   .grip:active{cursor:grabbing}
-  .num{width:1.8rem;height:1.8rem;border-radius:50%;background:#0f2a52;color:#e3eeff;display:grid;place-items:center;font-weight:600;font-size:1rem}
-  .badge{display:block;text-align:center;padding:.38rem 0;border-radius:999px;white-space:nowrap;font:700 1rem var(--f-ui);letter-spacing:.02em;border:1px solid transparent}
+  .num{width:1.5rem;height:1.5rem;border-radius:50%;background:#0f2a52;color:#e3eeff;display:grid;place-items:center;font-weight:600;font-size:.82rem}
+  .badge{display:block;text-align:center;padding:.3rem 0;border-radius:999px;white-space:nowrap;font:700 .8rem var(--f-ui);letter-spacing:.02em;border:1px solid transparent}
   .b-radio{background:linear-gradient(180deg,#12ad78,#0b7f5a);color:#c9f8e6;border-color:#2fd39c}
   .b-tanda{background:linear-gradient(180deg,#22a0f5,#1276cb);color:#e8f5ff;border-color:#4bb4ff}
   .b-programa{background:linear-gradient(180deg,#eaa421,#bf7909);color:#fff6df;border-color:#ffc260}
   .c-tit{min-width:0}
-  .t1{font:700 1.45rem/1.2 var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
-  .t2{font:400 1rem var(--f-ui);color:#a4bad8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .t-fin{display:flex;align-items:center;gap:.9rem;min-width:0}
+  .t1{font:700 1.15rem/1.25 var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+  .t2{font:400 .82rem var(--f-ui);color:#a4bad8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .t-fin{display:flex;align-items:center;gap:1rem;min-width:0}
   .t-fin .t1{flex:0 1 auto;max-width:55%}
   .t-fin .t2{flex:1;min-width:0;display:flex;align-items:center;gap:.5rem}
-  .t-fin .t2 svg{flex:none;width:1.3rem;height:1.3rem;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-  .dur{flex:none;font:600 1.05rem var(--f-ui);font-variant-numeric:tabular-nums;white-space:nowrap;padding:.12rem .75rem;border-radius:999px;
+  .t-fin .t2 svg{flex:none;width:1.05rem;height:1.05rem;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .dur{flex:none;font:600 .85rem var(--f-ui);font-variant-numeric:tabular-nums;white-space:nowrap;padding:.1rem .7rem;border-radius:999px;
        color:var(--c-tanda);background:rgba(58,168,255,.1);border:1px solid rgba(58,168,255,.6)}
   .item.programa .dur{color:#f2b04a;background:rgba(240,160,44,.1);border-color:rgba(240,160,44,.65)}
-  .item.play .dur{color:#aef5d3;background:rgba(44,224,138,.12);border-color:rgba(44,224,138,.6)}
-  .cdur,.cdias{text-align:center;font:500 1.15rem var(--f-ui);font-variant-numeric:tabular-nums;color:#e8f1ff;letter-spacing:.01em}
-  .cdias{font-size:1.1rem;color:#dbe8fb}
+  .item.play .dur{color:#ffc2ca;background:rgba(255,59,79,.14);border-color:rgba(255,95,112,.65)}
+  .cdur,.cdias{text-align:center;font:500 .92rem var(--f-ui);font-variant-numeric:tabular-nums;color:#e8f1ff;letter-spacing:.01em}
+  .cdias{font-size:.88rem;color:#dbe8fb}
   .chor{text-align:center}
-  .hp{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-width:8.8rem;padding:.45rem .9rem;border-radius:.75rem;font:600 1.4rem var(--f-ui);font-variant-numeric:tabular-nums;border:1px solid transparent;white-space:nowrap}
-  .hp svg{width:1.4rem;height:1.4rem;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .hp{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-width:7.2rem;height:2.2rem;padding:0 .8rem;border-radius:.65rem;font:600 1.1rem var(--f-ui);font-variant-numeric:tabular-nums;border:1px solid transparent;white-space:nowrap}
+  .hp svg{width:1.1rem;height:1.1rem;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .hp.t{background:linear-gradient(180deg,#1b66e6,#1450b9);color:#fff;border-color:#3a86ff}
-  .hp.live{background:linear-gradient(180deg,#14a373,#0b7a58);color:#d9fff1;border-color:#2fe0a0;font-size:1.1rem}
-  .hp.cola{background:rgba(24,62,118,.85);color:#d3e3fa;border-color:#2a5aa0;font-size:1.05rem}
-  .hp.sin{background:transparent;color:#6f86a8;border:1px dashed #2a4a7a;font-size:.95rem;font-weight:500}
-  .acc{display:flex;gap:.55rem}
-  .acc button{width:3.05rem;height:3.05rem;padding:0;border-radius:.7rem;background:linear-gradient(180deg,#143a72,#0e2a55);border:1px solid #23508f;color:#e8f1ff;display:grid;place-items:center}
-  .acc button svg{width:1.3rem;height:1.3rem;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .hp.live{background:linear-gradient(180deg,#14a373,#0b7a58);color:#d9fff1;border-color:#2fe0a0;font-size:.95rem;cursor:default}
+  .hp.t,.hp.sin{cursor:pointer;transition:filter .15s,transform .08s}
+  .hp.t:hover,.hp.sin:hover{filter:brightness(1.18)} .hp.t:active,.hp.sin:active{transform:scale(.97)}
+  .hp.cola{background:rgba(24,62,118,.85);color:#d3e3fa;border-color:#2a5aa0;font-size:.85rem}
+  .hp.conn{background:rgba(120,80,10,.55);color:#ffd28a;border-color:#d9a032;font-size:.88rem;animation:parp 1.1s ease-in-out infinite}
+  @keyframes parp{50%{opacity:.5}}
+  .hp.sin{background:linear-gradient(180deg,#0b1d3a,#07152c);color:#7f93b3;border-color:#1c3d6e;font-size:.9rem;font-weight:600}
+  .hp.sin:hover{color:#b9cbe6;border-color:#2a5aa0}
+  .acc{display:flex;gap:.5rem}
+  .acc button{width:2.4rem;height:2.4rem;padding:0;border-radius:.6rem;background:linear-gradient(180deg,#143a72,#0e2a55);border:1px solid #23508f;color:#e8f1ff;display:grid;place-items:center}
+  .acc button svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   .acc button.stop{background:linear-gradient(180deg,#ff2f47,#c3112a);border-color:#ff6b7c}
   .acc button[data-a="del"]:hover{color:#ff7080}
 
-  /* Detalle de reproducción */
-  .detalle{flex:none;padding:.55rem 1.2rem .8rem}
-  .dt-h{display:flex;align-items:center;gap:.7rem;background:none;border:0;padding:.2rem 0;color:#cfe0f5;font:600 1.15rem var(--f-ui);letter-spacing:.02em;text-transform:uppercase}
-  .dt-h:hover{filter:none;color:#fff}
-  .dt-h svg{width:1.2rem;height:1.2rem;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
-  .detalle.cerrado .dt-h svg{transform:rotate(-90deg)} .detalle.cerrado .dt-b{display:none}
-  .dt-b{display:flex;align-items:center;gap:1.1rem;margin-top:.5rem;padding-top:.7rem;border-top:1px solid rgba(40,92,155,.3)}
-  .dt-ico{flex:none;width:3.6rem;height:3.6rem;border-radius:50%;display:grid;place-items:center;color:#2ce08a;border:2px solid rgba(90,170,255,.45);background:rgba(15,45,90,.5)}
-  .dt-ico svg{width:2rem;height:2rem}
-  .dt-nom{flex:none;width:16rem;min-width:0}
-  .dt-rep{flex:none;white-space:nowrap;font:500 1.05rem var(--f-ui)} .dt-rep b{font:600 1.35rem var(--f-ui);font-variant-numeric:tabular-nums;margin-left:.35rem}
-  .barra{flex:1;min-width:4rem;height:.55rem;border-radius:99px;background:#12315f;position:relative}
-  .barra i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#0a86e8,#27c0ff)}
-  .barra i::after{content:"";position:absolute;right:-.5rem;top:50%;width:1rem;height:1rem;margin-top:-.5rem;border-radius:50%;background:#27c0ff;box-shadow:0 0 8px rgba(39,192,255,.8)}
-  #dtRest{flex:none;min-width:3.5rem;text-align:center;font:500 1.2rem var(--f-ui);font-variant-numeric:tabular-nums;color:#dbe8fb}
-
   /* Columna derecha */
-  .vuP{flex:1.15 1 0;min-height:13rem;display:flex;flex-direction:column;overflow:hidden}
-  .box-t{flex:none;text-align:center;font:600 1.3rem var(--f-ui);padding:.8rem 0 .1rem;letter-spacing:.02em}
+  .box-t{flex:none;text-align:center;font:600 1.05rem var(--f-ui);padding:1rem 0 .2rem;letter-spacing:.02em}
   #vu{flex:1;position:relative;min-height:0}
+  .fp.vuH{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:.4rem;padding:.7rem 1.3rem .8rem}
+  .vu-t{flex:none;font:600 .8rem var(--f-ui);letter-spacing:.08em;color:#cfe0f5}
+  .repP{flex:none;display:flex;flex-direction:column;padding-bottom:1.3rem}
+  .rp-n{padding:.55rem 1.1rem 0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:500 .9rem var(--f-ui);color:#cfe0f5}
+  .rp-n b{font-weight:700;font-size:1rem;color:#fff}
+  .rp-v{display:flex;justify-content:center;padding-top:.5rem}
+  .rp-v b{font:600 2.1rem/1 var(--f-ui);font-variant-numeric:tabular-nums;color:#fff}
   #vu canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .cmpP{flex:none;display:flex;align-items:center;justify-content:center;gap:1.3rem;padding:1.15rem 1rem}
-  .cmpP .lbl{font:600 1.25rem var(--f-ui);letter-spacing:.02em}
+  .cmpP{flex:none;display:flex;align-items:center;justify-content:center;gap:1.1rem;padding:1.1rem 1rem}
+  .cmpP .lbl{font:600 1rem var(--f-ui);letter-spacing:.02em}
   .tog{display:flex;gap:.2rem;padding:.2rem;border-radius:.8rem;background:rgba(14,38,76,.85);border:1px solid #1d3f73}
-  .tog button{background:transparent;color:#cfe0f5;border:1px solid transparent;border-radius:.6rem;padding:.5rem 1.05rem;font:700 1.2rem var(--f-ui)}
+  .tog button{background:transparent;color:#cfe0f5;border:1px solid transparent;border-radius:.5rem;padding:.4rem .85rem;font:700 .95rem var(--f-ui)}
   .tog button.on{background:linear-gradient(180deg,#1b66e6,#1450b9);border-color:#3a86ff;color:#fff}
-  .edP{flex:1 1 0;min-height:9rem;display:flex;flex-direction:column;overflow:hidden}
-  #edBody{flex:1;min-height:0;display:flex;flex-direction:column;padding:.2rem .8rem .8rem;overflow:hidden}
-  .ed-vacio{margin:auto;text-align:center;color:#d3e3fa;font:400 .98rem/1.35 var(--f-ui);max-width:92%}
-  .ed-vacio button{margin-top:.8rem;padding:.5rem 1rem;font-size:1rem}
-  .ed-h{flex:none;display:flex;align-items:center;gap:.6rem;padding:.2rem .2rem .5rem;min-width:0}
-  .ed-h b{font:700 1.15rem var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .edP{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  #edBody{flex:1;min-height:0;display:flex;flex-direction:column;padding:.3rem 1rem 1rem;overflow:hidden}
+  .ed-vacio{margin:auto;text-align:center;color:#d3e3fa;font:400 .85rem/1.5 var(--f-ui);max-width:92%}
+  .ed-vacio button{margin-top:1rem;padding:.4rem .85rem;font-size:.85rem}
+  .ed-h{flex:none;display:flex;align-items:center;gap:.6rem;padding:.2rem .2rem .7rem;min-width:0}
+  .ed-h b{font:700 .95rem var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ed-list{flex:1;min-height:0;overflow-y:auto}
   .ed-list::-webkit-scrollbar{width:.6rem} .ed-list::-webkit-scrollbar-thumb{background:#1f4172;border-radius:10px}
-  .ed-row{display:grid;grid-template-columns:1.5rem minmax(0,1fr) auto auto auto auto;align-items:center;gap:.4rem;padding:.28rem .2rem;border-bottom:1px solid rgba(40,92,155,.25);font:400 .95rem var(--f-ui)}
+  .ed-row{display:grid;grid-template-columns:.9rem 1.3rem minmax(0,1fr) auto auto;align-items:center;gap:.5rem;padding:.45rem .3rem;position:relative;cursor:grab;user-select:none;border-bottom:1px solid rgba(40,92,155,.25);font:400 .82rem var(--f-ui)}
+  .ed-row:active{cursor:grabbing}
+  .ed-row:hover{background:rgba(30,110,220,.1)}
+  .ed-row.arrastrado{opacity:.35}
+  .ed-row .gr{color:#2a86f0;font-size:1rem;line-height:1;text-align:center}
+  .ed-row.ins-antes::before,.ed-row.ins-despues::after{content:"";position:absolute;left:0;right:0;height:2px;background:var(--acc);border-radius:2px;pointer-events:none}
+  .ed-row.ins-antes::before{top:-1px} .ed-row.ins-despues::after{bottom:-1px}
   .ed-row .en{color:#7f98bb;text-align:right}
   .ed-row .enm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ed-row .edu{color:#a4bad8;font-variant-numeric:tabular-nums;margin-right:.2rem}
-  .ed-row button{width:1.75rem;height:1.75rem;padding:0;font-size:.8rem;background:rgba(14,38,76,.9);border:1px solid #23508f;border-radius:.45rem;color:#dbe8fb;display:grid;place-items:center}
+  .ed-row button{width:1.5rem;height:1.5rem;padding:0;font-size:.7rem;background:rgba(14,38,76,.9);border:1px solid #23508f;border-radius:.45rem;color:#dbe8fb;display:grid;place-items:center}
   .ed-row button:disabled{opacity:.25}
-  .ed-f{flex:none;display:flex;gap:.5rem;padding-top:.5rem}
-  .ed-f button{flex:1;padding:.4rem .6rem;font-size:.9rem}
+  .ed-f{flex:none;display:flex;gap:.6rem;padding-top:.7rem}
+  .ed-f button{flex:1;padding:.35rem .6rem;font-size:.8rem}
 
   /* ---------- Barra inferior ---------- */
-  footer{flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.96fr) minmax(0,1.22fr) minmax(0,1.1fr);gap:.9rem;padding:.7rem 1rem .9rem .8rem;border-top:1px solid #12305a;background:rgba(3,10,22,.55);z-index:6}
-  .fp{display:flex;align-items:center;gap:1.1rem;min-width:0;height:8.4rem;padding:.7rem 1.2rem}
-  .f-ico{flex:none;align-self:flex-start;width:3.3rem;height:3.3rem;margin-top:.2rem;border-radius:50%;display:grid;place-items:center;color:#2aa4ff;border:2px solid #1f7fe0;background:rgba(20,80,160,.18)}
-  .f-ico svg{width:1.9rem;height:1.9rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  footer{flex:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.96fr) minmax(0,1.22fr) minmax(0,1.1fr);gap:1.1rem;padding:.9rem 1.2rem 1.1rem 1rem;border-top:1px solid #12305a;background:rgba(3,10,22,.55);z-index:6}
+  .fp{display:flex;align-items:center;gap:1.1rem;min-width:0;height:7.8rem;padding:.8rem 1.4rem}
+  .f-ico{flex:none;align-self:flex-start;width:2.8rem;height:2.8rem;margin-top:.2rem;border-radius:50%;display:grid;place-items:center;color:#2aa4ff;border:2px solid #1f7fe0;background:rgba(20,80,160,.18)}
+  .f-ico svg{width:1.55rem;height:1.55rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .cuenta{min-width:0}
-  .cuenta .c1{font:600 .95rem var(--f-ui);color:#4db3ff;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .cuenta .cn{font:700 1.5rem/1.2 var(--f-ui);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .cuenta .cs{font:400 1rem var(--f-ui);color:#b6c9e4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.2em}
-  .cuenta .c2{font:700 2.4rem/1.1 var(--f-ui);font-variant-numeric:tabular-nums;color:#fff}
+  .cuenta .c1{font:600 .78rem var(--f-ui);color:#4db3ff;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cuenta .cn{font:700 1.2rem/1.3 var(--f-ui);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cuenta .cs{font:400 .82rem var(--f-ui);color:#b6c9e4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.2em}
+  .cuenta .c2{font:700 1.95rem/1.15 var(--f-ui);font-variant-numeric:tabular-nums;color:#fff}
   .cuenta.dim .c2{opacity:.45}
   .cuenta.tanda .c2{color:#2ce08a}
   .info{align-items:flex-start;gap:1rem}
-  .info .it{font:700 1rem var(--f-ui);color:#fff;letter-spacing:.02em;margin-bottom:.15rem;text-transform:uppercase}
-  .info p{margin:0;font:400 .86rem/1.28 var(--f-ui);color:#cfe0f5}
+  .info .it{font:700 .82rem var(--f-ui);color:#fff;letter-spacing:.02em;margin-bottom:.25rem;text-transform:uppercase}
+  .info p{margin:0;font:400 .76rem/1.4 var(--f-ui);color:#cfe0f5}
   .info{overflow:hidden}
   .info p b{color:#fff;font-weight:600}
-  .fb{display:grid;grid-template-columns:repeat(6,1fr);gap:.6rem;align-content:center}
-  .fb button{display:flex;align-items:center;justify-content:center;gap:.6rem;padding:0 .5rem;height:3.5rem;font:600 1.15rem var(--f-ui);text-transform:uppercase;letter-spacing:.01em;white-space:nowrap}
-  .fb .g{grid-column:span 3} .fb .s{grid-column:span 2;height:3.1rem;font-size:1.1rem;text-transform:none;letter-spacing:0;font-weight:600}
-  .fb svg{width:1.4rem;height:1.4rem;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .fb{display:grid;grid-template-columns:repeat(6,1fr);gap:.7rem;align-content:center}
+  .fb button{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:0 .5rem;height:2.9rem;font:600 .92rem var(--f-ui);text-transform:uppercase;letter-spacing:.01em;white-space:nowrap}
+  .fb .g{grid-column:span 3} .fb .s{grid-column:span 3;height:2.6rem;font-size:.88rem;text-transform:none;letter-spacing:0;font-weight:600}
+  .fb svg{width:1.15rem;height:1.15rem;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   #btnActivar{background:linear-gradient(180deg,#14b57c,#0b8460);border:1px solid #2fe0a0}
   #btnActivar.peligro{background:linear-gradient(180deg,#ff2f47,#c3112a);border:1px solid #ff6b7c}
   #btnNuevo{background:rgba(10,30,64,.85);border:1px solid #1f4a86}
@@ -193,78 +194,152 @@
   .pop.abierto{display:flex}
 
   /* VOLUMEN GENERAL (master) */
-  .master{flex-direction:column;align-items:stretch;justify-content:center;gap:.5rem;border-color:#1f6fd0;box-shadow:0 0 0 1px rgba(30,144,255,.14),0 0 18px rgba(30,144,255,.12)}
+  .master{flex-direction:column;align-items:stretch;justify-content:center;gap:.7rem;border-color:#1f6fd0;box-shadow:0 0 0 1px rgba(30,144,255,.14),0 0 18px rgba(30,144,255,.12)}
   .master.boost{border-color:var(--bad);box-shadow:0 0 0 1px rgba(255,59,79,.2),0 0 18px rgba(255,59,79,.15)}
   .v-top{display:flex;align-items:center;gap:.9rem;min-width:0}
-  .v-top svg{flex:none;width:2rem;height:2rem;stroke:#e8f1ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .m-lbl{font:600 1.2rem var(--f-ui);letter-spacing:.02em;color:#fff;white-space:nowrap}
+  .v-top svg{flex:none;width:1.6rem;height:1.6rem;stroke:#e8f1ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .m-lbl{font:600 .98rem var(--f-ui);letter-spacing:.02em;color:#fff;white-space:nowrap}
   .master.boost .m-lbl{color:#ff9aa8}
-  .m-sub{font:400 .9rem var(--f-ui);color:#8fa8c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:auto}
-  .m-ctl{display:flex;align-items:center;gap:1.2rem}
+  .m-sub{font:400 .76rem var(--f-ui);color:#8fa8c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:auto}
+  .m-ctl{display:flex;align-items:center;gap:1rem}
   .mwrap{position:relative;flex:1;min-width:0;display:flex;align-items:center}
-  .mtick{position:absolute;left:50%;top:50%;width:2px;height:1.5rem;margin:-.75rem 0 0 -1px;background:rgba(238,244,255,.55);border-radius:2px;pointer-events:none}
-  .mrange{-webkit-appearance:none;appearance:none;width:100%;height:1.8rem;margin:0;background:transparent;outline:none;cursor:pointer}
-  .mrange::-webkit-slider-runnable-track{height:.7rem;border-radius:999px;background:var(--mbg,#12315f)}
-  .mrange::-moz-range-track{height:.7rem;border-radius:999px;background:var(--mbg,#12315f)}
-  .mrange::-webkit-slider-thumb{-webkit-appearance:none;width:1.6rem;height:1.6rem;margin-top:-.45rem;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#9fd5ff);border:3px solid #2aa4ff;box-shadow:0 0 10px rgba(42,164,255,.7)}
-  .mrange::-moz-range-thumb{width:1.2rem;height:1.2rem;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#9fd5ff);border:3px solid #2aa4ff;box-shadow:0 0 10px rgba(42,164,255,.7)}
+  .mtick{position:absolute;left:50%;top:50%;width:2px;height:1.2rem;margin:-.6rem 0 0 -1px;background:rgba(238,244,255,.55);border-radius:2px;pointer-events:none}
+  .mrange{-webkit-appearance:none;appearance:none;width:100%;height:1.5rem;margin:0;background:transparent;outline:none;cursor:pointer}
+  .mrange::-webkit-slider-runnable-track{height:.55rem;border-radius:999px;background:var(--mbg,#12315f)}
+  .mrange::-moz-range-track{height:.55rem;border-radius:999px;background:var(--mbg,#12315f)}
+  .mrange::-webkit-slider-thumb{-webkit-appearance:none;width:1.3rem;height:1.3rem;margin-top:-.4rem;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#9fd5ff);border:3px solid #2aa4ff;box-shadow:0 0 10px rgba(42,164,255,.7)}
+  .mrange::-moz-range-thumb{width:1rem;height:1rem;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#9fd5ff);border:3px solid #2aa4ff;box-shadow:0 0 10px rgba(42,164,255,.7)}
   .master.boost .mrange::-webkit-slider-thumb{border-color:var(--bad);box-shadow:0 0 10px rgba(255,59,79,.7)}
   .master.boost .mrange::-moz-range-thumb{border-color:var(--bad);box-shadow:0 0 10px rgba(255,59,79,.7)}
   .mrange:focus-visible{outline:2px solid var(--acc2);outline-offset:2px;border-radius:12px}
-  .m-val{flex:none;min-width:4.6rem;text-align:right;font:600 1.6rem var(--f-ui);font-variant-numeric:tabular-nums;color:#fff;cursor:pointer;line-height:1}
+  .m-val{flex:none;min-width:3.8rem;text-align:right;font:600 1.3rem var(--f-ui);font-variant-numeric:tabular-nums;color:#fff;cursor:pointer;line-height:1}
   .master.boost .m-val{color:var(--bad)}
 
 
   /* Ventanita */
   #modal,.overlay{position:fixed;inset:0;background:rgba(5,6,9,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
-  .caja{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px;width:100%;max-width:520px;max-height:94vh;overflow:auto}
-  .caja h3{margin:0 0 18px;font-size:24px;color:var(--ink)}
-  label.f{display:block;margin:14px 0 6px;color:var(--mut);font-size:14px;font-weight:700;letter-spacing:.5px}
-  select,input[type=text],input[type=number],input[type=time]{width:100%;font:inherit;font-size:18px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;outline:none}
+  .caja{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;width:100%;max-width:520px;max-height:94vh;overflow:auto}
+  .caja h3{margin:0 0 20px;font-size:20px;color:var(--ink)}
+  label.f{display:block;margin:18px 0 8px;color:var(--mut);font-size:12.5px;font-weight:700;letter-spacing:.5px}
+  select,input[type=text],input[type=number],input[type=time]{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none}
   select:focus,input:focus{border-color:var(--acc)}
   .hrow{display:flex;gap:10px;align-items:center}
   .hrow input{flex:1}
-  .dias-sel{display:flex;gap:6px;transition:opacity .15s}
+  .dias-sel{display:flex;gap:.2rem;padding:.2rem;border-radius:.8rem;background:rgba(14,38,76,.85);border:1px solid #1d3f73;transition:opacity .15s}
   .dias-sel.off{opacity:.4}
-  .dias-sel button.dia{flex:1;min-width:0;padding:10px 0;font-size:13px;letter-spacing:.5px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--mut)}
-  .dias-sel button.dia.on{background:rgba(240,144,60,.16);border-color:var(--acc);color:var(--acc2)}
-  .diasnota{margin-top:6px;color:var(--mut);font-size:13px}
-  .pie{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
-  .infoarch{margin-top:8px;color:var(--mut);font-size:14px}
+  .dias-sel button.dia{flex:1;min-width:0;padding:8px 0;font-size:12px;letter-spacing:.5px;border-radius:.6rem;background:transparent;border:1px solid transparent;color:#cfe0f5}
+  .dias-sel button.dia.on{background:linear-gradient(180deg,#1b66e6,#1450b9);border-color:#3a86ff;color:#fff}
+  .diasnota{margin-top:8px;color:var(--mut);font-size:12px}
+  .pie{display:flex;justify-content:flex-end;gap:10px;margin-top:28px}
+  .infoarch{margin-top:10px;color:var(--mut);font-size:12.5px}
   .oculto{display:none}
-  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel3);border:1px solid var(--line);color:var(--ink);padding:12px 20px;border-radius:14px;display:none;z-index:30;max-width:90vw}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel3);border:1px solid var(--line);color:var(--ink);padding:10px 18px;font-size:14px;border-radius:12px;display:none;z-index:30;max-width:90vw}
 
-  .pop-h{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:800;font-size:18px}
-  .pop-h small{display:block;color:var(--mut);font-weight:500;font-size:13px;margin-top:2px}
-  #volLista{overflow-y:auto;padding:6px 18px 14px}
+  .pop-h{padding:16px 20px;border-bottom:1px solid var(--line);font-weight:800;font-size:16px}
+  .pop-h small{display:block;color:var(--mut);font-weight:500;font-size:12px;margin-top:3px}
+  #volLista{overflow-y:auto;padding:8px 20px 16px}
   #volLista::-webkit-scrollbar{width:10px} #volLista::-webkit-scrollbar-thumb{background:#2e3443;border-radius:10px;border:2px solid var(--panel)}
-  .vsec{margin:14px 0 4px;color:var(--mut);font-size:12px;font-weight:800;letter-spacing:2px}
-  .vfila{display:grid;grid-template-columns:minmax(90px,1.2fr) 2fr auto auto;align-items:center;gap:10px;padding:6px 0}
+  .vsec{margin:18px 0 6px;color:var(--mut);font-size:11px;font-weight:800;letter-spacing:2px}
+  .vfila{display:grid;grid-template-columns:minmax(90px,1.2fr) 2fr auto auto;align-items:center;gap:12px;padding:8px 0}
   .vn{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .vr{width:100%;accent-color:var(--acc)}
   .vnum{display:flex;align-items:center;gap:4px;color:var(--mut)}
-  input.vi{width:74px;font-size:16px;padding:6px 8px;text-align:right}
-  .vfila button{padding:5px 9px;font-size:12px;background:var(--panel2);border:1px solid var(--line);color:var(--ink)}
-  .vnota{grid-column:1/-1;color:var(--acc2);font-size:12px}
+  input.vi{width:70px;font-size:14px;padding:5px 8px;text-align:right}
+  .vfila button{padding:4px 8px;font-size:11px;background:var(--panel2);border:1px solid var(--line);color:var(--ink)}
+  .vnota{grid-column:1/-1;color:var(--acc2);font-size:11px}
   .cfila{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0}
-  .ctog,.seg button{padding:7px 14px;font-size:13px;letter-spacing:.8px;background:var(--panel2);border:1px solid var(--line);color:var(--mut)}
+  .ctog,.seg button{padding:6px 12px;font-size:12px;letter-spacing:.8px;background:var(--panel2);border:1px solid var(--line);color:var(--mut)}
   .ctog.on,.seg button.on{background:rgba(240,144,60,.16);border-color:var(--acc);color:var(--acc2)}
   .seg{display:flex;gap:6px;transition:opacity .15s} .seg.off{opacity:.4}
-  .vvacio{color:var(--mut);font-size:14px;padding:6px 0}
+  .vvacio{color:var(--mut);font-size:13px;padding:6px 0}
   .caja.ancha{max-width:700px}
   .lrow{margin:12px 0}
   .ln{font-weight:800;margin-bottom:6px}
-  .lline{display:flex;gap:8px}
-  .lline input{flex:1;font-size:14px;font-family:ui-monospace,Consolas,monospace}
-  .lline button{flex:none;padding:8px 16px}
-  .ln input{font-size:16px;font-weight:800;padding:8px 12px}
+  .lline{display:flex;gap:8px;align-items:center}
+  .lline .rp{flex:none;display:flex;align-items:center;gap:6px;width:76px;font-size:12px;font-weight:700;color:var(--mut);cursor:pointer}
+  .lline .rp input{flex:none;width:auto;margin:0;accent-color:var(--acc)}
+  .lline .rp input:checked + span{color:var(--acc2)}
+  .lrow:not(.conalt) .rp{display:none}
+  .lrow:not(.conalt) .lline.lalt,.lrow:not(.conalt) .lest.lalt{display:none}
+  .lrow.conalt .balt{display:none}
+  .lrow .lline.lalt{margin-top:8px}
+  .lest{margin:4px 0 0 84px;font-size:11.5px;min-height:1em;color:var(--mut)}
+  .lrow:not(.conalt) .lest{margin-left:0}
+  .lest[data-s="ok"]{color:#2ce08a} .lest[data-s="nocors"]{color:#f5b84a} .lest[data-s="caido"]{color:#ff7b8a}
+  .lline input{flex:1;font-size:13px;font-family:ui-monospace,Consolas,monospace}
+  .lline button{flex:none;padding:7px 13px}
+  .ln input{font-size:14px;font-weight:800;padding:8px 12px}
   .nueva{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
   .nueva .ln{margin-bottom:2px}
   .nlinea{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .nlinea input{font-size:15px;padding:10px 12px}
+  .nlinea input{font-size:13.5px;padding:9px 11px}
   .nlinea .nn{flex:1 1 150px;min-width:0} .nlinea .nu{flex:3 1 240px;min-width:0;font-family:ui-monospace,Consolas,monospace}
   .nlinea button{flex:none}
 
+
+  /* ---------- Botón VER CALENDARIO ---------- */
+  .hder{display:flex;align-items:center;min-width:0}
+  .hder .sp{flex:1}
+  .calbtn{display:inline-flex;align-items:center;gap:.7rem;padding:.35rem 1.4rem .35rem .45rem;border-radius:999px;font:700 1.15rem var(--f-ui);letter-spacing:.01em;white-space:nowrap;color:#cfe6ff;
+          background:linear-gradient(180deg,rgba(18,52,104,.85),rgba(8,28,60,.85));border:1px solid rgba(60,140,255,.45);box-shadow:0 0 22px rgba(30,120,255,.15)}
+  .calbtn .ci{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;font-size:1.25rem;line-height:1;border:2px solid #1f7fe0;background:rgba(20,80,160,.2)}
+
+  /* ---------- Calendario (solo vista) ---------- */
+  .cal{width:min(96vw,86rem);height:min(92vh,62rem);display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:1.2rem;box-shadow:0 20px 70px rgba(0,0,0,.65);overflow:hidden;font-family:var(--f-ui);color:var(--ink)}
+  .cal-h{flex:none;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding:.9rem 1.3rem;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(15,37,72,.9),rgba(10,26,51,.9))}
+  .cal-t{font:700 1.2rem var(--f-ui);letter-spacing:.04em;display:flex;align-items:center;gap:.6rem;white-space:nowrap}
+  .cal-t small{font:400 .8rem var(--f-ui);color:var(--mut);letter-spacing:0;margin-left:.4rem}
+  .cal-mid{display:flex;align-items:center;gap:.5rem}
+  .cal-mid button,.cal-x{padding:.4rem .9rem;font-size:1rem;min-width:2.6rem}
+  .cal-lab{text-align:center;min-width:17rem;padding:0 .8rem}
+  .cal-lab b{display:block;font:700 1.35rem var(--f-ui);letter-spacing:.03em}
+  .cal-lab small{display:block;font:500 .85rem var(--f-ui);color:#a4bad8}
+  .cal-x{justify-self:end}
+  .cal-meses{flex:none;display:flex;gap:.4rem;padding:.6rem 1.3rem;border-bottom:1px solid var(--line);overflow-x:auto}
+  .cal-meses button{flex:1;padding:.3rem .5rem;font-size:.85rem;font-weight:600;background:rgba(12,34,70,.85);border:1px solid #1f4a86;color:#a4bad8}
+  .cal-meses button.act{background:linear-gradient(180deg,#1b66e6,#1450b9);color:#fff;border-color:#3a86ff}
+  .cal-body{flex:1;min-height:0;overflow:auto;position:relative}
+  .cal-body::-webkit-scrollbar{width:.8rem} .cal-body::-webkit-scrollbar-thumb{background:#1f4172;border-radius:10px;border:3px solid transparent;background-clip:padding-box}
+  .cal-g{display:grid;grid-template-columns:4.4rem repeat(7,minmax(9rem,1fr));min-width:70rem}
+  .cal-g>div{border-right:1px solid rgba(40,92,155,.28);border-bottom:1px solid rgba(40,92,155,.28)}
+  .cal-g .dh{position:sticky;top:0;z-index:3;text-align:center;padding:.5rem .3rem;background:#0c2142;border-bottom:2px solid var(--line)}
+  .cal-g .dh b{display:block;font:700 .95rem var(--f-ui);letter-spacing:.05em;color:#dbe8fb}
+  .cal-g .dh span{display:block;font:600 1.05rem var(--f-ui);color:#fff}
+  .cal-g .dh.hoy{background:linear-gradient(180deg,#1b66e6,#1450b9)}
+  .cal-g .dh.hoy b::after{content:" · HOY"}
+  .cal-g .ch{position:sticky;left:0;z-index:2;display:flex;align-items:flex-start;justify-content:center;padding-top:.45rem;font:600 .85rem var(--f-ui);color:#8fa8c8;background:#0a1a33;font-variant-numeric:tabular-nums}
+  .cal-g .ch.ahora{color:#ff6b7c;font-weight:700}
+  .cal-g .corner{position:sticky;top:0;left:0;z-index:4;background:#0c2142;border-bottom:2px solid var(--line)}
+  .cal-g .cc{position:relative;min-height:2.6rem;padding:.2rem .25rem;display:flex;flex-direction:column;gap:.2rem}
+  .cal-g .cc.hoy{background:rgba(30,110,220,.1)}
+  .cal-g .cc.ahora{background:rgba(255,59,79,.1)}
+  .ev{display:flex;gap:.45rem;align-items:center;min-width:0;padding:.18rem .5rem;border-radius:.45rem;font:500 .85rem var(--f-ui);border-left:3px solid;white-space:nowrap;position:relative;z-index:1}
+  .ev b{font-weight:700;font-variant-numeric:tabular-nums}
+  .ev span{overflow:hidden;text-overflow:ellipsis}
+  .ev.radio{background:rgba(18,173,120,.22);border-color:#2fd39c;color:#c9f8e6}
+  .ev.tanda{background:rgba(34,160,245,.22);border-color:#4bb4ff;color:#e0f1ff}
+  .ev.programa{background:rgba(234,164,33,.22);border-color:#ffc260;color:#fff1d2}
+  .ev.pasado{opacity:.5}
+  .ev.sona{background:rgba(255,59,79,.3);border-color:#ff3b4f;color:#fff;box-shadow:0 0 10px rgba(255,59,79,.4)}
+  .nowl{position:absolute;left:0;right:0;height:0;border-top:2px solid #ff3b4f;z-index:2;pointer-events:none}
+  .nowl::before{content:"";position:absolute;left:-1px;top:-6px;width:10px;height:10px;border-radius:50%;background:#ff3b4f;box-shadow:0 0 8px #ff3b4f}
+  .nowl i{position:absolute;right:2px;top:.2rem;font:700 .72rem var(--f-ui);font-style:normal;color:#fff;background:#d4182f;padding:.05rem .4rem;border-radius:.35rem}
+
+  /* Calendario por bloques: la radio ocupa todo el tiempo hasta el próximo cambio; tandas/programas se muestran encima */
+  .cal-g .ctime{position:sticky;left:0;z-index:2;background:#0a1a33}
+  .cal-g .ctime .ch{position:static;height:3.6rem;border-bottom:1px solid rgba(40,92,155,.28)}
+  .cal-g .cday{position:relative;height:86.4rem;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(3.6rem - 1px),rgba(40,92,155,.28) calc(3.6rem - 1px),rgba(40,92,155,.28) 3.6rem)}
+  .cal-g .cday.hoy{background-color:rgba(30,110,220,.08)}
+  .bk{position:absolute;left:2px;right:2px;overflow:hidden;border-left:3px solid;border-radius:.35rem;padding:.12rem .5rem;font:500 .85rem/1.25 var(--f-ui);white-space:nowrap;text-overflow:ellipsis}
+  .bk b{font-weight:700;font-variant-numeric:tabular-nums;margin-right:.35rem}
+  .bk.radio{background:rgba(18,173,120,.2);border-color:#2fd39c;color:#c9f8e6}
+  .bk.radio.ini{border-top:2px solid #2fd39c}
+  .bk.tanda{z-index:3;background:rgba(34,140,230,.88);border-color:#7cc6ff;color:#fff}
+  .bk.programa{z-index:3;background:rgba(214,140,20,.9);border-color:#ffd48a;color:#fff}
+  .bk.pasado{opacity:.5}
+  .bk.sona{opacity:1;background:rgba(255,59,79,.38);border-color:#ff3b4f;color:#fff;box-shadow:0 0 10px rgba(255,59,79,.4)}
+  .bk.tanda.sona,.bk.programa.sona{background:rgba(220,30,55,.92);border-color:#ff9aa6}
+  .cal-g .cday .nowl{z-index:4}
 
 </style>
 </head>
@@ -280,9 +355,14 @@
     </div>
   </div>
   <div class="onair off" id="onair"><i></i><span id="onairTxt">DETENIDO</span></div>
-  <div class="der">
-    <span id="reloj">--:--:--</span>
-    <span id="fecha">&nbsp;</span>
+  <div class="hder">
+    <span class="sp"></span>
+    <button type="button" class="calbtn" id="btnCal" title="Ver los horarios programados de la semana"><span class="ci">📅</span>VER CALENDARIO</button>
+    <span class="sp"></span>
+    <div class="der">
+      <span id="reloj">--:--:--</span>
+      <span id="fecha">&nbsp;</span>
+    </div>
   </div>
 </header>
 
@@ -303,26 +383,17 @@
       <div id="lista"></div>
     </section>
 
-    <section class="detalle box" id="detalle">
-      <button class="dt-h" id="dtTog" type="button"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>Detalle de reproducción</button>
-      <div class="dt-b">
-        <div class="dt-ico"><svg viewBox="0 0 48 48"><g fill="currentColor"><rect x="5" y="19" width="4.5" height="10" rx="2.2"/><rect x="13" y="11" width="4.5" height="26" rx="2.2"/><rect x="21.7" y="5" width="4.5" height="38" rx="2.2"/><rect x="30.5" y="13" width="4.5" height="22" rx="2.2"/><rect x="38.5" y="18" width="4.5" height="12" rx="2.2"/></g></svg></div>
-        <div class="dt-nom"><div class="t1" id="dtT">—</div><div class="t2" id="dtS">—</div></div>
-        <span class="dt-rep">Reproduciendo<b id="dtEl">--:--:--</b></span>
-        <div class="barra"><i id="dtBar"></i></div>
-        <span id="dtRest">--</span>
-      </div>
-    </section>
   </div>
 
   <aside class="rcol">
-    <section class="vuP box">
-      <div class="box-t">AUDIO EN VIVO</div>
-      <div id="vu" title="Vúmetro estéreo (salida total)"><canvas id="vuCv"></canvas></div>
-    </section>
     <section class="cmpP box">
       <span class="lbl">COMPRESOR</span>
       <div class="tog"><button type="button" id="cmpOn">ON</button><button type="button" id="cmpOff">OFF</button></div>
+    </section>
+    <section class="repP box">
+      <div class="box-t">DETALLE DE REPRODUCCIÓN</div>
+      <div class="rp-n"><span>Reproduciendo</span> <b id="dtT">—</b></div>
+      <div class="rp-v"><b id="dtEl">--:--:--</b></div>
     </section>
     <section class="edP box">
       <div class="box-t">EDITOR DE TANDAS</div>
@@ -353,21 +424,15 @@
     </div>
   </div>
 
-  <div class="fp box info">
-    <div class="f-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="17"/><circle cx="12" cy="7.6" r=".7" fill="currentColor"/></svg></div>
-    <div style="min-width:0">
-      <div class="it">Información</div>
-      <p><b>Con horario:</b> arranca solo a esa hora, en los días marcados.</p>
-      <p><b>Sin horario:</b> suena a continuación del ítem anterior, cuando éste termina.</p>
-      <p>Al terminar una tanda o un bloque, vuelve a la emisora que estaba de fondo (que sigue corriendo en silencio).</p>
-    </div>
+  <div class="fp box vuH">
+    <div class="vu-t">AUDIO EN VIVO</div>
+    <div id="vu" title="Vúmetro estéreo (salida total)"><canvas id="vuCv"></canvas></div>
   </div>
 
   <div class="fb">
     <button class="g" id="btnActivar" type="button"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor" stroke="none"/></svg>ACTIVAR</button>
     <button class="g sec" id="btnNuevo" type="button"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>CARGAR NUEVO...</button>
     <button class="s sec" id="btnVol" type="button"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>Volumen</button>
-    <button class="s sec" id="btnInfo" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="17"/><circle cx="12" cy="7.6" r=".7" fill="currentColor"/></svg>Info</button>
     <button class="s sec" id="btnLinks" type="button"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Links</button>
   </div>
 
@@ -377,22 +442,33 @@
   </div>
 </footer>
 
-<div id="modalInfo" class="overlay">
-  <div class="caja ancha">
-    <h3>Links de las emisoras</h3>
-    <div id="infoLista"></div>
-    <div class="pie"><button class="sec" id="infoCerrar" type="button">Cerrar</button></div>
+<div id="modalCal" class="overlay">
+  <div class="cal">
+    <div class="cal-h">
+      <div class="cal-t">📅 CALENDARIO<small>Solo vista · para editar usá la lista de reproducción</small></div>
+      <div class="cal-mid">
+        <button type="button" class="sec" id="calM-" title="Mes anterior">«</button>
+        <button type="button" class="sec" id="calS-" title="Semana anterior">‹</button>
+        <div class="cal-lab"><b id="calMes"></b><small id="calSem"></small></div>
+        <button type="button" class="sec" id="calS+" title="Semana siguiente">›</button>
+        <button type="button" class="sec" id="calM+" title="Mes siguiente">»</button>
+        <button type="button" id="calHoy">HOY</button>
+      </div>
+      <button type="button" class="sec cal-x" id="calCerrar" title="Cerrar">✕</button>
+    </div>
+    <div class="cal-meses" id="calMeses"></div>
+    <div class="cal-body" id="calBody"><div class="cal-g" id="calGrid"></div></div>
   </div>
 </div>
 
 <div id="modalLinks" class="overlay">
   <div class="caja ancha">
     <h3>Editar links de las emisoras</h3>
-    <div style="color:var(--mut);font-size:14px">Si cambiás un link, se actualiza en todos los ítems de esa emisora de la lista.</div>
+    <div style="color:var(--mut);font-size:12.5px;line-height:1.5">Si cambiás un link, se actualiza en todos los ítems de esa emisora de la lista. Con <b>+ Alternativa</b> cargás otro link de la misma emisora: elegís cuál es el <b>principal</b> y, si el principal no conecta, se prueba el otro de forma provisoria.</div>
     <div id="linksLista"></div>
     <div class="nueva">
       <div class="ln">Añadir una emisora nueva</div>
-      <div style="color:var(--mut);font-size:13px">Se agrega al instante y aparece como opción en <b>+ Cargar nuevo...</b> (como «Track …»), en Info y en Volumen.</div>
+      <div style="color:var(--mut);font-size:12px">Se agrega al instante y aparece como opción en <b>+ Cargar nuevo...</b> (como «Track …») y en Volumen.</div>
       <div class="nlinea">
         <input type="text" class="nn" id="nrNombre" placeholder="Nombre (ej: Radio Mitre)" spellcheck="false">
         <input type="text" class="nu" id="nrUrl" placeholder="https://…" spellcheck="false">
@@ -542,15 +618,17 @@ async function cargarAjustes(){
   if (!r) return;
   ajustes.vol = r.vol || {};
   ajustes.links = r.links || {};
+  ajustes.ext = r.ext || {};
   ajustes.master = typeof r.master === 'number' ? Math.max(0, Math.min(200, Math.round(r.master))) : 100;
   ajustes.custom = Array.isArray(r.custom) ? r.custom.filter(c => c && c.key && c.name && /^https?:\/\//i.test(c.url || '')) : [];
   ajustes.custom.forEach(c => { RADIOS[c.key] = c; });   // misma referencia: editar RADIOS[k] actualiza lo guardado
   if (r.comp) ajustes.comp = {on: r.comp.on !== false, nivel: COMP_PRE[r.comp.nivel] ? r.comp.nivel : 'media'};
   for (const k in ajustes.links) if (RADIOS[k] && ORIG[k] && ajustes.links[k]) RADIOS[k].url = ajustes.links[k];
+  for (const k in ajustes.ext) if (RADIOS[k] && ORIG[k] && ajustes.ext[k] && ajustes.ext[k].alt){ RADIOS[k].alt = ajustes.ext[k].alt; RADIOS[k].pref = ajustes.ext[k].pref === 'alt' ? 'alt' : 'url'; }
 }
 function guardarAjustes(){
   if (!db) return;
-  try{ db.transaction('meta', 'readwrite').objectStore('meta').put({key: 'ajustes', vol: ajustes.vol, links: ajustes.links, comp: ajustes.comp, master: ajustes.master, custom: ajustes.custom}); }catch(e){}
+  try{ db.transaction('meta', 'readwrite').objectStore('meta').put({key: 'ajustes', vol: ajustes.vol, links: ajustes.links, ext: ajustes.ext, comp: ajustes.comp, master: ajustes.master, custom: ajustes.custom}); }catch(e){}
 }
 function guardarArchivos(id, files){
   if (!db) return Promise.resolve(false);
@@ -565,13 +643,14 @@ function borrarArchivos(id){ if (!db) return; try{ db.transaction('files', 'read
 
 /* ================= Estado ================= */
 let items = [];          // lista de reproducción
-let ajustes = {vol: {}, links: {}, comp: {on: true, nivel: 'media'}, master: 100, custom: []};   // volúmenes (0-200) y links editados
+let ajustes = {vol: {}, links: {}, ext: {}, comp: {on: true, nivel: 'media'}, master: 100, custom: []};   // volúmenes (0-200) y links editados
 let activo = false;
 let cur = null;          // item "finito" (tanda/programa) sonando: {item, files, idx, closing, ended, pre}
 let curRadioId = null;   // id del item radio de fondo
 let selId = null;        // fila seleccionada (para el editor de tandas)
 let radioDesde = Date.now(), radioClave = '';
 let lastRadioUrl = null; // emisora de fondo
+let conectando = null;   // {tok, id, url0}: radio que se está conectando (lo que suena sigue sonando hasta que conecte)
 let queue = [];          // ids de items con horario esperando a que termine lo que suena
 const disparados = new Set();
 
@@ -581,8 +660,11 @@ const titulo = it => it.type === 'radio' ? (RADIOS[it.radioKey] ? RADIOS[it.radi
 /* ================= Reproductores de radio (2, para pasar de una emisora a otra con fundido) ================= */
 const sinCors = new Set();   // links que no permiten CORS: no se pueden amplificar por encima de 100 %
 let ctx = null;
-function urlRadio(it){ return RADIOS[it.radioKey] ? RADIOS[it.radioKey].url : it.url; }
-function claveDe(url){ return Object.keys(RADIOS).find(k => RADIOS[k].url === url) || null; }
+// Cada emisora puede tener un link alternativo (alt) y se elige cuál es el principal (pref: 'url' | 'alt')
+function radUrl(k){ const r = RADIOS[k]; return r.pref === 'alt' && r.alt ? r.alt : r.url; }
+function urlRadio(it){ return RADIOS[it.radioKey] ? radUrl(it.radioKey) : it.url; }
+function claveDe(url){ return Object.keys(RADIOS).find(k => RADIOS[k].url === url || RADIOS[k].alt === url) || null; }
+function urlAlterna(url){ const k = claveDe(url); if (!k || !RADIOS[k].alt) return null; return url === RADIOS[k].alt ? RADIOS[k].url : RADIOS[k].alt; }
 function volDe(id){ return ajustes.vol[id] == null ? 100 : ajustes.vol[id]; }
 function setLvl(el, x){ el._lvl = x; aplicarNivel(el); }
 function puedeGanancia(el){ return el._esFin === true || el._cors === true; }
@@ -733,25 +815,80 @@ function precargarRadio(url){
   quitarFade(q.el); setLvl(q.el, 0);
   cargarStream(q, url);
 }
-async function irARadio(url){
-  if (!url) return;
-  const tok = ++radioTok;
+const dormir = (ms, tok) => new Promise(res => { const t0 = Date.now(); const iv = setInterval(() => { if (tok !== radioTok || Date.now() - t0 >= ms){ clearInterval(iv); res(); } }, 200); });
+// Intenta que suene el link `u`. Lo hace en el reproductor libre: lo que suena NO se toca hasta que éste conecte.
+async function probarRadio(u, tok){
   const p = players[act];
-  if (p.url === url){
+  if (p.url === u){
+    if (p.ok) return true;
     if (p.el.paused) p.el.play().catch(() => {});
-    fadeTo(p.el, 1, FADE);
-    return;
+    await esperarPlaying(p, 8000);
+    return tok === radioTok && p.ok && p.url === u;
   }
   const q = players[1 - act];
-  if (q.url !== url){ quitarFade(q.el); setLvl(q.el, 0); cargarStream(q, url); }
+  if (q.url !== u){ quitarFade(q.el); setLvl(q.el, 0); cargarStream(q, u); }
+  else if (!q.ok && Date.now() - q.lastOk > 9000) cargarStream(q, u);
   await esperarPlaying(q, 8000);
-  if (tok !== radioTok) return;
-  fadeTo(q.el, 1, FADE);
-  if (p.url){
-    fadeTo(p.el, 0, FADE);
-    setTimeout(() => { if (tok === radioTok) detenerPlayer(p); }, FADE + 80);
+  return tok === radioTok && q.ok && q.url === u;
+}
+// La radio ya conectó: recién ahora se pasa el audio (y se apaga lo anterior).
+function confirmarRadio(u, o, tok){
+  let sonar = true;
+  if (cur && !cur.closing){
+    if (o.interrumpir && cur === o.cur0) interrumpirFinito();
+    else sonar = false;               // empezó otra tanda mientras conectaba: la radio queda de fondo, en silencio
   }
-  act = 1 - act;
+  if (o.id != null){ curRadioId = o.id; lastRadioUrl = o.url0; }
+  const p = players[act];
+  if (p.url === u){
+    if (p.el.paused) p.el.play().catch(() => {});
+    if (sonar) fadeTo(p.el, 1, FADE);
+  } else {
+    const q = players[1 - act];
+    if (sonar) fadeTo(q.el, 1, FADE);
+    if (p.url){
+      fadeTo(p.el, 0, FADE);
+      setTimeout(() => { if (tok === radioTok) detenerPlayer(p); }, FADE + 80);
+    }
+    act = 1 - act;
+  }
+}
+async function irARadio(url, o){
+  if (!url) return;
+  const tok = ++radioTok;
+  o = Object.assign({id: null, interrumpir: false, cur0: null}, o || {});
+  o.url0 = url;
+  const alt = urlAlterna(url);
+  let cand = alt ? [url, alt] : [url], reord = false;
+  const pa = players[act];
+  if (alt && pa.url === alt && pa.ok){ cand = [alt, url]; reord = true; }   // si ya suena la otra versión, se usa esa
+  conectando = {tok, id: o.id != null ? o.id : curRadioId, url0: url};
+  pintar();
+  let ronda = 0, avisado = false;
+  try{
+    while (tok === radioTok && activo){
+      for (let i = 0; i < cand.length; i++){
+        if (tok !== radioTok || !activo) return;
+        if (await probarRadio(cand[i], tok)){
+          if (tok !== radioTok || !activo) return;
+          confirmarRadio(cand[i], o, tok);
+          if (i > 0 && !reord){
+            const k = claveDe(url);
+            toast('El link principal de ' + (k ? RADIOS[k].name : 'la emisora') + ' no respondió: se usó el alternativo de forma provisoria.');
+          }
+          return;
+        }
+      }
+      if (!avisado && o.id != null && tok === radioTok){
+        avisado = true;
+        toast('No se pudo conectar con la emisora. Sigue sonando lo actual y se reintenta solo.');
+      }
+      await dormir(ronda < 2 ? 3000 : 10000, tok);
+      ronda++;
+    }
+  } finally {
+    if (conectando && conectando.tok === tok){ conectando = null; pintar(); }
+  }
 }
 
 /* ================= Fundidos ================= */
@@ -774,18 +911,29 @@ finEl.preload = 'auto';
 let finUrl = null, finTok = 0;
 function liberarFin(){ if (finUrl){ URL.revokeObjectURL(finUrl); finUrl = null; } }
 
+// Qué suena cuando termina lo actual: SOLO lo que corresponde por horario (lo que quedó en cola mientras sonaba),
+// y si no hay nada pendiente, se vuelve a la última emisora. Ya NO sigue con el ítem de abajo en la lista
+// (salvo el bloque siguiente de un mismo programa, que sí continúa).
 function decidirDespues(commit){
   queue = queue.filter(id => items.some(i => i.id === id));
-  let item = null;
-  if (queue.length){
-    item = items.find(i => i.id === queue[0]);
-    if (commit) queue.shift();
-  } else if (cur){
+  const q = queue.slice();
+  let item = null, fondoUrl = lastRadioUrl, fondoId = curRadioId;
+  while (q.length){
+    const it = items.find(i => i.id === q[0]);
+    q.shift();
+    if (it.type === 'radio' && q.length){ fondoUrl = urlRadio(it); fondoId = it.id; continue; }   // hay algo más pendiente: esta radio queda de fondo
+    item = it; break;
+  }
+  if (!item && cur && cur.item.type === 'programa'){
     const i = items.findIndex(x => x.id === cur.item.id);
     const nx = i >= 0 ? items[i + 1] : null;
-    if (nx && !nx.time) item = nx;
+    if (nx && !nx.time && nx.type === 'programa' && nx.name === cur.item.name) item = nx;
   }
-  return {item, url: item && item.type === 'radio' ? urlRadio(item) : lastRadioUrl};
+  if (commit){
+    queue = q;
+    if (fondoUrl !== lastRadioUrl){ lastRadioUrl = fondoUrl; curRadioId = fondoId; }
+  }
+  return {item, url: item && item.type === 'radio' ? urlRadio(item) : fondoUrl};
 }
 const esFinito = pl => pl.item && pl.item.type !== 'radio';
 function aplicarRadio(pl){
@@ -796,10 +944,7 @@ function aplicarRadio(pl){
 async function reproducirItem(item){
   if (!item || !activo) return;
   if (item.type === 'radio'){
-    interrumpirFinito();
-    lastRadioUrl = urlRadio(item); curRadioId = item.id;
-    irARadio(lastRadioUrl);
-    pintar();
+    irARadio(urlRadio(item), {id: item.id, interrumpir: true, cur0: cur});
     return;
   }
   const files = await leerArchivos(item.id);
@@ -1034,13 +1179,20 @@ function pintarAire(){
     const clave = curRadioId + '|' + lastRadioUrl;
     if (clave !== radioClave){ radioClave = clave; radioDesde = Date.now(); }
     dEl = hms((Date.now() - radioDesde) / 1000); dPct = 100;
+  } else if (activo && conectando){
+    cls = 'wait'; lab = 'CONECTANDO…';
+    const ci = items.find(i => i.id === conectando.id); t = ci ? titulo(ci) : 'Emisora'; sb = 'Conectando con la emisora…'; radioClave = '';
   } else if (activo){
     cls = 'wait'; lab = 'EN ESPERA'; t = 'Sin emisora de fondo'; sb = 'Tocá ▶ en un ítem de la lista.'; radioClave = '';
   } else radioClave = '';
+  if (activo && conectando && (cur || lastRadioUrl)){
+    const ci = items.find(i => i.id === conectando.id);
+    sb += ' · Conectando con ' + (ci ? titulo(ci) : 'la emisora') + '…';
+  }
   $('aire').className = 'aire ' + cls;
   $('aLab').textContent = lab; $('aTit').textContent = t; $('aSub').textContent = sb; $('aRest').textContent = rest;
-  $('dtT').textContent = activo ? t : '—'; $('dtS').textContent = activo ? (cur ? sb : 'Emisora en vivo') : '—';
-  $('dtEl').textContent = dEl; $('dtBar').style.width = dPct + '%'; $('dtRest').textContent = dRest;
+  $('dtT').textContent = (activo && (cur || lastRadioUrl)) ? t : '—';
+  $('dtEl').textContent = dEl;
 }
 function pintarCuenta(){
   pintarAire();
@@ -1066,7 +1218,7 @@ function pintarEstado(){
   let est = 'off', txt = 'DETENIDO';
   if (activo){
     if (cur || (lastRadioUrl && players[act].ok)){ est = 'on'; txt = 'EN VIVO'; }
-    else { est = 'wait'; txt = lastRadioUrl ? 'CONECTANDO' : 'EN ESPERA'; }
+    else { est = 'wait'; txt = (lastRadioUrl || conectando) ? 'CONECTANDO' : 'EN ESPERA'; }
   }
   $('onair').className = 'onair ' + est; $('onairTxt').textContent = txt;
   pintarCuenta();
@@ -1087,7 +1239,9 @@ async function editarOrden(id, fn){
   await guardarMeta();
   pintar();
 }
+let edDrag = null;
 function pintarEditor(){
+  if (edDrag !== null) return;
   const box = $('edBody'), it = items.find(i => i.id === selId && i.type === 'tanda');
   if (!it){
     box.innerHTML = '<div class="ed-vacio">(Importe una carpeta como tanda publicitaria, y seleccionela para poder ajustar orden)<br><button type="button" class="sec" id="edImportar">+ Importar carpeta…</button></div>';
@@ -1096,24 +1250,48 @@ function pintarEditor(){
   const names = it.fileNames || [], durs = durOk(it) ? it.durs : [];
   const total = durs.reduce((a, b) => a + b, 0);
   box.innerHTML = '<div class="ed-h"><b title="' + esc(titulo(it)) + '">' + esc(titulo(it)) + '</b><span class="dur">(' + (durs.length ? fmtDur(total) : '…') + ')</span></div>'
-    + '<div class="ed-list">' + names.map((n, i) => '<div class="ed-row" data-i="' + i + '"><span class="en">' + (i + 1) + '</span><span class="enm" title="' + esc(n) + '">' + esc(n) + '</span>'
+    + '<div class="ed-list">' + names.map((n, i) => '<div class="ed-row" draggable="true" data-i="' + i + '"><span class="gr">⋮⋮</span><span class="en">' + (i + 1) + '</span><span class="enm" title="' + esc(n) + '">' + esc(n) + '</span>'
       + '<span class="edu">' + (durs[i] ? fmtDur(durs[i]) : '--') + '</span>'
-      + '<button type="button" data-ed="up" title="Subir"' + (i === 0 ? ' disabled' : '') + '>▲</button>'
-      + '<button type="button" data-ed="dn" title="Bajar"' + (i === names.length - 1 ? ' disabled' : '') + '>▼</button>'
       + '<button type="button" data-ed="rm" title="Quitar de la tanda">✕</button></div>').join('') + '</div>'
     + '<div class="ed-f"><button type="button" class="sec" data-ed="az">Ordenar A-Z</button><button type="button" class="sec" data-ed="rev">Invertir</button></div>';
 }
+/* Arrastrar pistas dentro de la tanda */
+const edBody = $('edBody');
+function edMarcas(){ edBody.querySelectorAll('.ins-antes,.ins-despues').forEach(r => r.classList.remove('ins-antes', 'ins-despues')); }
+function edDestino(y){
+  const rows = [...edBody.querySelectorAll('.ed-row')];
+  for (const r of rows){ const b = r.getBoundingClientRect(); if (y < b.top + b.height / 2) return {row: r, antes: true, idx: Number(r.dataset.i)}; }
+  const l = rows[rows.length - 1]; return l ? {row: l, antes: false, idx: Number(l.dataset.i) + 1} : null;
+}
+edBody.addEventListener('dragstart', e => {
+  const r = e.target.closest ? e.target.closest('.ed-row') : null; if (!r) return;
+  edDrag = Number(r.dataset.i); r.classList.add('arrastrado');
+  e.dataTransfer.effectAllowed = 'move'; try{ e.dataTransfer.setData('text/plain', String(edDrag)); }catch(_){}
+});
+edBody.addEventListener('dragover', e => {
+  if (edDrag === null) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move'; edMarcas();
+  const t = edDestino(e.clientY); if (t) t.row.classList.add(t.antes ? 'ins-antes' : 'ins-despues');
+});
+edBody.addEventListener('drop', e => {
+  if (edDrag === null) return;
+  e.preventDefault();
+  const from = edDrag, t = edDestino(e.clientY);
+  edDrag = null; edMarcas();
+  if (!t){ pintarEditor(); return; }
+  let to = t.idx; if (to > from) to--;
+  if (to === from){ pintarEditor(); return; }
+  editarOrden(selId, ix => { const [m] = ix.splice(from, 1); ix.splice(to, 0, m); return ix; }).then(pintarEditor);
+});
+edBody.addEventListener('dragend', () => { if (edDrag !== null){ edDrag = null; edMarcas(); pintarEditor(); } });
 $('edBody').addEventListener('click', e => {
   if (e.target.closest('#edImportar')){ abrirModal(null); $('mTipo').value = 'tanda'; actualizarCampos(); return; }
   const b = e.target.closest('button[data-ed]'); if (!b || !selId) return;
   const op = b.dataset.ed, row = b.closest('.ed-row'), i = row ? Number(row.dataset.i) : -1;
-  if (op === 'up' && i > 0) editarOrden(selId, ix => { [ix[i - 1], ix[i]] = [ix[i], ix[i - 1]]; return ix; });
-  else if (op === 'dn') editarOrden(selId, ix => { if (i >= ix.length - 1) return null; [ix[i + 1], ix[i]] = [ix[i], ix[i + 1]]; return ix; });
-  else if (op === 'rm') editarOrden(selId, ix => { if (ix.length <= 1){ toast('La tanda no puede quedar vacía. Para eliminarla, usá ✕ en la lista.'); return null; } ix.splice(i, 1); return ix; });
+  if (op === 'rm') editarOrden(selId, ix => { if (ix.length <= 1){ toast('La tanda no puede quedar vacía. Para eliminarla, usá ✕ en la lista.'); return null; } ix.splice(i, 1); return ix; });
   else if (op === 'az') editarOrden(selId, (ix, fs) => ix.sort((a, c) => fs[a].name.localeCompare(fs[c].name, 'es', {numeric: true})));
   else if (op === 'rev') editarOrden(selId, ix => ix.reverse());
 });
-$('dtTog').onclick = () => $('detalle').classList.toggle('cerrado');
 
 function pintar(){
   pintarEstado();
@@ -1126,7 +1304,8 @@ function pintar(){
     return;
   }
   box.innerHTML = items.map((it, i) => {
-    const suena = activo && ((cur && cur.item.id === it.id) || (!cur && it.type === 'radio' && it.id === curRadioId));
+    const conect = !!(activo && conectando && it.type === 'radio' && conectando.id === it.id);
+    const suena = !conect && activo && ((cur && cur.item.id === it.id) || (!cur && it.type === 'radio' && it.id === curRadioId));
     const finSuena = cur && cur.item.id === it.id;
     const enCola = queue.includes(it.id);
     const fin = it.type !== 'radio';
@@ -1136,10 +1315,11 @@ function pintar(){
       ? '<div class="t1">' + esc(titulo(it)) + '</div><div class="t2">Emisora en vivo</div>'
       : '<div class="t-fin"><span class="t1" title="' + esc(titulo(it)) + '">' + esc(titulo(it)) + '</span><span class="dur" title="Duración total de los audios cargados">(' + durTxt + ')</span>'
         + '<span class="t2">' + (it.type === 'programa' ? ICO.file : '') + esc(subDe(it)) + '</span></div>';
-    const hp = suena ? '<span class="hp live">' + ICO.wave + (it.type === 'radio' ? 'EN VIVO' : 'SONANDO') + '</span>'
+    const hp = conect ? '<span class="hp conn">' + ICO.wave + 'CONECTANDO</span>'
+      : suena ? '<span class="hp live">' + ICO.wave + (it.type === 'radio' ? 'EN VIVO' : 'SONANDO') + '</span>'
       : enCola ? '<span class="hp cola">' + ICO.list + 'EN COLA</span>'
-      : it.time ? '<span class="hp t">' + ICO.clock + esc(it.time) + '</span>'
-      : '<span class="hp sin">SIN HORARIO</span>';
+      : it.time ? '<span class="hp t" title="Editar horario">' + ICO.clock + esc(it.time) + '</span>'
+      : '<span class="hp sin" title="Sin horario: tocá para editar">SIN HORARIO</span>';
     return `<div class="item ${it.type} ${suena ? 'play' : ''} ${it.id === selId ? 'sel' : ''}" data-id="${it.id}">
       <span class="grip" title="Arrastrá para cambiar el orden">⠿</span>
       <span class="num">${i + 1}</span>
@@ -1160,9 +1340,37 @@ function pintar(){
   pintarEditor();
 }
 
+function textoVivo(id){
+  let fin = null;
+  if (cur && cur.item.id === id){
+    const r = restanteCur();
+    if (r != null) fin = new Date(Date.now() + r * 1000);
+  } else {
+    const pr = proximo();
+    if (pr) fin = pr.f;
+  }
+  const lbl = (cur && cur.item.id === id) ? 'Sonando' : 'En vivo';
+  return fin ? lbl + ' hasta las ' + hhmm(fin) + 'hs' + (new Date(fin).toDateString() !== new Date().toDateString() ? ' (' + DIA_LARGO[fin.getDay()].toLowerCase() + ')' : '')
+             : lbl + ' (sin próximos horarios programados)';
+}
+$('lista').addEventListener('mouseover', e => {
+  const h = e.target.closest ? e.target.closest('.hp.live') : null;
+  if (!h) return;
+  const f = h.closest('.item');
+  if (f) h.title = textoVivo(f.dataset.id);
+});
+
 $('lista').addEventListener('click', async e => {
   const b = e.target.closest('button');
   const fila = e.target.closest('.item');
+  const hpEl = e.target.closest('.hp');
+  if (!b && hpEl && fila){
+    if (hpEl.classList.contains('t') || hpEl.classList.contains('sin')){
+      const itH = items.find(x => x.id === fila.dataset.id);
+      if (itH){ selId = itH.id; abrirModal(itH); }
+    }
+    return;   // EN VIVO / SONANDO / EN COLA: no hacen nada
+  }
   if (!b){
     if (fila && !e.target.closest('.grip')){
       selId = fila.dataset.id;
@@ -1397,11 +1605,11 @@ function pintarVol(){
   const c = ajustes.comp;
   let h = '<div class="vsec">COMPRESOR GENERAL</div><div class="cfila"><button type="button" class="ctog' + (c.on ? ' on' : '') + '" data-comp="tog">' + (c.on ? 'ENCENDIDO' : 'APAGADO') + '</button>'
     + '<div class="seg' + (c.on ? '' : ' off') + '">' + ['suave', 'media', 'fuerte'].map(n => '<button type="button" data-comp="' + n + '" class="' + (c.nivel === n ? 'on' : '') + '">' + n[0].toUpperCase() + n.slice(1) + '</button>').join('') + '</div></div>';
-  const noC = Object.keys(RADIOS).filter(k => sinCors.has(RADIOS[k].url)).map(k => RADIOS[k].name);
+  const noC = Object.keys(RADIOS).filter(k => sinCors.has(radUrl(k))).map(k => RADIOS[k].name);
   if (noC.length) h += '<div class="vnota">Sin compresor (el servidor no lo permite): ' + esc(noC.join(', ')) + '.</div>';
   h += '<div class="vsec">EMISORAS</div>';
   for (const k of Object.keys(RADIOS)){
-    const nota = sinCors.has(RADIOS[k].url) ? 'Modo compatible: puede sonar, pero no permite amplificación sobre 100 %, compresor ni lectura real del vúmetro.' : '';
+    const nota = sinCors.has(radUrl(k)) ? 'Modo compatible: puede sonar, pero no permite amplificación sobre 100 %, compresor ni lectura real del vúmetro.' : '';
     h += filaVol(k, RADIOS[k].name, nota);
   }
   const fin = items.filter(i => i.type !== 'radio');
@@ -1510,41 +1718,100 @@ function copiar(txt, btn){
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok).catch(alt);
   else alt();
 }
-$('btnInfo').onclick = () => {
-  cerrarPop();
-  $('infoLista').innerHTML = Object.keys(RADIOS).map(k =>
-    `<div class="lrow"><div class="ln">${esc(RADIOS[k].name)}</div>
-      <div class="lline"><input type="text" class="lurl" readonly value="${esc(RADIOS[k].url)}"><button type="button" data-k="${k}">Copiar</button></div></div>`).join('');
-  $('modalInfo').style.display = 'flex';
-};
-$('infoLista').addEventListener('click', e => {
-  const b = e.target.closest('button[data-k]'); if (!b) return;
-  copiar(RADIOS[b.dataset.k].url, b);
-});
-$('infoCerrar').onclick = () => { $('modalInfo').style.display = 'none'; };
-
 const esCustom = k => ajustes.custom.some(c => c.key === k);
 const URL_OK = u => /^https?:\/\/\S+$/i.test(u);
+
+/* ----- Verificación de cada link: ¿permite controlar el audio (vúmetro, volumen, compresor)? ----- */
+const EST_TXT = {
+  chk: 'Verificando…',
+  ok: '✔ Permite controles: vúmetro, volumen sobre 100 % y compresor.',
+  nocors: '⚠ Suena, pero NO permite controles: sin vúmetro real, sin volumen sobre 100 % y sin compresor.',
+  nohls: '✖ El servidor no lo habilita para este navegador: probablemente no se pueda reproducir.',
+  caido: '✖ No respondió en la prueba (puede estar caído o el navegador lo bloquea).'
+};
+const corsEstado = new Map();
+async function probarCors(url){
+  const intento = async modo => {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 7000);
+    try{
+      const r = await fetch(url, {mode: modo, cache: 'no-store', signal: ctl.signal});
+      clearTimeout(t);
+      try{ ctl.abort(); }catch(e){}
+      return modo === 'no-cors' ? true : r.ok;
+    }catch(e){ clearTimeout(t); return null; }
+  };
+  const c = await intento('cors');
+  if (c === true) return 'ok';
+  if (c === false) return 'caido';
+  const n = await intento('no-cors');
+  if (n) return /\.m3u8(\?|$)/i.test(url) ? 'nohls' : 'nocors';
+  return 'caido';
+}
+async function verLinea(el, url){
+  if (!el) return;
+  const tk = el._v = (el._v || 0) + 1;
+  if (!URL_OK(url)){ delete el.dataset.s; el.textContent = ''; return; }
+  let st = corsEstado.get(url);
+  if (!st){
+    el.dataset.s = 'chk'; el.textContent = EST_TXT.chk;
+    st = await probarCors(url);
+    corsEstado.set(url, st);
+    if (st === 'nocors') sinCors.add(url); else if (st === 'ok') sinCors.delete(url);
+  }
+  if (el._v !== tk) return;
+  el.dataset.s = st; el.textContent = EST_TXT[st];
+}
+function verTodos(){
+  $('linksLista').querySelectorAll('.lrow').forEach(row => {
+    ['url', 'alt'].forEach(l => {
+      const inp = row.querySelector('input.lurl[data-l="' + l + '"]');
+      if (!inp) return;
+      if (l === 'alt' && !row.classList.contains('conalt')) return;
+      verLinea(row.querySelector('.lest[data-l="' + l + '"]'), inp.value.trim());
+    });
+  });
+}
+
 function filaLink(k){
-  const cu = esCustom(k);
-  return `<div class="lrow" data-row="${esc(k)}"><div class="ln">${cu
-      ? `<input type="text" class="lname" data-n="${esc(k)}" spellcheck="false" placeholder="Nombre" value="${esc(RADIOS[k].name)}">`
-      : esc(RADIOS[k].name)}</div>
-    <div class="lline"><input type="text" class="lurl" data-k="${esc(k)}" spellcheck="false" value="${esc(RADIOS[k].url)}">${cu
+  const r = RADIOS[k], cu = esCustom(k), conAlt = !!r.alt, pref = conAlt && r.pref === 'alt' ? 'alt' : 'url';
+  const pri = (v, on) => `<label class="rp" title="Usar este link como principal de la emisora"><input type="radio" name="pri-${esc(k)}" value="${v}"${on ? ' checked' : ''}><span>Principal</span></label>`;
+  return `<div class="lrow${conAlt ? ' conalt' : ''}" data-row="${esc(k)}"><div class="ln">${cu
+      ? `<input type="text" class="lname" data-n="${esc(k)}" spellcheck="false" placeholder="Nombre" value="${esc(r.name)}">`
+      : esc(r.name)}</div>
+    <div class="lline">${pri('url', pref === 'url')}<input type="text" class="lurl" data-k="${esc(k)}" data-l="url" spellcheck="false" value="${esc(r.url)}">${cu
       ? `<button type="button" class="sec" data-del="${esc(k)}" title="Borrar esta emisora">Borrar</button>`
-      : `<button type="button" class="sec" data-r="${esc(k)}" title="Volver al link original">Restaurar</button>`}</div></div>`;
+      : `<button type="button" class="sec" data-r="${esc(k)}" title="Volver al link original">Restaurar</button>`}<button type="button" class="sec balt" data-alt="${esc(k)}" title="Cargar otro link de la misma emisora">+ Alternativa</button></div>
+    <div class="lest" data-l="url"></div>
+    <div class="lline lalt">${pri('alt', pref === 'alt')}<input type="text" class="lurl" data-k="${esc(k)}" data-l="alt" spellcheck="false" placeholder="Link alternativo de la misma emisora" value="${esc(r.alt || '')}"><button type="button" class="sec" data-noalt="${esc(k)}" title="Quitar el link alternativo">Quitar</button></div>
+    <div class="lest lalt" data-l="alt"></div></div>`;
 }
 $('btnLinks').onclick = () => {
   cerrarPop();
+  corsEstado.clear();
   $('linksLista').innerHTML = Object.keys(RADIOS).map(filaLink).join('');
   $('nrNombre').value = ''; $('nrUrl').value = '';
   $('modalLinks').style.display = 'flex';
+  verTodos();
 };
+$('linksLista').addEventListener('change', e => {
+  const inp = e.target.closest('input.lurl'); if (!inp) return;
+  const row = inp.closest('.lrow');
+  verLinea(row.querySelector('.lest[data-l="' + inp.dataset.l + '"]'), inp.value.trim());
+});
 $('linksLista').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  const row = b.closest('.lrow');
   if (b.dataset.r){
-    const inp = $('linksLista').querySelector('input[data-k="' + b.dataset.r + '"]');
-    if (inp && ORIG[b.dataset.r]) inp.value = ORIG[b.dataset.r];
+    const inp = row.querySelector('input.lurl[data-l="url"]');
+    if (inp && ORIG[b.dataset.r]){ inp.value = ORIG[b.dataset.r]; verLinea(row.querySelector('.lest[data-l="url"]'), inp.value); }
+  } else if (b.dataset.alt){
+    row.classList.add('conalt');
+    const inp = row.querySelector('input.lurl[data-l="alt"]'); if (inp) inp.focus();
+  } else if (b.dataset.noalt){
+    row.classList.remove('conalt');
+    row.querySelector('input.lurl[data-l="alt"]').value = '';
+    const u = row.querySelector('input[type=radio][value="url"]'); if (u) u.checked = true;
+    verLinea(row.querySelector('.lest[data-l="alt"]'), '');
   } else if (b.dataset.del){
     const k = b.dataset.del; if (!RADIOS[k]) return;
     if (items.some(i => i.type === 'radio' && i.radioKey === k)){ toast('Primero sacá de la lista de reproducción los ítems de "' + RADIOS[k].name + '".'); return; }
@@ -1553,47 +1820,64 @@ $('linksLista').addEventListener('click', e => {
     ajustes.custom = ajustes.custom.filter(c => c.key !== k);
     delete ajustes.vol[k];
     guardarAjustes();
-    const row = b.closest('.lrow'); if (row) row.remove();
+    if (row) row.remove();
   }
 });
 $('nrAdd').onclick = () => {
   const n = $('nrNombre').value.trim(), u = $('nrUrl').value.trim();
   if (!n){ toast('Poné el nombre de la emisora.'); return; }
   if (!URL_OK(u)){ toast('El link no es válido (tiene que empezar con http:// o https://).'); return; }
-  if (Object.values(RADIOS).some(r => r.url === u)){ toast('Ya hay una emisora con ese link.'); return; }
+  if (Object.values(RADIOS).some(r => r.url === u || r.alt === u)){ toast('Ya hay una emisora con ese link.'); return; }
   const key = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   const ent = {key, name: n, url: u};
   ajustes.custom.push(ent); RADIOS[key] = ent;
   guardarAjustes();
   $('linksLista').insertAdjacentHTML('beforeend', filaLink(key));
-  const fila = $('linksLista').lastElementChild; if (fila) fila.scrollIntoView({block: 'nearest'});
+  const fila = $('linksLista').lastElementChild;
+  if (fila){ fila.scrollIntoView({block: 'nearest'}); verLinea(fila.querySelector('.lest[data-l="url"]'), u); }
   $('nrNombre').value = ''; $('nrUrl').value = '';
   toast('Emisora añadida: ya podés cargarla como "Track ' + n + '".');
 };
 $('nrUrl').addEventListener('keydown', e => { if (e.key === 'Enter') $('nrAdd').click(); });
 $('linksCancelar').onclick = () => { $('modalLinks').style.display = 'none'; };
 $('linksGuardar').onclick = () => {
-  const cambios = [], nombres = [], vistos = new Set();
-  for (const inp of $('linksLista').querySelectorAll('input.lurl')){
-    const k = inp.dataset.k, u = inp.value.trim();
-    if (!RADIOS[k]) continue;
-    if (!URL_OK(u)){ toast('El link de ' + RADIOS[k].name + ' no es válido (tiene que empezar con http:// o https://).'); return; }
-    if (vistos.has(u)){ toast('Hay dos emisoras con el mismo link.'); return; }
-    vistos.add(u);
+  const datos = [], vistos = new Set();
+  for (const row of $('linksLista').querySelectorAll('.lrow')){
+    const k = row.dataset.row; if (!RADIOS[k]) continue;
+    const nom = RADIOS[k].name;
+    const u = row.querySelector('input.lurl[data-l="url"]').value.trim();
+    const a = row.classList.contains('conalt') ? row.querySelector('input.lurl[data-l="alt"]').value.trim() : '';
+    if (!URL_OK(u)){ toast('El link de ' + nom + ' no es válido (tiene que empezar con http:// o https://).'); return; }
+    if (a && !URL_OK(a)){ toast('El link alternativo de ' + nom + ' no es válido (tiene que empezar con http:// o https://).'); return; }
+    if (a && a === u){ toast('El link alternativo de ' + nom + ' es igual al principal.'); return; }
+    for (const x of [u, a]){ if (!x) continue; if (vistos.has(x)){ toast('Hay dos emisoras con el mismo link.'); return; } vistos.add(x); }
+    const sel = row.querySelector('input[type=radio]:checked');
+    const pref = a && sel && sel.value === 'alt' ? 'alt' : 'url';
+    let nuevoNombre = null;
     if (esCustom(k)){
-      const ni = $('linksLista').querySelector('input.lname[data-n="' + k + '"]');
-      const n = ni ? ni.value.trim() : RADIOS[k].name;
-      if (!n){ toast('Poné un nombre para la emisora.'); return; }
-      nombres.push([k, n]);
+      const ni = row.querySelector('input.lname');
+      nuevoNombre = ni ? ni.value.trim() : nom;
+      if (!nuevoNombre){ toast('Poné un nombre para la emisora.'); return; }
     }
-    if (u !== RADIOS[k].url) cambios.push([k, RADIOS[k].url, u]);
+    datos.push({k, u, a, pref, nuevoNombre});
   }
-  nombres.forEach(([k, n]) => { RADIOS[k].name = n; });
-  for (const [k, viejo, nuevo] of cambios){
-    RADIOS[k].url = nuevo;
-    if (ORIG[k]){ if (nuevo === ORIG[k]) delete ajustes.links[k]; else ajustes.links[k] = nuevo; }
-    players.forEach(p => { if (p.url === viejo) cargarStream(p, nuevo); });
-    if (lastRadioUrl === viejo) lastRadioUrl = nuevo;
+  for (const d of datos){
+    const r = RADIOS[d.k], antes = radUrl(d.k);
+    if (d.nuevoNombre) r.name = d.nuevoNombre;
+    r.url = d.u;
+    if (d.a){ r.alt = d.a; r.pref = d.pref; } else { delete r.alt; delete r.pref; }
+    if (ORIG[d.k]){
+      if (d.u === ORIG[d.k]) delete ajustes.links[d.k]; else ajustes.links[d.k] = d.u;
+      if (d.a) ajustes.ext[d.k] = {alt: d.a, pref: d.pref}; else delete ajustes.ext[d.k];
+    }
+    const despues = radUrl(d.k);
+    if (antes !== despues){
+      if (activo && !cur && lastRadioUrl === antes){ lastRadioUrl = despues; irARadio(despues, {id: curRadioId}); }
+      else {
+        if (lastRadioUrl === antes) lastRadioUrl = despues;
+        players.forEach(p => { if (p.url === antes) cargarStream(p, despues); });
+      }
+    }
   }
   guardarAjustes();
   $('modalLinks').style.display = 'none';
@@ -1603,7 +1887,6 @@ $('linksGuardar').onclick = () => {
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   cerrarPop();
-  $('modalInfo').style.display = 'none';
   $('modalLinks').style.display = 'none';
 });
 
@@ -1618,8 +1901,28 @@ function cortarTodo(){
 async function pedirWake(){ try{ if (navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); }catch(e){} }
 document.addEventListener('visibilitychange', () => { if (activo && document.visibilityState === 'visible') pedirWake(); });
 
-$('btnActivar').onclick = () => {
-  if (!activo){
+// Qué emisora tiene que sonar al activar: la que corresponde por horario (la última radio programada de HOY
+// que ya empezó); si no hay ninguna, la primera radio de la lista sin horario.
+function radioDefecto(){ return items.find(i => i.type === 'radio' && !i.time) || items.find(i => i.type === 'radio') || null; }
+// Emisora que está en vigencia en el momento t: la última radio programada que ya empezó (hasta 8 días atrás), y si no hay, la de fondo.
+function radioVigente(t){
+  let mejor = null;
+  for (const it of items){
+    if (it.type !== 'radio' || !it.time) continue;
+    const [H, M] = it.time.split(':').map(Number);
+    for (let off = 0; off <= 8; off++){
+      const f = new Date(t.getFullYear(), t.getMonth(), t.getDate() - off, H, M, 0);
+      if (f > t || !diaOk(it, f.getDay())) continue;
+      if (!mejor || f > mejor.f) mejor = {f, it};
+      break;
+    }
+  }
+  return mejor ? mejor.it : radioDefecto();
+}
+function radioInicial(){ return radioVigente(new Date()) || items.find(i => !i.time) || null; }
+function arrancar(){
+  if (activo) return;
+  {
     if (stopT) cortarTodo();   // si todavía se estaba apagando, termina de cortar
     activo = true;
     finEl.muted = true; finEl.play().catch(() => {}); finEl.pause(); finEl.muted = false;   // desbloqueo por clic
@@ -1627,11 +1930,15 @@ $('btnActivar').onclick = () => {
     try{ ensureCtx(); aplicarNivel(finEl); }catch(e){}
     estiloActivar(true);
     window.onbeforeunload = e => { e.preventDefault(); e.returnValue = ''; };
-    const primero = items.find(i => !i.time);
+    const primero = radioInicial();
     if (primero) reproducirItem(primero);
-  } else {
+  }
+}
+$('btnActivar').onclick = () => {
+  if (!activo) arrancar();
+  else {
     if (!confirm('¿Detener la automatización? Se corta el audio y no saltarán los horarios.')) return;
-    activo = false; radioTok++;
+    activo = false; radioTok++; conectando = null;
     cur = null; queue = [];
     lastRadioUrl = null; curRadioId = null;
     fadeTo(finEl, 0, STOP_FADE);                                   // leve fade out
@@ -1686,32 +1993,167 @@ const VU_COL = db => db >= 6 ? '#ff4d4d' : db >= 2 ? '#f5a623' : db >= 1 ? '#f2d
     ajustar(); if (!W || !H) return;
     medir(0, anL, bufL, dt); medir(1, anR, bufR, dt);
     g2.clearRect(0, 0, W, H);
-    const top = 8, bot = 30, n = VU_ROWS.length, rh = (H - top - bot) / n;
-    const barW = Math.min(64, W * .19), gapB = Math.min(22, W * .06), labW = 34, g0 = 12;
-    const x0 = (W - (labW + g0 + barW * 2 + gapB)) / 2, xN = x0 + labW, xL = xN + g0, xR = xL + barW + gapB;
-    const bh = Math.max(1.5, rh - 1.2);
-    g2.font = '600 13px "Barlow Semi Condensed",system-ui,Arial,sans-serif'; g2.textAlign = 'right'; g2.textBaseline = 'middle';
+    const n = VU_ROWS.length, lm = 16, rm = 4, labH = 15, gap = 5;
+    const cw = (W - lm - rm) / n, bh = Math.max(4, (H - labH - gap - 1) / 2);
+    g2.font = '600 11px "Barlow Semi Condensed",system-ui,Arial,sans-serif'; g2.textAlign = 'center'; g2.textBaseline = 'alphabetic';
     VU_ROWS.forEach((db, r) => {
-      const y = top + r * rh, col = VU_COL(db);
+      const c = n - 1 - r, x = lm + c * cw, col = VU_COL(db);   // izquierda = silencio, derecha = fuerte
+      [niv[0], niv[1]].forEach((lv, ch) => {
+        g2.globalAlpha = lv >= db ? 1 : 0.16; g2.fillStyle = col;
+        g2.beginPath(); const y = 1 + ch * (bh + gap), w = Math.max(1, cw - 1.4);
+        g2.roundRect ? g2.roundRect(x, y, w, bh, 1) : g2.rect(x, y, w, bh);
+        g2.fill();
+      });
       if (VU_LABROW.has(r)){
         const lb = VU_LABROW.get(r);
         g2.globalAlpha = 1; g2.fillStyle = lb === 0 ? '#ffffff' : '#c2d3ea';
-        g2.fillText((lb > 0 ? '+' : '') + lb, xN, y + rh / 2);
+        g2.fillText((lb > 0 ? '+' : '') + lb, x + cw / 2, H - 3);
       }
-      [[xL, niv[0]], [xR, niv[1]]].forEach(([x, lv]) => {
-        const on = lv >= db;
-        g2.globalAlpha = on ? 1 : 0.16;
-        g2.fillStyle = col;
-        g2.beginPath(); g2.roundRect ? g2.roundRect(x, y + .6, barW, bh, 1) : g2.rect(x, y + .6, barW, bh);
-        g2.fill();
-      });
     });
-    g2.globalAlpha = 1; g2.fillStyle = '#e4eefc'; g2.textAlign = 'center'; g2.textBaseline = 'alphabetic';
-    g2.font = '700 15px "Barlow Semi Condensed",system-ui,Arial,sans-serif';
-    g2.fillText('L', xL + barW / 2, H - 9); g2.fillText('R', xR + barW / 2, H - 9);
+    g2.globalAlpha = 1; g2.fillStyle = '#e4eefc'; g2.textBaseline = 'middle';
+    g2.font = '700 12px "Barlow Semi Condensed",system-ui,Arial,sans-serif';
+    g2.fillText('L', lm / 2 - 1, 1 + bh / 2); g2.fillText('R', lm / 2 - 1, 1 + bh + gap + bh / 2);
   }
   requestAnimationFrame(dibujar);
 })();
+
+/* ================= Calendario (solo vista) ================= */
+const MESES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+let calAbierto = false, calAncla = new Date();
+function calLunes(d){ const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+function calSonando(it){
+  if (!activo) return false;
+  if (cur) return cur.item.id === it.id;
+  return it.type === 'radio' && it.id === curRadioId;
+}
+const CAL_REM = 0.06;   // alto en rem por minuto (1 hora = 3,6 rem)
+const calDurFin = it => { const t = Array.isArray(it.durs) ? it.durs.reduce((x, y) => x + y, 0) : 0; return t > 0 ? t : 180; };
+function renderCal(conservar){
+  const body = $('calBody'), sc = body.scrollTop;
+  const lun = calLunes(calAncla), hoy = new Date(), ahoraMs = hoy.getTime();
+  const dias = [...Array(7)].map((_, i) => new Date(lun.getFullYear(), lun.getMonth(), lun.getDate() + i));
+  const d0 = dias[0], d6 = dias[6];
+  const mA = MESES[d0.getMonth()], mB = MESES[d6.getMonth()];
+  $('calMes').textContent = d0.getMonth() === d6.getMonth() ? mA + ' ' + d0.getFullYear()
+    : d0.getFullYear() === d6.getFullYear() ? mA + ' – ' + mB + ' ' + d6.getFullYear() : mA + ' ' + d0.getFullYear() + ' – ' + mB + ' ' + d6.getFullYear();
+  $('calSem').textContent = 'Semana del ' + d0.getDate() + (d0.getMonth() !== d6.getMonth() ? ' de ' + mA.toLowerCase() : '') + ' al ' + d6.getDate() + ' de ' + mB.toLowerCase();
+  $('calMeses').innerHTML = MESES.map((m, i) => '<button type="button" data-m="' + i + '" class="' + (i === calAncla.getMonth() ? 'act' : '') + '">' + m.slice(0, 3) + '</button>').join('');
+  const esHoy = d => d.toDateString() === hoy.toDateString();
+  const ymd = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k);
+  const hm = it => it.time.split(':').map(Number);
+
+  // Tandas / programas (con cola: si uno se pasa del horario del siguiente, el siguiente espera)
+  const fo = [];
+  for (let k = -1; k < 7; k++){
+    const d = ymd(lun, k);
+    for (const it of items){
+      if (it.type === 'radio' || !it.time || !diaOk(it, d.getDay())) continue;
+      const [H, M] = hm(it);
+      fo.push({it, prog: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
+    }
+  }
+  fo.sort((a, b) => a.prog - b.prog || items.indexOf(a.it) - items.indexOf(b.it));
+  let libre = 0;
+  for (const f of fo){ f.ini = Math.max(f.prog, libre); f.fin = f.ini + calDurFin(f.it) * 1000; libre = f.fin; }
+
+  // Cambios de emisora durante la semana
+  const rc = [];
+  for (let k = 0; k < 7; k++){
+    const d = ymd(lun, k);
+    for (const it of items){
+      if (it.type !== 'radio' || !it.time || !diaOk(it, d.getDay())) continue;
+      const [H, M] = hm(it);
+      rc.push({it, t: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
+    }
+  }
+  rc.sort((a, b) => a.t - b.t || items.indexOf(a.it) - items.indexOf(b.it));
+  const base = radioVigente(lun);
+
+  const nombreR = it => titulo(it);
+  const REM = m => (m * CAL_REM).toFixed(3) + 'rem';
+  let cols = '';
+  for (const d of dias){
+    const ds = d.getTime(), de = ymd(d, 1).getTime(), min = ms => (ms - ds) / 60000;
+    let html = '';
+    // 1) tandas/programas del día (encima), con altura mínima legible
+    const ovs = []; let ultimoFondo = 0;
+    for (const f of fo){
+      if (f.fin <= ds || f.ini >= de) continue;
+      const s = Math.max(f.ini, ds), e = Math.min(f.fin, de);
+      let top = min(s) * CAL_REM; const h = Math.max((e - s) / 60000 * CAL_REM, 1.25);
+      if (top < ultimoFondo) top = ultimoFondo + 0.05;
+      if (top + h > 1440 * CAL_REM) top = 1440 * CAL_REM - h;
+      ultimoFondo = top + h;
+      const sona = activo && f.ini <= ahoraMs && ahoraMs < f.fin;
+      const cont = f.ini < ds;
+      const dTxt = fmtDur(calDurFin(f.it));
+      ovs.push({fin: f.fin, ini: f.ini, bottom: top + h});
+      html += '<div class="bk ' + f.it.type + (sona ? ' sona' : f.fin <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem" title="' + esc(f.it.time + ' hs · ' + f.it.type.toUpperCase() + ' · ' + titulo(f.it) + ' · dura ' + dTxt + ' · interrumpe la emisora y después vuelve') + '">'
+        + (cont ? '↳ ' : '<b>' + esc(f.it.time) + '</b>') + esc(titulo(f.it)) + ' · ' + dTxt + '</div>';
+    }
+    // 2) emisora: ocupa TODO el tiempo hasta el próximo cambio, partida donde la interrumpe una tanda/programa
+    let r = base;
+    for (const c of rc) if (c.t <= ds) r = c.it;
+    const marcas = [{t: ds, it: r, real: rc.some(c => c.t === ds)}];
+    for (const c of rc) if (c.t > ds && c.t < de) marcas.push({t: c.t, it: c.it, real: true});
+    marcas.forEach((m, i) => {
+      if (!m.it) return;
+      const sEnd = i + 1 < marcas.length ? marcas[i + 1].t : de;
+      const huecos = fo.filter(f => f.fin > m.t && f.ini < sEnd).map(f => [Math.max(f.ini, m.t), Math.min(f.fin, sEnd), f]);
+      const trozos = []; let cur0 = m.t, tras = null;
+      for (const [hs, he, f] of huecos){
+        if (hs > cur0) trozos.push({s: cur0, e: hs, tras});
+        cur0 = he; tras = f;
+      }
+      if (cur0 < sEnd) trozos.push({s: cur0, e: sEnd, tras});
+      trozos.forEach((t, j) => {
+        const top = min(t.s) * CAL_REM, h = (t.e - t.s) / 60000 * CAL_REM;
+        const inicio = j === 0 && m.real;
+        const sona = activo && t.s <= ahoraMs && ahoraMs < t.e;
+        const ov = t.tras ? ovs.find(o => o.fin === t.tras.fin && o.ini === t.tras.ini) : null;
+        const pad = ov ? Math.max(0, ov.bottom - top) : 0;
+        const hora = new Date(t.s);
+        const et = inicio ? '<b>' + pad2(hora.getHours()) + ':' + pad2(hora.getMinutes()) + '</b>' + esc(nombreR(m.it))
+          : t.tras ? '↳ ' + esc(nombreR(m.it)) + ' (continúa)' : '↳ ' + esc(nombreR(m.it));
+        html += '<div class="bk radio' + (inicio ? ' ini' : '') + (sona ? ' sona' : t.e <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;padding-top:' + (pad + 0.12).toFixed(3) + 'rem" title="' + esc(nombreR(m.it) + ' · emisora en vivo hasta el próximo cambio') + '">' + et + '</div>';
+      });
+    });
+    const linea = esHoy(d) ? '<div class="nowl" style="top:' + REM(min(ahoraMs)) + '"><i>AHORA ' + pad2(hoy.getHours()) + ':' + pad2(hoy.getMinutes()) + '</i></div>' : '';
+    cols += '<div class="cday' + (esHoy(d) ? ' hoy' : '') + '">' + html + linea + '</div>';
+  }
+  let horas = '';
+  for (let H = 0; H < 24; H++) horas += '<div class="ch' + (H === hoy.getHours() && dias.some(esHoy) ? ' ahora' : '') + '">' + pad2(H) + ' hs</div>';
+  $('calGrid').innerHTML = '<div class="corner"></div>'
+    + dias.map(d => '<div class="dh' + (esHoy(d) ? ' hoy' : '') + '"><b>' + DIA_LARGO[d.getDay()] + '</b><span>' + d.getDate() + ' ' + MESES[d.getMonth()].slice(0, 3) + '</span></div>').join('')
+    + '<div class="ctime">' + horas + '</div>' + cols;
+  if (conservar) body.scrollTop = sc;
+  else {
+    const g = $('calGrid'), ct = g.querySelector('.ctime'), hPx = g.querySelector('.ch').getBoundingClientRect().height;
+    const hr = dias.some(esHoy) ? Math.max(0, hoy.getHours() - 2) : 6;
+    body.scrollTop = ct.offsetTop + hr * hPx - g.querySelector('.dh').offsetHeight;
+  }
+}
+function calMover(meses, dias){
+  const d = new Date(calAncla);
+  if (meses){ const dia = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + meses); d.setDate(Math.min(dia, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); }
+  if (dias) d.setDate(d.getDate() + dias);
+  calAncla = d; renderCal(false);
+}
+$('btnCal').onclick = () => { calAncla = new Date(); calAbierto = true; $('modalCal').style.display = 'flex'; renderCal(false); };
+function cerrarCal(){ calAbierto = false; $('modalCal').style.display = 'none'; }
+$('calCerrar').onclick = cerrarCal;
+$('modalCal').addEventListener('mousedown', e => { if (e.target === $('modalCal')) cerrarCal(); });
+$('calM-').onclick = () => calMover(-1, 0);
+$('calM+').onclick = () => calMover(1, 0);
+$('calS-').onclick = () => calMover(0, -7);
+$('calS+').onclick = () => calMover(0, 7);
+$('calHoy').onclick = () => { calAncla = new Date(); renderCal(false); };
+$('calMeses').addEventListener('click', e => {
+  const b = e.target.closest('button[data-m]'); if (!b) return;
+  calAncla = new Date(calAncla.getFullYear(), Number(b.dataset.m), 1); renderCal(false);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && calAbierto) cerrarCal(); });
+setInterval(() => { if (calAbierto) renderCal(true); }, 15000);
 
 /* ================= Inicio ================= */
 (async () => {
@@ -1722,6 +2164,21 @@ const VU_COL = db => db >= 6 ? '#ff4d4d' : db >= 2 ? '#f5a623' : db >= 1 ? '#f2d
   pintarComp();
   pintar();
   completarDuraciones();
+  arrancar();   // arranca activado al abrir el archivo
+  pintar();
+  setTimeout(() => { if (activo && ctx && ctx.state === 'suspended') toast('El navegador bloquea el audio hasta el primer clic: tocá en cualquier lado de la pantalla y empieza a sonar.'); }, 2500);
+  // Los navegadores bloquean el audio hasta el primer clic/tecla: al primer gesto se desbloquea todo.
+  const desbloquear = () => {
+    document.removeEventListener('pointerdown', desbloquear, true);
+    document.removeEventListener('keydown', desbloquear, true);
+    if (!activo) return;
+    try{ ensureCtx(); if (ctx && ctx.state === 'suspended') ctx.resume(); }catch(e){}
+    try{ finEl.muted = true; finEl.play().catch(() => {}); if (!cur) finEl.pause(); finEl.muted = false; }catch(e){}
+    if (!wake) pedirWake();
+    players.forEach(p => { if (p.url && p.el.paused) p.el.play().catch(() => {}); });
+  };
+  document.addEventListener('pointerdown', desbloquear, true);
+  document.addEventListener('keydown', desbloquear, true);
 })();
 })();
 </script>
