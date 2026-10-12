@@ -150,10 +150,15 @@
   .ed-h b{font:700 .95rem var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ed-list{flex:1;min-height:0;overflow-y:auto}
   .ed-list::-webkit-scrollbar{width:.6rem} .ed-list::-webkit-scrollbar-thumb{background:#1f4172;border-radius:10px}
-  .ed-row{display:grid;grid-template-columns:.9rem 1.3rem minmax(0,1fr) auto auto;align-items:center;gap:.5rem;padding:.45rem .3rem;position:relative;cursor:grab;user-select:none;border-bottom:1px solid rgba(40,92,155,.25);font:400 .82rem var(--f-ui)}
+  .ed-row{display:grid;grid-template-columns:.9rem 1.3rem minmax(0,1fr) auto auto auto;align-items:center;gap:.5rem;padding:.45rem .3rem;position:relative;cursor:grab;user-select:none;border-bottom:1px solid rgba(40,92,155,.25);font:400 .82rem var(--f-ui)}
   .ed-row:active{cursor:grabbing}
   .ed-row:hover{background:rgba(30,110,220,.1)}
   .ed-row.arrastrado{opacity:.35}
+  .ed-row.suena{background:rgba(23,201,133,.2);box-shadow:inset 3px 0 0 #2ce08a;color:#fff;font-weight:600}
+  .ed-row.suena .en{color:#2ce08a;display:grid;place-items:center} .ed-row .en svg{width:1rem;height:1rem}
+  .ed-row.suena .edu{color:#d9fff1}
+  .ed-row button.pl{background:linear-gradient(180deg,#14a373,#0b7a58);border-color:#2fe0a0;color:#fff}
+  .ed-row button.pl svg{width:.75rem;height:.75rem}
   .ed-row .gr{color:#2a86f0;font-size:1rem;line-height:1;text-align:center}
   .ed-row.ins-antes::before,.ed-row.ins-despues::after{content:"";position:absolute;left:0;right:0;height:2px;background:var(--acc);border-radius:2px;pointer-events:none}
   .ed-row.ins-antes::before{top:-1px} .ed-row.ins-despues::after{bottom:-1px}
@@ -957,7 +962,7 @@ function aplicarRadio(pl){
   if (lastRadioUrl) irARadio(lastRadioUrl);
 }
 
-async function reproducirItem(item){
+async function reproducirItem(item, desde){
   if (!item || !activo) return;
   if (item.type === 'radio'){
     irARadio(urlRadio(item), {id: item.id, interrumpir: true, cur0: cur});
@@ -970,8 +975,9 @@ async function reproducirItem(item){
     return;
   }
   if (!durOk(item) || files.length !== item.durs.length) medirTodos(files.map(f => f.blob)).then(d => { item.durs = d; guardarMeta(); pintar(); });
-  const desdeRadio = !cur;
-  cur = {item, files, idx: 0, closing: false, ended: false, pre: false};
+  const desdeRadio = !cur || cur.closing;
+  cur = {item, files, idx: Math.max(0, Math.min(desde || 0, files.length - 1)), closing: false, ended: false, pre: false};
+  if (item.type === 'tanda') selId = item.id;   // el panel derecho muestra solo la tanda que está sonando
   reproducirArchivo(desdeRadio);
 }
 function reproducirArchivo(conFundido){
@@ -1170,7 +1176,7 @@ const hms = sec => { sec = Math.max(0, Math.floor(sec)); return pad2(Math.floor(
 const mmss = sec => { sec = Math.max(0, Math.ceil(sec - 0.05)); const h = Math.floor(sec / 3600); return (h ? h + ':' : '') + pad2(Math.floor(sec % 3600 / 60)) + ':' + pad2(sec % 60); };
 function subDe(it){
   if (it.type === 'radio') return 'Emisora en vivo';
-  if (it.type === 'tanda') return (it.fileNames ? it.fileNames.length : 0) + ' audio(s)';
+  if (it.type === 'tanda') return it.comp && it.fileNames && it.fileNames[0] ? it.fileNames[0] : (it.fileNames ? it.fileNames.length : 0) + ' audio(s)';
   return it.fileNames && it.fileNames[0] ? it.fileNames[0] : 'Programa';
 }
 function pintarAire(){
@@ -1243,7 +1249,6 @@ function pintarEstado(){
 /* ----- Editor de tandas (panel derecho) ----- */
 async function editarOrden(id, fn){
   const it = items.find(i => i.id === id); if (!it) return;
-  if (cur && cur.item.id === id){ toast('Esa tanda está sonando: esperá a que termine para cambiarle el orden.'); return; }
   const files = await leerArchivos(id);
   if (!files.length || files.length !== (it.fileNames || []).length){ toast('No se pudieron leer los audios guardados de esta tanda.'); return; }
   const durs = durOk(it) ? it.durs.slice() : files.map(() => 0);
@@ -1252,24 +1257,56 @@ async function editarOrden(id, fn){
   const f2 = nuevo.map(i => files[i]), d2 = nuevo.map(i => durs[i]);
   if (!(await guardarArchivos(id, f2))){ toast('No se pudo guardar el nuevo orden.'); return; }
   it.fileNames = f2.map(f => f.name); it.durs = d2;
+  if (cur && cur.item.id === id && cur.files.length === files.length) ajustarCur(nuevo);   // la tanda sigue sonando con el cambio aplicado
   await guardarMeta();
   pintar();
 }
+// Se editó la tanda que está sonando: nuevo[j] = índice viejo del audio que ahora ocupa el lugar j.
+function ajustarCur(nuevo){
+  const c = cur; if (!c) return;
+  const viejo = c.idx;
+  c.files = nuevo.map(i => c.files[i]);
+  const pos = nuevo.indexOf(viejo);
+  if (pos >= 0){ c.idx = pos; return; }                       // el audio que suena sigue sonando sin cortarse
+  if (c.closing || c.ended){ c.idx = Math.min(c.idx, c.files.length - 1); return; }
+  const sig = nuevo.filter(i => i < viejo).length;            // se quitó el que sonaba: se corta y sigue el que le seguía
+  if (sig >= c.files.length) terminarCur();
+  else { c.idx = sig; c.pre = false; reproducirArchivo(false); }
+}
+function saltarAudio(i){
+  const it = items.find(x => x.id === selId && x.type === 'tanda'); if (!it) return;
+  if (!activo){ toast('Primero tocá ACTIVAR.'); return; }
+  if (cur && cur.item.id === it.id && !cur.closing && !cur.ended && i >= 0 && i < cur.files.length){
+    cur.idx = i; cur.pre = false; reproducirArchivo(false);   // corta el que suena y pasa a este
+  } else reproducirItem(it, i);
+}
 let edDrag = null;
+let edLast = {id: null, idx: -1};
 function pintarEditor(){
   if (edDrag !== null) return;
   const box = $('edBody'), it = items.find(i => i.id === selId && i.type === 'tanda');
   if (!it){
+    edLast = {id: null, idx: -1};
     box.innerHTML = '<div class="ed-vacio">(Importe una carpeta como tanda publicitaria, y seleccionela para poder ajustar orden)<br><button type="button" class="sec" id="edImportar">+ Importar carpeta…</button></div>';
     return;
   }
+  const prev = box.querySelector('.ed-list'), prevTop = prev ? prev.scrollTop : 0;
   const names = it.fileNames || [], durs = durOk(it) ? it.durs : [];
   const total = durs.reduce((a, b) => a + b, 0);
+  const suena = !!(cur && cur.item.id === it.id && !cur.ended), sIdx = suena ? cur.idx : -1;
   box.innerHTML = '<div class="ed-h"><b title="' + esc(titulo(it)) + '">' + esc(titulo(it)) + '</b><span class="dur">(' + (durs.length ? fmtDur(total) : '…') + ')</span></div>'
-    + '<div class="ed-list">' + names.map((n, i) => '<div class="ed-row" draggable="true" data-i="' + i + '"><span class="gr">⋮⋮</span><span class="en">' + (i + 1) + '</span><span class="enm" title="' + esc(n) + '">' + esc(n) + '</span>'
+    + '<div class="ed-list">' + names.map((n, i) => '<div class="ed-row' + (i === sIdx ? ' suena' : '') + '" draggable="true" data-i="' + i + '"><span class="gr">⋮⋮</span><span class="en">' + (i === sIdx ? ICO.wave : (i + 1)) + '</span><span class="enm" title="' + esc(n) + '">' + esc(n) + '</span>'
       + '<span class="edu">' + (durs[i] ? fmtDur(durs[i]) : '--') + '</span>'
-      + '<button type="button" data-ed="rm" title="Quitar de la tanda">✕</button></div>').join('') + '</div>'
-    + '<div class="ed-f"><button type="button" class="sec" data-ed="az">Ordenar A-Z</button><button type="button" class="sec" data-ed="rev">Invertir</button></div>';
+      + '<button type="button" data-ed="rm" title="Quitar de la tanda">✕</button>'
+      + '<button type="button" class="pl" data-ed="play" title="Reproducir este audio ahora (corta el que suena)">' + ICO.play + '</button></div>').join('') + '</div>'
+    + (names.length > 1 ? '<div class="ed-f"><button type="button" class="sec" data-ed="az">Ordenar A-Z</button><button type="button" class="sec" data-ed="rev">Invertir</button></div>' : '');
+  const lst = box.querySelector('.ed-list');
+  if (lst){
+    const fila = lst.querySelector('.ed-row.suena');
+    if (fila && (edLast.id !== it.id || edLast.idx !== sIdx)) fila.scrollIntoView({block: 'nearest'});   // cambió el audio que suena: se lo sigue
+    else lst.scrollTop = edLast.id === it.id ? prevTop : 0;
+  }
+  edLast = {id: it.id, idx: sIdx};
 }
 /* Arrastrar pistas dentro de la tanda */
 const edBody = $('edBody');
@@ -1307,6 +1344,7 @@ $('edBody').addEventListener('click', e => {
   if (op === 'rm') editarOrden(selId, ix => { if (ix.length <= 1){ toast('La tanda no puede quedar vacía. Para eliminarla, usá ✕ en la lista.'); return null; } ix.splice(i, 1); return ix; });
   else if (op === 'az') editarOrden(selId, (ix, fs) => ix.sort((a, c) => fs[a].name.localeCompare(fs[c].name, 'es', {numeric: true})));
   else if (op === 'rev') editarOrden(selId, ix => ix.reverse());
+  else if (op === 'play') saltarAudio(i);
 });
 
 function pintar(){
@@ -1504,25 +1542,25 @@ $('mHora').addEventListener('change', diasSinHora);
 
 function descArchivos(it){
   if (!it.fileNames || !it.fileNames.length) return 'sin archivos';
-  return it.type === 'tanda' ? it.fileNames.length + ' audio(s)' : it.fileNames[0];
+  return it.type === 'tanda' && !it.comp ? it.fileNames.length + ' audio(s)' : it.fileNames[0];
 }
 function actualizarCampos(){
   const v = $('mTipo').value;
-  const esT = v === 'tanda', esP = v === 'programa';
+  const esC = v === 'tandac', esT = v === 'tanda' || esC, esP = v === 'programa';
   $('fNombre').classList.toggle('oculto', !(esT || esP));
   $('fBloque').classList.toggle('oculto', !esP);
   $('fHora').classList.toggle('oculto', !v);
   $('fArch').classList.toggle('oculto', !(esT || esP));
   $('lNombre').textContent = esP ? 'NOMBRE DEL PROGRAMA' : 'NOMBRE DE LA TANDA';
   $('mNombre').placeholder = esP ? 'Ej: Hora de Tango' : 'Ej: Tanda mañana';
-  $('lArch').textContent = esP ? 'ARCHIVO DEL BLOQUE' : 'CARPETA CON LOS AUDIOS';
-  $('mElegir').textContent = esP ? '📄 Seleccionar archivo…' : '📂 Seleccionar carpeta…';
+  $('lArch').textContent = esP ? 'ARCHIVO DEL BLOQUE' : esC ? 'ARCHIVO DE LA TANDA' : 'CARPETA CON LOS AUDIOS';
+  $('mElegir').textContent = (esP || esC) ? '📄 Seleccionar archivo…' : '📂 Seleccionar carpeta…';
   $('mOk').disabled = !v;
 }
 function llenarTipos(){
   $('mTipo').innerHTML = '<option value="" disabled selected>Elegí una opción…</option>'
     + Object.keys(RADIOS).map(k => '<option value="' + esc(k) + '">Track ' + esc(RADIOS[k].name) + '</option>').join('')
-    + '<option value="tanda">Tanda</option><option value="programa">Programa</option>';
+    + '<option value="tanda">Tanda (Carpeta con audios)</option><option value="tandac">Tanda (Audio compilado)</option><option value="programa">Programa</option>';
 }
 function abrirModal(it){
   llenarTipos();
@@ -1530,7 +1568,7 @@ function abrirModal(it){
   pendientes = null;
   $('mTitulo').textContent = it ? 'Editar' : 'Cargar nuevo';
   $('mOk').textContent = it ? 'Guardar' : 'Agregar';
-  $('mTipo').value = it ? (it.type === 'radio' ? it.radioKey : it.type) : '';
+  $('mTipo').value = it ? (it.type === 'radio' ? it.radioKey : (it.type === 'tanda' && it.comp ? 'tandac' : it.type)) : '';
   $('mTipo').disabled = !!it;
   $('mNombre').value = it && it.type !== 'radio' ? it.name : '';
   $('mBloque').value = it && it.block ? it.block : '';
@@ -1543,10 +1581,10 @@ function abrirModal(it){
 }
 const cerrarModal = () => { $('modal').style.display = 'none'; };
 $('btnNuevo').onclick = () => abrirModal(null);
-$('mTipo').onchange = actualizarCampos;
+$('mTipo').onchange = () => { if (!editando){ pendientes = null; $('mArchInfo').textContent = 'Ninguno seleccionado'; } actualizarCampos(); };
 $('mCancelar').onclick = cerrarModal;
 $('mSinHora').onclick = () => { $('mHora').value = ''; diasSinHora(); };
-$('mElegir').onclick = () => { ($('mTipo').value === 'programa' ? $('pickArchivo') : $('pickCarpeta')).click(); };
+$('mElegir').onclick = () => { (['programa', 'tandac'].includes($('mTipo').value) ? $('pickArchivo') : $('pickCarpeta')).click(); };
 
 function procesarSeleccion(lista, esCarpeta){
   let audios = lista.filter(esAudio);
@@ -1572,11 +1610,13 @@ $('mOk').onclick = async () => {
   if (RADIOS[v]){
     it.type = 'radio'; it.radioKey = v; it.url = RADIOS[v].url; it.name = RADIOS[v].name; it.time = time;
   } else {
-    if (!editando && !pendientes){ toast(v === 'tanda' ? 'Elegí la carpeta con los audios.' : 'Elegí el archivo del programa.'); return; }
-    it.type = v; it.time = time;
-    it.name = $('mNombre').value.trim() || (v === 'tanda' ? 'Tanda ' + (items.filter(x => x.type === 'tanda').length + (editando ? 0 : 1))
+    const esC = v === 'tandac', tipo = esC ? 'tanda' : v;
+    if (!editando && !pendientes){ toast(tipo === 'tanda' && !esC ? 'Elegí la carpeta con los audios.' : esC ? 'Elegí el archivo de la tanda.' : 'Elegí el archivo del programa.'); return; }
+    it.type = tipo; it.time = time;
+    if (tipo === 'tanda') it.comp = esC; else delete it.comp;
+    it.name = $('mNombre').value.trim() || (tipo === 'tanda' ? 'Tanda ' + (items.filter(x => x.type === 'tanda').length + (editando ? 0 : 1))
                                                           : (pendientes ? pendientes[0].name.replace(/\.[^.]+$/, '') : 'Programa'));
-    it.block = v === 'programa' ? $('mBloque').value.trim() : '';
+    it.block = tipo === 'programa' ? $('mBloque').value.trim() : '';
     if (pendientes){
       $('mOk').disabled = true; $('mOk').textContent = 'Guardando…';
       const ok = await guardarArchivos(it.id, pendientes.map(f => ({name: f.name, blob: f})));
