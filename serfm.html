@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-<title>SER FM Carnerillo · Automatización · v14-oct-2026</title>
+<title>SER FM Carnerillo · Automatización · v2 14-oct-2026</title>
 <style>
   /* ===== Diseño azul oscuro (según ESTILO_00001.png). Todo en rem: escala con el ancho de la pantalla (1rem = 16px en 1920px). ===== */
   :root{
@@ -31,6 +31,7 @@
   .logo{flex:none;display:block;width:5.2rem;height:5.2rem;object-fit:contain}
   .sep{flex:none;width:2px;height:4.2rem;margin:0 .5rem;background:linear-gradient(180deg,transparent,#31558c 20%,#31558c 80%,transparent)}
   .t-main{font:500 1.4rem var(--f-wide);letter-spacing:.42em;white-space:nowrap;color:#fff;line-height:1.2}
+  .t-main .ver{font:500 .72rem var(--f-ui);letter-spacing:.08em;color:#8fa8c8;margin-left:1.2rem;vertical-align:middle}
   .t-sub{font:300 .8rem var(--f-wide);letter-spacing:.42em;white-space:nowrap;color:#b3c6e0;margin-top:.55rem}
   .onair{justify-self:center;display:flex;align-items:center;gap:1rem;padding:.5rem 1.6rem;border-radius:999px;font:700 1.5rem var(--f-ui);letter-spacing:.01em;white-space:nowrap}
   .onair i{flex:none;width:1.1rem;height:1.1rem;border-radius:50%}
@@ -81,7 +82,7 @@
   /* Tabla */
   .tabla{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;position:relative}
   .tabla.arrastrando .ed-drop{display:flex}
-  .thead,.item{display:grid;grid-template-columns:1.5rem 4.7rem minmax(0,1fr) 5.2rem 6.6rem 9.2rem 8.8rem 11rem;align-items:center;column-gap:.6rem;padding:0 .7rem}
+  .thead,.item{display:grid;grid-template-columns:1.5rem 4.7rem minmax(0,1fr) 4.6rem 5.2rem 6.6rem 9.2rem 8.8rem 11rem;align-items:center;column-gap:.6rem;padding:0 .7rem}
   .thead{flex:none;height:3rem;font:600 .95rem var(--f-ui);letter-spacing:.03em;border-bottom:1px solid var(--borde);color:#f1f6ff}
   .thead .c{text-align:center}
   .thead span{white-space:nowrap}
@@ -133,6 +134,11 @@
   .hp.sin{background:linear-gradient(180deg,#0b1d3a,#07152c);color:#7f93b3;border-color:#1c3d6e;font-size:.9rem;font-weight:600}
   .hp.sin:hover{color:#b9cbe6;border-color:#2a5aa0}
   .cfin{text-align:center}
+  .clnk{display:flex;align-items:center;justify-content:center;gap:.4rem;font:500 .92rem var(--f-ui);color:#e8f1ff}
+  .lkb{width:1.7rem;height:1.7rem;padding:0;border-radius:50%;display:grid;place-items:center;font:700 .85rem var(--f-ui);border:1px solid #1c3d6e;background:linear-gradient(180deg,#0b1d3a,#07152c);color:#7f93b3;cursor:default;transition:filter .15s,transform .08s}
+  .lkb.on{background:linear-gradient(180deg,#14a373,#0b7a58);color:#d9fff1;border-color:#2fe0a0}
+  .lkb.puede{cursor:pointer}
+  .lkb.puede:hover{filter:brightness(1.3)} .lkb.puede:active{transform:scale(.94)}
   .fin-p{display:inline-flex;align-items:center;justify-content:center;min-width:4.4rem;height:1.9rem;padding:0 .7rem;border-radius:999px;font:700 .78rem var(--f-ui);letter-spacing:.04em;border:1px solid transparent;cursor:pointer;transition:filter .15s,transform .08s}
   .fin-p:hover{filter:brightness(1.2)} .fin-p:active{transform:scale(.96)}
   .fin-p.radio{background:linear-gradient(180deg,#12ad78,#0b7f5a);color:#c9f8e6;border-color:#2fd39c}
@@ -462,7 +468,7 @@
     </section>
 
     <section class="tabla box">
-      <div class="thead"><span class="c">#</span><span>TIPO</span><span>TÍTULO</span><span class="c">DURACIÓN</span><span class="c fh">AL FINALIZAR</span><span class="c">DÍAS</span><span class="c">HORARIOS</span><span>ACCIONES</span></div>
+      <div class="thead"><span class="c">#</span><span>TIPO</span><span>TÍTULO</span><span class="c">LINKS</span><span class="c">DURACIÓN</span><span class="c fh">AL FINALIZAR</span><span class="c">DÍAS</span><span class="c">HORARIOS</span><span>ACCIONES</span></div>
       <div id="lista"></div>
       <div class="ed-drop" id="lsDrop"></div>
     </section>
@@ -721,10 +727,11 @@ async function cargarAjustes(){
   ajustes.vol = r.vol || {};
   ajustes.links = r.links || {};
   ajustes.ext = r.ext || {};
+  ajustes.pref = r.pref || {};
   ajustes.defVer = r.defVer || 0;
   let migrar = false;
   if (ajustes.defVer < DEF_VER){   // links por defecto nuevos: se descartan los guardados de Lola y Ser para que mande lo nuevo
-    ['lola', 'ser'].forEach(k => { delete ajustes.links[k]; delete ajustes.ext[k]; });
+    ['lola', 'ser'].forEach(k => { delete ajustes.links[k]; delete ajustes.ext[k]; delete ajustes.pref[k]; });
     ajustes.defVer = DEF_VER; migrar = true;
   }
   ajustes.master = typeof r.master === 'number' ? Math.max(0, Math.min(200, Math.round(r.master))) : 100;
@@ -737,11 +744,12 @@ async function cargarAjustes(){
     if (e.alt){ RADIOS[k].alt = e.alt; RADIOS[k].pref = e.pref === 'alt' ? 'alt' : 'url'; }
     else { delete RADIOS[k].alt; delete RADIOS[k].pref; }   // el usuario quitó el alternativo por defecto
   }
+  for (const k in ajustes.pref) if (RADIOS[k] && RADIOS[k].alt && ajustes.pref[k] === 'alt') RADIOS[k].pref = 'alt';
   if (migrar) guardarAjustes();
 }
 function guardarAjustes(){
   if (!db) return;
-  try{ db.transaction('meta', 'readwrite').objectStore('meta').put({key: 'ajustes', vol: ajustes.vol, links: ajustes.links, ext: ajustes.ext, comp: ajustes.comp, master: ajustes.master, custom: ajustes.custom, defVer: ajustes.defVer}); }catch(e){}
+  try{ db.transaction('meta', 'readwrite').objectStore('meta').put({key: 'ajustes', vol: ajustes.vol, links: ajustes.links, ext: ajustes.ext, pref: ajustes.pref, comp: ajustes.comp, master: ajustes.master, custom: ajustes.custom, defVer: ajustes.defVer}); }catch(e){}
 }
 function guardarArchivos(id, files){
   if (!db) return Promise.resolve(false);
@@ -756,7 +764,7 @@ function borrarArchivos(id){ if (!db) return; try{ db.transaction('files', 'read
 
 /* ================= Estado ================= */
 let items = [];          // lista de reproducción
-let ajustes = {vol: {}, links: {}, ext: {}, comp: {on: true, nivel: 'media'}, master: 100, custom: [], defVer: DEF_VER};   // volúmenes (0-200) y links editados
+let ajustes = {vol: {}, links: {}, ext: {}, pref: {}, comp: {on: true, nivel: 'media'}, master: 100, custom: [], defVer: DEF_VER};   // volúmenes (0-200) y links editados
 let activo = false;
 let cur = null;          // item "finito" (tanda/programa) sonando: {item, files, idx, closing, ended, pre}
 let curRadioId = null;   // id del item radio de fondo
@@ -765,6 +773,7 @@ let radioDesde = Date.now(), radioClave = '';
 let lastRadioUrl = null; // emisora de fondo
 let conectando = null;   // {tok, id, url0}: radio que se está conectando (lo que suena sigue sonando hasta que conecte)
 let queue = [];          // ids de items con horario esperando a que termine lo que suena
+let cont = [];           // ids de bloques/items que CONTINÚAN después de que una tanda/programa con horario interrumpió la cadena
 const disparados = new Set();
 
 const titulo = it => it.type === 'radio' ? (RADIOS[it.radioKey] ? RADIOS[it.radioKey].name : it.name)
@@ -930,17 +939,18 @@ function precargarRadio(url){
 }
 const dormir = (ms, tok) => new Promise(res => { const t0 = Date.now(); const iv = setInterval(() => { if (tok !== radioTok || Date.now() - t0 >= ms){ clearInterval(iv); res(); } }, 200); });
 // Intenta que suene el link `u`. Lo hace en el reproductor libre: lo que suena NO se toca hasta que éste conecte.
-async function probarRadio(u, tok){
+async function probarRadio(u, tok, rei){
   const p = players[act];
   if (p.url === u){
     if (p.ok) return true;
-    if (p.el.paused) p.el.play().catch(() => {});
+    if (rei) cargarStream(p, u);
+    else if (p.el.paused) p.el.play().catch(() => {});
     await esperarPlaying(p, 8000);
     return tok === radioTok && p.ok && p.url === u;
   }
   const q = players[1 - act];
   if (q.url !== u){ quitarFade(q.el); setLvl(q.el, 0); cargarStream(q, u); }
-  else if (!q.ok && Date.now() - q.lastOk > 9000) cargarStream(q, u);
+  else if (rei || (!q.ok && Date.now() - q.lastOk > 9000)) cargarStream(q, u);
   await esperarPlaying(q, 8000);
   return tok === radioTok && q.ok && q.url === u;
 }
@@ -972,9 +982,10 @@ async function irARadio(url, o){
   o = Object.assign({id: null, interrumpir: false, cur0: null}, o || {});
   o.url0 = url;
   const alt = urlAlterna(url);
-  let cand = alt ? [url, alt] : [url], reord = false;
+  const cand = alt ? [url, alt] : [url];     // SIEMPRE se intenta primero el link elegido (por defecto el LINK 1) y después el otro
+  const INTENTOS = alt ? 3 : 1;              // 1 intento + 2 reintentos por link antes de pasar al otro
   const pa = players[act];
-  if (alt && pa.url === alt && pa.ok){ cand = [alt, url]; reord = true; }   // si ya suena la otra versión, se usa esa
+  const reord = !!(alt && !o.forzar && pa.url === alt && pa.ok);   // ya suena el alternativo: sigue sonando mientras se intenta volver al principal
   conectando = {tok, id: o.id != null ? o.id : curRadioId, url0: url};
   pintar();
   let ronda = 0, avisado = false;
@@ -982,7 +993,12 @@ async function irARadio(url, o){
     while (tok === radioTok && activo){
       for (let i = 0; i < cand.length; i++){
         if (tok !== radioTok || !activo) return;
-        if (await probarRadio(cand[i], tok)){
+        let ok = false;
+        for (let n = 0; n < INTENTOS && !ok; n++){
+          if (tok !== radioTok || !activo) return;
+          ok = await probarRadio(cand[i], tok, n > 0);
+        }
+        if (ok){
           if (tok !== radioTok || !activo) return;
           confirmarRadio(cand[i], o, tok);
           if (i > 0 && !reord){
@@ -1024,37 +1040,50 @@ finEl.preload = 'auto';
 let finUrl = null, finTok = 0;
 function liberarFin(){ if (finUrl){ URL.revokeObjectURL(finUrl); finUrl = null; } }
 
-// Qué suena cuando termina lo actual: SOLO lo que corresponde por horario (lo que quedó en cola mientras sonaba),
-// y si no hay nada pendiente, se vuelve a la última emisora. Ya NO sigue con el ítem de abajo en la lista
-// (salvo el bloque siguiente de un mismo programa, que sí continúa).
+// Qué sigue automáticamente después de `it` (sin contar lo agendado por horario):
+//  - el bloque siguiente de un mismo programa (mismo nombre, sin horario propio)
+//  - o lo que viene abajo en la lista si "AL FINALIZAR" = COLA
+function autoDe(it){
+  if (!it) return null;
+  const i = items.findIndex(x => x.id === it.id);
+  const nx = i >= 0 ? items[i + 1] : null;
+  if (!nx) return null;
+  if (it.type === 'programa' && nx.type === 'programa' && nx.name === it.name && !horasDe(nx).length) return nx;
+  if (it.alFin === 'cola') return nx;
+  return null;
+}
+// Decisión pura (la usan el reproductor y la ventanita "qué suena y qué sigue"):
+//  1) primero lo agendado que ya está esperando en la cola (respeta los horarios puestos)
+//  2) después la continuación pendiente (bloques 2, 3, 4, 5...), que retoma donde quedó
+//  3) si no hay nada, vuelve a la emisora de fondo
+function elegirSiguiente(qIds, contIds, last){
+  let q = qIds.filter(id => items.some(i => i.id === id));
+  const pend = contIds.map(id => items.find(i => i.id === id)).filter(Boolean);
+  const a = autoDe(last);
+  if (a && a.type !== 'radio') pend.unshift(a);
+  let item = null, fondo = null, deCola = false;
+  const saltadas = [];
+  while (q.length){
+    const qid = q.shift();
+    const it = items.find(i => i.id === qid);
+    if (it.type === 'radio' && (q.length || pend.length)){ fondo = it; saltadas.push(it); continue; }   // hay algo más pendiente: esta radio queda de fondo
+    item = it; deCola = true; break;
+  }
+  if (!item && pend.length) item = pend.shift();
+  if (!deCola && a && a.type === 'radio') fondo = a;   // AL FINALIZAR = COLA y lo de abajo es una radio
+  if (item){ q = q.filter(id => id !== item.id); const k = pend.findIndex(x => x.id === item.id); if (k >= 0) pend.splice(k, 1); }
+  return {item, fondo, saltadas, deCola, q, cont: pend.map(x => x.id)};
+}
 function decidirDespues(commit){
   queue = queue.filter(id => items.some(i => i.id === id));
-  const q = queue.slice();
-  let item = null, fondoUrl = lastRadioUrl, fondoId = curRadioId;
-  while (q.length){
-    const it = items.find(i => i.id === q[0]);
-    q.shift();
-    if (it.type === 'radio' && q.length){ fondoUrl = urlRadio(it); fondoId = it.id; continue; }   // hay algo más pendiente: esta radio queda de fondo
-    item = it; break;
-  }
-  if (!item && cur && cur.item.type === 'programa'){
-    const i = items.findIndex(x => x.id === cur.item.id);
-    const nx = i >= 0 ? items[i + 1] : null;
-    if (nx && !horasDe(nx).length && nx.type === 'programa' && nx.name === cur.item.name) item = nx;
-  }
-  if (!item && cur && cur.item.alFin === 'cola'){   // AL FINALIZAR = COLA: sigue con lo que viene abajo en la lista
-    const i = items.findIndex(x => x.id === cur.item.id);
-    const nx = i >= 0 ? items[i + 1] : null;
-    if (nx){
-      if (nx.type === 'radio'){ fondoUrl = urlRadio(nx); fondoId = nx.id; }
-      else item = nx;
-    }
-  }
+  const r = elegirSiguiente(queue, cont, cur && cur.item);
+  let fondoUrl = lastRadioUrl, fondoId = curRadioId;
+  if (r.fondo){ fondoUrl = urlRadio(r.fondo); fondoId = r.fondo.id; }
   if (commit){
-    queue = q;
+    queue = r.q; cont = r.cont;
     if (fondoUrl !== lastRadioUrl){ lastRadioUrl = fondoUrl; curRadioId = fondoId; }
   }
-  return {item, url: item && item.type === 'radio' ? urlRadio(item) : fondoUrl};
+  return {item: r.item, url: r.item && r.item.type === 'radio' ? urlRadio(r.item) : fondoUrl};
 }
 const esFinito = pl => pl.item && pl.item.type !== 'radio';
 function aplicarRadio(pl){
@@ -1121,7 +1150,7 @@ function terminarCur(){
 function interrumpirFinito(){
   if (!cur) return;
   const mi = ++finTok;
-  cur.ended = true; cur = null;
+  cur.ended = true; cur = null; cont = [];
   fadeTo(finEl, 0, FADE);
   setTimeout(() => { if (finTok === mi){ finEl.pause(); liberarFin(); } }, FADE + 60);
 }
@@ -1197,7 +1226,11 @@ function tick(){
       const p = players[act];
       if (p.url){
         if (p.el.paused) p.el.play().catch(() => {});
-        if (Date.now() - p.lastOk > 25000) cargarStream(p, p.url);
+        if (Date.now() - p.lastOk > 25000){
+          const kk = claveDe(p.url);
+          if (kk && RADIOS[kk].alt && !conectando) irARadio(radUrl(kk), {id: curRadioId});
+          else if (!conectando) cargarStream(p, p.url);
+        }
       }
     }
   }
@@ -1349,25 +1382,11 @@ function bloqueSig(hora, nombre, subs, extra, cls){
   return '<div class="sg-ev ' + (cls || '') + '"><div class="sg-row"><span class="sg-h">' + esc(hora) + '</span><span class="sg-a">›</span><span class="sg-n">' + esc(nombre) + (extra ? '<small>' + esc(extra) + '</small>' : '') + '</span></div>'
     + subs.map(x => '<div class="sg-sub' + (x.act ? ' act' : '') + '"><span class="sg-t">' + (x.t ? hmsDe(x.t) : '--:--:--') + '</span><span>' + esc(x.n) + '</span></div>').join('') + '</div>';
 }
-function renderSig(){
-  const ahora = new Date();
-  let h = '';
-  // AHORA
-  if (!activo) h += bloqueSig('Ahora', 'Automatización detenida', [], '', 'ahora');
-  else if (cur){
-    h += bloqueSig('Ahora', titulo(cur.item), subitemsDe(cur.item, Date.now() - (finEl.currentTime || 0) * 1000, cur.idx), '', 'ahora');
-  } else if (lastRadioUrl){
-    const it = items.find(i => i.id === curRadioId), k = claveDe(lastRadioUrl);
-    h += bloqueSig('Ahora', it ? titulo(it) : (k ? RADIOS[k].name : 'Emisora'), [], '', 'ahora');
-  } else h += bloqueSig('Ahora', 'Sin emisora de fondo', [], '', 'ahora');
-  // AL TERMINAR lo que suena (si es una tanda / programa / audio)
-  const rest = activo ? restanteCur() : null;
-  if (rest != null){
-    const nx = nombreProximo(), f = new Date(Date.now() + rest * 1000);
-    if (nx.nombre) h += bloqueSig(hhmm(f) + ' hs', nx.nombre, nx.item ? subitemsDe(nx.item, f.getTime(), 0) : [], 'al terminar');
-  }
-  // LO AGENDADO (próximas 24 hs)
-  const lim = ahora.getTime() + 24 * 3600 * 1000, ev = [];
+// Simula las próximas 24 hs igual que lo haría el reproductor: lo agendado manda por horario,
+// y los bloques en cola (2, 3, 4, 5...) llenan el tiempo entre medio y retoman después de cada tanda/programa agendado.
+function simularSig(){
+  const ahora = new Date(), now = ahora.getTime(), lim = now + 24 * 3600 * 1000;
+  const ev = [];
   for (const it of items){
     for (const hh of horasDe(it)){
       const [H, M] = hh.split(':').map(Number);
@@ -1378,9 +1397,68 @@ function renderSig(){
       }
     }
   }
-  ev.sort((a, b) => a.f - b.f);
-  for (const e of ev) h += bloqueSig(hhmm(e.f) + ' hs', titulo(e.it), subitemsDe(e.it, e.f.getTime(), 0), e.f.toDateString() !== ahora.toDateString() ? 'mañana' : '');
-  if (!ev.length) h += '<div class="sg-vacio">No hay horarios programados en las próximas 24 hs.</div>';
+  ev.sort((a, b) => a.f - b.f || items.indexOf(a.it) - items.indexOf(b.it));
+  const durMs = it => it.type === 'radio' ? 0 : calDurFin(it) * 1000;
+  const out = [], sched = new Map();
+  let q = queue.slice(), cn = [], last = null, busy = now, evi = 0;
+  const r0 = (activo && cur) ? restanteCur() : null;
+  if (r0 != null){ busy = now + r0 * 1000; last = cur.item; cn = cont.slice(); } else q = [];
+  const hayCur = r0 != null;
+  for (let g = 0; g < 300; g++){
+    if (last || q.length || cn.length){
+      if (busy > lim) break;
+      while (evi < ev.length && ev[evi].f.getTime() <= busy){          // lo que "disparó" mientras sonaba lo anterior se encola
+        const e = ev[evi++];
+        if (!q.includes(e.it.id)) q.push(e.it.id);
+        if (!sched.has(e.it.id)) sched.set(e.it.id, e.f);
+      }
+      const r = elegirSiguiente(q, cn, last);
+      q = r.q; cn = r.cont;
+      for (const rad of r.saltadas) out.push({start: new Date(busy), it: rad, sched: sched.get(rad.id) || null, sigue: false, primero: false});
+      if (r.item){
+        const s = sched.get(r.item.id) || null; sched.delete(r.item.id);
+        out.push({start: new Date(busy), it: r.item, sched: s, sigue: !r.deCola, enCola: r.deCola && !s, primero: out.length === 0 && hayCur});
+        busy += durMs(r.item); last = r.item.type === 'radio' ? null : r.item;
+        continue;
+      }
+      last = null;
+    }
+    if (evi >= ev.length) break;
+    const e = ev[evi++];
+    const start = Math.max(e.f.getTime(), busy);
+    out.push({start: new Date(start), it: e.it, sched: e.f, sigue: false, primero: false});
+    busy = start + durMs(e.it); last = e.it.type === 'radio' ? null : e.it;
+  }
+  return {out, hayCur, ahora};
+}
+function renderSig(){
+  let h = '';
+  // AHORA
+  if (!activo) h += bloqueSig('Ahora', 'Automatización detenida', [], '', 'ahora');
+  else if (cur){
+    h += bloqueSig('Ahora', titulo(cur.item), subitemsDe(cur.item, Date.now() - (finEl.currentTime || 0) * 1000, cur.idx), '', 'ahora');
+  } else if (lastRadioUrl){
+    const it = items.find(i => i.id === curRadioId), k = claveDe(lastRadioUrl);
+    h += bloqueSig('Ahora', it ? titulo(it) : (k ? RADIOS[k].name : 'Emisora'), [], '', 'ahora');
+  } else h += bloqueSig('Ahora', 'Sin emisora de fondo', [], '', 'ahora');
+  const {out, hayCur, ahora} = simularSig();
+  // Si al terminar lo que suena no hay nada pendiente, vuelve la emisora de fondo
+  const rest = activo ? restanteCur() : null;
+  if (rest != null && !(out.length && out[0].primero)){
+    const nx = nombreProximo();
+    if (nx.nombre && !nx.item) h += bloqueSig(hhmm(new Date(Date.now() + rest * 1000)) + ' hs', nx.nombre, [], 'al terminar');
+  }
+  // LO QUE SIGUE (próximas 24 hs): agendado + bloques en cola, en el orden real de reproducción
+  for (const e of out){
+    const ex = [];
+    if (e.primero) ex.push('al terminar');
+    else if (e.sigue) ex.push('continúa en cola');
+    else if (e.enCola) ex.push('en cola');
+    if (e.sched && Math.abs(e.start - e.sched) > 60000) ex.push('agendado ' + hhmm(e.sched) + ' hs · espera su turno');
+    if (e.start.toDateString() !== ahora.toDateString()) ex.push('mañana');
+    h += bloqueSig(hhmm(e.start) + ' hs', titulo(e.it), subitemsDe(e.it, e.start.getTime(), 0), ex.join(' · '));
+  }
+  if (!out.length) h += '<div class="sg-vacio">No hay nada en cola ni horarios programados en las próximas 24 hs.</div>';
   $('sigLista').innerHTML = h;
 }
 function cerrarSig(){ sigAbierto = false; $('modalSig').style.display = 'none'; }
@@ -1758,10 +1836,20 @@ function pintar(){
       : enCola ? '<span class="hp cola">' + ICO.list + 'EN COLA</span>'
       : hs.length ? hs.map(h => '<span class="hp t" data-h="' + esc(h) + '" title="Editar horario ' + esc(h) + '">' + ICO.clock + esc(h) + '</span>').join('')
       : '<span class="hp sin" title="Sin horario: tocá para editar">SIN HORARIO</span>';
+    const rk = it.type === 'radio' ? RADIOS[it.radioKey] : null;
+    let lnk = '--';
+    if (rk && rk.alt){
+      const u = suena ? players[act].url : null;
+      const on1 = u === rk.url, on2 = u === rk.alt;
+      const mk = (n, on) => '<button type="button" class="lkb' + (on ? ' on' : '') + (suena && !on ? ' puede' : '') + '" data-lk="' + n + '" title="' +
+        (on ? 'LINK ' + n + ': es el que está sonando' : suena ? 'Usar el LINK ' + n + ' de ahora en más' : 'LINK ' + n + ' (se puede elegir mientras la radio suena)') + '">' + n + '</button>';
+      lnk = '<span class="clnk">' + mk(1, on1) + mk(2, on2) + '</span>';
+    }
     return `<div class="item ${it.type} ${suena ? 'play' : ''} ${it.id === selId ? 'sel' : ''}" data-id="${it.id}" draggable="true">
       <span class="num">${i + 1}</span>
       <span class="badge b-${it.type}">${it.type.toUpperCase()}</span>
       <div class="c-tit">${tit}</div>
+      <span class="clnk">${lnk}</span>
       <span class="cdur">${durTxt}</span>
       <span class="cfin">${finCel}</span>
       <span class="cdias">${hs.length ? esc(textoDias(it.days)) : '--'}</span>
@@ -1776,6 +1864,20 @@ function pintar(){
   }).join('');
   box.scrollTop = st;
   pintarEditor();
+}
+
+function elegirLink(it, n){
+  const k = it.radioKey, r = RADIOS[k];
+  if (!r || !r.alt) return;
+  const suena = activo && !conectando && !cur && it.id === curRadioId;
+  if (!suena){ toast('Los links se eligen mientras la radio está sonando.'); return; }
+  r.pref = n === 2 ? 'alt' : 'url';
+  if (r.pref === 'alt') ajustes.pref[k] = 'alt'; else delete ajustes.pref[k];
+  guardarAjustes();
+  const u = radUrl(k), pa = players[act];
+  lastRadioUrl = u;
+  if (pa.url === u && pa.ok){ pintar(); return; }
+  irARadio(u, {id: it.id, forzar: true});
 }
 
 function textoVivo(id){
@@ -1822,6 +1924,7 @@ $('lista').addEventListener('click', async e => {
   const id = row.dataset.id;
   const i = items.findIndex(x => x.id === id); if (i < 0) return;
   const it = items[i], a = b.dataset.a;
+  if (b.dataset.lk){ elegirLink(it, +b.dataset.lk); return; }
   if (a === 'play'){
     if (!activo){ toast('Primero tocá ACTIVAR.'); return; }
     reproducirItem(it);
@@ -2395,7 +2498,7 @@ function verTodos(){
 
 function filaLink(k){
   const r = RADIOS[k], cu = esCustom(k);
-  const inv = !!r.alt && r.pref === 'alt';          // si el principal elegido era el alternativo, se muestran invertidos
+  const inv = false;          // LINK 1 = principal, LINK 2 = alternativo (la preferencia se elige con los botones 1/2 de la lista)
   const p = inv ? r.alt : r.url, al = inv ? r.url : (r.alt || '');
   const cel = (l, lab, v, ph) => `<div class="lcell"><div class="lhead"><span class="lab">${lab}</span><span class="lest" data-l="${l}"></span></div><input type="text" class="lurl" data-k="${esc(k)}" data-l="${l}" spellcheck="false" placeholder="${ph}" value="${esc(v)}"></div>`;
   return `<div class="lrow" data-row="${esc(k)}">
@@ -2484,7 +2587,7 @@ $('linksGuardar').onclick = () => {
     const r = RADIOS[d.k], antes = radUrl(d.k);
     if (d.nuevoNombre) r.name = d.nuevoNombre;
     r.url = d.u;
-    if (d.a){ r.alt = d.a; r.pref = 'url'; } else { delete r.alt; delete r.pref; }
+    if (d.a){ r.alt = d.a; if (r.pref !== 'alt') r.pref = 'url'; } else { delete r.alt; delete r.pref; delete ajustes.pref[d.k]; }
     if (ORIG[d.k]){
       if (d.u === ORIG[d.k]) delete ajustes.links[d.k]; else ajustes.links[d.k] = d.u;
       if (ORIG_ALT[d.k]){   // emisora con alternativo por defecto: se guarda solo si cambió (o si lo quitaron)
@@ -2562,7 +2665,7 @@ $('btnActivar').onclick = () => {
   else {
     if (!confirm('¿Detener la automatización? Se corta el audio y no saltarán los horarios.')) return;
     activo = false; radioTok++; conectando = null;
-    cur = null; queue = [];
+    cur = null; queue = []; cont = [];
     lastRadioUrl = null; curRadioId = null;
     fadeTo(finEl, 0, STOP_FADE);                                   // leve fade out
     players.forEach(p => { if (p.url) fadeTo(p.el, 0, STOP_FADE); });
