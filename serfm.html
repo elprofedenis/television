@@ -1712,33 +1712,7 @@ $('edAdd').onclick = () => { if (!selId) return; edAddId = selId; $('pickAnadir'
 $('pickAnadir').addEventListener('change', e => { const l = [...e.target.files]; e.target.value = ''; if (l.length) anadirAudios(l, edAddId); });
 
 const edPanel = $('edBody').closest('.edP'), edDropEl = $('edDrop');
-const hayArchivos = e => !!(e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files'));
 const edDropOff = () => edPanel.classList.remove('arrastrando', 'no');
-function edSobre(e){
-  if (edDrag !== null || !hayArchivos(e)) return;     // el arrastre interno de pistas sigue con su propia lógica
-  e.preventDefault();
-  const it = items.find(i => i.id === selId && i.type === 'tanda');
-  e.dataTransfer.dropEffect = it ? 'copy' : 'none';
-  const msg = it ? 'Soltá los audios para añadirlos al final de «' + titulo(it) + '»' : 'Seleccioná una tanda para poder añadirle audios';
-  if (edDropEl.textContent !== msg) edDropEl.textContent = msg;
-  edPanel.classList.add('arrastrando'); edPanel.classList.toggle('no', !it);
-}
-edPanel.addEventListener('dragenter', edSobre);
-edPanel.addEventListener('dragover', edSobre);
-edPanel.addEventListener('dragleave', e => { if (!edPanel.contains(e.relatedTarget)) edDropOff(); });
-edPanel.addEventListener('drop', e => {
-  if (edDrag !== null || !hayArchivos(e)) return;
-  e.preventDefault(); edDropOff();
-  const l = [...e.dataTransfer.files];                // se copia ya, antes de cualquier await
-  anadirAudios(l, selId);
-});
-// Si se suelta un archivo fuera del editor, que el navegador no lo abra (cortaría la radio)
-['dragover', 'drop'].forEach(t => window.addEventListener(t, e => {
-  if (e.defaultPrevented || !hayArchivos(e)) return;
-  e.preventDefault(); if (t === 'dragover') e.dataTransfer.dropEffect = 'none';
-}));
-window.addEventListener('drop', edDropOff);
-window.addEventListener('dragend', edDropOff);
 
 /* Agrandar el editor provisoriamente */
 const ICO_EXP = '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
@@ -1958,23 +1932,76 @@ async function importarAudios(lista){
 }
 const tablaEl = listaEl.closest('.tabla'), lsDropEl = $('lsDrop');
 const lsDropOff = () => tablaEl.classList.remove('arrastrando');
-function lsSobre(e){
-  if (arrastrando || !hayArchivos(e)) return;
-  e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
-  const msg = 'Soltá los audios para importarlos como AUDIO';
-  if (lsDropEl.textContent !== msg) lsDropEl.textContent = msg;
-  tablaEl.classList.add('arrastrando');
+
+/* ===== Soltar archivos desde el explorador (lista y editor de tandas) =====
+   Un solo manejador a nivel ventana, en fase de captura: así el navegador NUNCA abre el audio en otra pestaña,
+   sin importar dónde se suelte, y los carteles violetas siempre se limpian solos. */
+function hayArchivos(e){
+  const dt = e.dataTransfer; if (!dt) return false;
+  if ([...(dt.types || [])].includes('Files')) return true;
+  return !!(dt.items && [...dt.items].some(i => i.kind === 'file'));
 }
-tablaEl.addEventListener('dragenter', lsSobre);
-tablaEl.addEventListener('dragover', lsSobre);
-tablaEl.addEventListener('dragleave', e => { if (!tablaEl.contains(e.relatedTarget)) lsDropOff(); });
-tablaEl.addEventListener('drop', e => {
-  if (arrastrando || !hayArchivos(e)) return;
-  e.preventDefault(); lsDropOff();
-  importarAudios([...e.dataTransfer.files]);   // se copia ya, antes de cualquier await
-});
-window.addEventListener('drop', lsDropOff);
-window.addEventListener('dragend', lsDropOff);
+const hayEnlace = e => !!(e.dataTransfer && [...(e.dataTransfer.types || [])].includes('text/uri-list'));
+function archivosDe(e){
+  const dt = e.dataTransfer; if (!dt) return [];
+  let l = [...(dt.files || [])];
+  if (!l.length && dt.items) l = [...dt.items].filter(i => i.kind === 'file').map(i => i.getAsFile()).filter(Boolean);
+  return l;
+}
+function zonaDrop(e){
+  const t = e.target;
+  if (!(t instanceof Element)) return null;
+  if (t.closest('.modal, .overlay')) return null;
+  if (t.closest('.edP')) return 'ed';
+  if (t.closest('.tabla')) return 'ls';
+  return null;
+}
+function limpiarSoltar(){ edDropOff(); lsDropOff(); }
+function arrastreExterno(e){
+  if (!(hayArchivos(e) || hayEnlace(e))) return false;   // los arrastres internos (reordenar) no pasan por acá
+  if (edDrag !== null){ edDrag = null; edMarcas(); }       // un arrastre interno nunca trae archivos: si quedó colgado, se descarta
+  if (arrastrando){ arrastrando = false; dragId = null; limpiarMarcas(); }
+  return true;
+}
+['dragenter', 'dragover'].forEach(t => window.addEventListener(t, e => {
+  if (!arrastreExterno(e)) return;
+  e.preventDefault();
+  const z = hayArchivos(e) ? zonaDrop(e) : null;
+  limpiarSoltar();
+  if (z === 'ed'){
+    const it = items.find(i => i.id === selId && i.type === 'tanda');
+    e.dataTransfer.dropEffect = it ? 'copy' : 'none';
+    const msg = it ? 'Soltá los audios para añadirlos al final de «' + titulo(it) + '»' : 'Seleccioná una tanda para poder añadirle audios';
+    if (edDropEl.textContent !== msg) edDropEl.textContent = msg;
+    edPanel.classList.add('arrastrando'); edPanel.classList.toggle('no', !it);
+  } else if (z === 'ls'){
+    e.dataTransfer.dropEffect = 'copy';
+    const msg = 'Soltá los audios para importarlos como AUDIO';
+    if (lsDropEl.textContent !== msg) lsDropEl.textContent = msg;
+    tablaEl.classList.add('arrastrando');
+  } else {
+    e.dataTransfer.dropEffect = 'none';
+  }
+}, true));
+window.addEventListener('drop', e => {
+  if (!arrastreExterno(e)) return;
+  e.preventDefault();
+  const z = zonaDrop(e);
+  limpiarSoltar();
+  if (!hayArchivos(e)){ toast('Arrastrá los audios desde el explorador de archivos (no desde un enlace).'); return; }
+  const l = archivosDe(e);                                  // se copia ya, antes de cualquier await
+  if (z === 'ed'){
+    const it = items.find(i => i.id === selId && i.type === 'tanda');
+    if (!it){ toast('Seleccioná una tanda para poder añadirle audios.'); return; }
+    anadirAudios(l, selId);
+  } else if (z === 'ls') importarAudios(l);
+}, true);
+// Si el arrastre termina de cualquier forma (se cierra la ventana, se cancela, se vuelve a la pestaña), los carteles se van solos
+window.addEventListener('dragleave', e => { if (!e.relatedTarget) limpiarSoltar(); }, true);
+window.addEventListener('dragend', limpiarSoltar, true);
+['pointermove', 'mousemove', 'keydown', 'focus', 'blur'].forEach(t => window.addEventListener(t, () => {
+  if (edPanel.classList.contains('arrastrando') || tablaEl.classList.contains('arrastrando')) limpiarSoltar();   // mientras se arrastra no llegan eventos de mouse
+}, true));
 
 /* ================= Ventanita "Cargar nuevo" ================= */
 let editando = null, pendientes = null;
