@@ -45,8 +45,9 @@
   #fecha{display:block;margin-top:.4rem;font:500 .9rem var(--f-ui);color:#eef4ff}
 
   /* ---------- Cuerpo ---------- */
-  main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 21.6rem;gap:1.1rem;padding:1.1rem 1.2rem .8rem 1rem}
+  main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 23.76rem;gap:1.1rem;padding:1.1rem 1.2rem .8rem 1rem}
   .lcol,.rcol{display:flex;flex-direction:column;gap:.9rem;min-height:0;min-width:0}
+  .rcol{gap:.6rem}
   .box{border:1px solid var(--borde);border-radius:1rem;background:var(--caja)}
 
   button{font:inherit;font-size:.9rem;font-weight:700;border:0;border-radius:.6rem;padding:.55rem 1.05rem;cursor:pointer;color:#fff;background:linear-gradient(180deg,#1b66e6,#1450b9);transition:transform .08s,filter .15s}
@@ -72,29 +73,37 @@
   .a-rest{flex:none;margin-left:auto;margin-top:-.55rem;margin-bottom:-.55rem;height:5.2rem;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:0 1.5rem;border-radius:.9rem;border:2px solid rgba(30,200,170,.55);background:rgba(5,40,52,.6)}
   .a-rest b{display:block;font:600 2.5rem/1 var(--f-ui);color:#2ce08a;font-variant-numeric:tabular-nums}
   .a-rest small{display:block;margin-top:.5rem;font:500 .7rem var(--f-ui);color:#bfe6ff}
+  .a-rest.a-rep{margin-left:0;border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.07)}
+  .a-rest.a-rep b{color:#fff}
+  .a-rest.a-rep small{max-width:13rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff}
   .aire.off .a-rest{border-color:#2a4a7a} .aire.off .a-rest b{color:#7f93b3}
 
   /* Tabla */
-  .tabla{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-  .thead,.item{display:grid;grid-template-columns:1.8rem 1.6rem 6.4rem minmax(0,1fr) 5.2rem 9.6rem 8.4rem 11rem;align-items:center;column-gap:1.1rem;padding:0 1.5rem}
+  .tabla{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;position:relative}
+  .tabla.arrastrando .ed-drop{display:flex}
+  .thead,.item{display:grid;grid-template-columns:1.5rem 4.7rem minmax(0,1fr) 5.2rem 6.6rem 9.2rem 8.8rem 11rem;align-items:center;column-gap:.6rem;padding:0 .7rem}
   .thead{flex:none;height:3rem;font:600 .95rem var(--f-ui);letter-spacing:.03em;border-bottom:1px solid var(--borde);color:#f1f6ff}
   .thead .c{text-align:center}
+  .thead span{white-space:nowrap}
+  .thead .fh{font-size:.82rem}
   #lista{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
   #lista::-webkit-scrollbar{width:.8rem} #lista::-webkit-scrollbar-thumb{background:#1f4172;border-radius:10px;border:3px solid transparent;background-clip:padding-box}
   .vacio{margin:auto;color:var(--mut);text-align:center;padding:2rem;font-size:1.05rem;line-height:1.6}
-  .item{flex:none;min-height:4.4rem;padding-top:.6rem;padding-bottom:.6rem;border:2px solid transparent;border-bottom-color:rgba(40,92,155,.3);position:relative;cursor:default}
+  .item{flex:none;min-height:4.4rem;padding-top:.6rem;padding-bottom:.6rem;border:2px solid transparent;border-bottom-color:rgba(40,92,155,.3);position:relative;cursor:grab}
   .item.sel:not(.play){background:rgba(30,110,220,.14);box-shadow:inset 3px 0 0 var(--acc)}
   .item.play{border-color:#ff3b4f;border-radius:.8rem;background:linear-gradient(90deg,rgba(160,20,40,.45),rgba(90,14,34,.3));box-shadow:0 0 14px rgba(255,59,79,.3)}
   .item.arrastrado{opacity:.35}
   .item.ins-antes::before,.item.ins-despues::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--acc);border-radius:3px}
   .item.ins-antes::before{top:-3px} .item.ins-despues::after{bottom:-3px}
-  .grip{cursor:grab;color:#2a86f0;font-size:1.4rem;user-select:none;line-height:1;text-align:center}
-  .grip:active{cursor:grabbing}
+  .item:active{cursor:grabbing}
+  .item button{cursor:pointer}
+  .hp small.mas{font-size:.72rem;font-weight:700;margin-left:-.2rem;padding:.05rem .4rem;border-radius:999px;background:rgba(255,255,255,.22)}
   .num{width:1.5rem;height:1.5rem;border-radius:50%;background:#0f2a52;color:#e3eeff;display:grid;place-items:center;font-weight:600;font-size:.82rem}
-  .badge{display:block;text-align:center;padding:.3rem 0;border-radius:999px;white-space:nowrap;font:700 .8rem var(--f-ui);letter-spacing:.02em;border:1px solid transparent}
+  .badge{display:block;text-align:center;padding:.22rem 0;border-radius:999px;white-space:nowrap;font:700 .62rem var(--f-ui);letter-spacing:.02em;border:1px solid transparent}
   .b-radio{background:linear-gradient(180deg,#12ad78,#0b7f5a);color:#c9f8e6;border-color:#2fd39c}
   .b-tanda{background:linear-gradient(180deg,#22a0f5,#1276cb);color:#e8f5ff;border-color:#4bb4ff}
   .b-programa{background:linear-gradient(180deg,#eaa421,#bf7909);color:#fff6df;border-color:#ffc260}
+  .b-audio{background:linear-gradient(180deg,#a266f7,#6a2fd1);color:#f4ebff;border-color:#c9a6ff}
   .c-tit{min-width:0}
   .t1{font:700 1.15rem/1.25 var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
   .t2{font:400 .82rem var(--f-ui);color:#a4bad8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -105,10 +114,13 @@
   .dur{flex:none;font:600 .85rem var(--f-ui);font-variant-numeric:tabular-nums;white-space:nowrap;padding:.1rem .7rem;border-radius:999px;
        color:var(--c-tanda);background:rgba(58,168,255,.1);border:1px solid rgba(58,168,255,.6)}
   .item.programa .dur{color:#f2b04a;background:rgba(240,160,44,.1);border-color:rgba(240,160,44,.65)}
+  .item.audio .dur{color:#c9a3ff;background:rgba(162,102,247,.12);border-color:rgba(176,128,250,.7)}
+  .item.audio .t2{color:#c3a6ee}
   .item.play .dur{color:#ffc2ca;background:rgba(255,59,79,.14);border-color:rgba(255,95,112,.65)}
   .cdur,.cdias{text-align:center;font:500 .92rem var(--f-ui);font-variant-numeric:tabular-nums;color:#e8f1ff;letter-spacing:.01em}
   .cdias{font-size:.88rem;color:#dbe8fb}
-  .chor{text-align:center}
+  .chor{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem}
+  .chor.mult .hp{height:1.9rem;font-size:1rem}
   .hp{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-width:7.2rem;height:2.2rem;padding:0 .8rem;border-radius:.65rem;font:600 1.1rem var(--f-ui);font-variant-numeric:tabular-nums;border:1px solid transparent;white-space:nowrap}
   .hp svg{width:1.1rem;height:1.1rem;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .hp.t{background:linear-gradient(180deg,#1b66e6,#1450b9);color:#fff;border-color:#3a86ff}
@@ -120,6 +132,15 @@
   @keyframes parp{50%{opacity:.5}}
   .hp.sin{background:linear-gradient(180deg,#0b1d3a,#07152c);color:#7f93b3;border-color:#1c3d6e;font-size:.9rem;font-weight:600}
   .hp.sin:hover{color:#b9cbe6;border-color:#2a5aa0}
+  .cfin{text-align:center}
+  .fin-p{display:inline-flex;align-items:center;justify-content:center;min-width:4.4rem;height:1.9rem;padding:0 .7rem;border-radius:999px;font:700 .78rem var(--f-ui);letter-spacing:.04em;border:1px solid transparent;cursor:pointer;transition:filter .15s,transform .08s}
+  .fin-p:hover{filter:brightness(1.2)} .fin-p:active{transform:scale(.96)}
+  .fin-p.radio{background:linear-gradient(180deg,#12ad78,#0b7f5a);color:#c9f8e6;border-color:#2fd39c}
+  .fin-p.cola{background:linear-gradient(180deg,#eaa421,#bf7909);color:#fff6df;border-color:#ffc260}
+  .finsel{display:flex;gap:.2rem;padding:.2rem;border-radius:.8rem;background:rgba(14,38,76,.85);border:1px solid #1d3f73}
+  .finsel button{flex:1;padding:8px 0;font-size:12px;letter-spacing:.5px;border-radius:.6rem;background:transparent;border:1px solid transparent;color:#cfe0f5;cursor:pointer}
+  .finsel button.on{background:linear-gradient(180deg,#1b66e6,#1450b9);border-color:#3a86ff;color:#fff}
+  .finnota{margin-top:6px;font-size:12px;color:var(--mut);line-height:1.35}
   .acc{display:flex;gap:.5rem}
   .acc button{width:2.4rem;height:2.4rem;padding:0;border-radius:.6rem;background:linear-gradient(180deg,#143a72,#0e2a55);border:1px solid #23508f;color:#e8f1ff;display:grid;place-items:center}
   .acc button svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -131,26 +152,55 @@
   #vu{flex:1;position:relative;min-height:0}
   .fp.vuH{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:.4rem;padding:.7rem 1.3rem .8rem}
   .vu-t{flex:none;font:600 .8rem var(--f-ui);letter-spacing:.08em;color:#cfe0f5}
-  .repP{flex:none;display:flex;flex-direction:column;padding-bottom:1.3rem}
-  .rp-n{padding:.55rem 1.1rem 0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:500 .9rem var(--f-ui);color:#cfe0f5}
-  .rp-n b{font-weight:700;font-size:1rem;color:#fff}
-  .rp-v{display:flex;justify-content:center;padding-top:.5rem}
-  .rp-v b{font:600 2.1rem/1 var(--f-ui);font-variant-numeric:tabular-nums;color:#fff}
   #vu canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .cmpP{flex:none;display:flex;align-items:center;justify-content:center;gap:1.1rem;padding:1.1rem 1rem}
+  .cmpP{flex:none;display:flex;align-items:center;justify-content:center;gap:1.1rem;padding:.5rem 1rem}
   .cmpP .lbl{font:600 1rem var(--f-ui);letter-spacing:.02em}
   .tog{display:flex;gap:.2rem;padding:.2rem;border-radius:.8rem;background:rgba(14,38,76,.85);border:1px solid #1d3f73}
   .tog button{background:transparent;color:#cfe0f5;border:1px solid transparent;border-radius:.5rem;padding:.4rem .85rem;font:700 .95rem var(--f-ui)}
   .tog button.on{background:linear-gradient(180deg,#1b66e6,#1450b9);border-color:#3a86ff;color:#fff}
-  .edP{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-  #edBody{flex:1;min-height:0;display:flex;flex-direction:column;padding:.3rem 1rem 1rem;overflow:hidden}
+  .edP{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden;position:relative}
+  .ed-top{flex:none;display:flex;align-items:flex-end;gap:.4rem;padding:0 .6rem 0 .8rem}
+  .ed-top .box-t{flex:1;min-width:0;text-align:left;padding:.8rem 0 .2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ed-top button{flex:none;margin-bottom:.15rem;padding:.3rem .6rem;font-size:.76rem;white-space:nowrap}
+  .ed-top button:disabled{opacity:.4;cursor:default}
+  .ed-top .ed-big{width:1.9rem;height:1.9rem;padding:0;display:grid;place-items:center}
+  .ed-top .ed-big svg{width:1rem;height:1rem;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .ed-bk{display:none;position:fixed;inset:0;z-index:14;background:rgba(2,8,20,.7)}
+  .edP.grande + .ed-bk{display:block}
+  .edP.grande{position:fixed;inset:4vh 0;margin:0 auto;width:min(58rem,94vw);height:auto;z-index:15;background:#081a36;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .edP.grande .box-t{font-size:1.2rem}
+  .edP.grande #edBody{padding:.4rem 1.4rem 1.2rem}
+  .edP.grande .ed-h b.edn{font-size:1.3rem}
+  .edP.grande .ed-h .edt{font-size:1.5rem}
+  .edP.grande .ed-row{grid-template-columns:2rem minmax(0,1fr) auto auto auto;gap:.8rem;padding:.6rem .6rem;font-size:1rem}
+  .edP.grande .ed-row button{width:2rem;height:2rem}
+  .ed-drop{display:none;position:absolute;inset:.4rem;z-index:5;align-items:center;justify-content:center;text-align:center;padding:1rem;border:2px dashed var(--acc2);border-radius:.9rem;background:rgba(10,36,80,.9);color:#e8f3ff;font:600 .95rem/1.4 var(--f-ui);pointer-events:none}
+  .edP.arrastrando .ed-drop{display:flex}
+  .edP.arrastrando.no .ed-drop{border-color:#ff7a8a}
+  #edBody{flex:1;min-height:0;display:flex;flex-direction:column;padding:.2rem .4rem .6rem;overflow:hidden}
   .ed-vacio{margin:auto;text-align:center;color:#d3e3fa;font:400 .85rem/1.5 var(--f-ui);max-width:92%}
   .ed-vacio button{margin-top:1rem;padding:.4rem .85rem;font-size:.85rem}
-  .ed-h{flex:none;display:flex;align-items:center;gap:.6rem;padding:.2rem .2rem .7rem;min-width:0}
-  .ed-h b{font:700 .95rem var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ed-h{flex:none;display:flex;align-items:baseline;gap:.4rem;padding:.1rem .3rem .5rem;min-width:0}
+  .ed-h .edn{flex:0 1 auto;min-width:0;font:700 .95rem var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ed-h .eds{flex:none;color:#7f98bb;font:400 .9rem var(--f-ui);white-space:nowrap}
+  .ed-h .edd{flex:none;white-space:nowrap;font:500 .85rem var(--f-ui);color:#cfe0f5}
+  .ed-h .edt{font:800 1.25rem var(--f-ui);font-variant-numeric:tabular-nums;color:#8fdcff;text-shadow:0 0 12px rgba(80,190,255,.45);margin-left:.15rem}
+  .ed-det{flex:none;margin:.1rem .2rem .5rem;padding:.45rem .6rem .5rem;border-radius:.7rem;border:1px solid rgba(40,92,155,.4);background:rgba(20,60,120,.18)}
+  .ed-det .ed-h{padding:0 0 .3rem}
+  .ed-hs{display:flex;flex-direction:column;gap:.3rem;max-height:6.6rem;overflow-y:auto;padding-top:.35rem;border-top:1px solid rgba(40,92,155,.3)}
+  .ed-hr{display:flex;align-items:center;gap:.6rem;min-width:0}
+  .ed-hb{flex:none;display:inline-flex;align-items:center;gap:.35rem;height:1.7rem;padding:0 .65rem;border-radius:.5rem;font:600 .88rem var(--f-ui);font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#1b66e6,#1450b9);border:1px solid #3a86ff;color:#fff;cursor:pointer}
+  .ed-hb:hover{filter:brightness(1.18)}
+  .ed-hb svg{width:.9rem;height:.9rem;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .ed-hb.sin{background:rgba(11,29,58,.9);border-color:#1c3d6e;color:#9fb4d4;font-weight:600}
+  .ed-fin{min-width:0;font:400 .8rem var(--f-ui);color:#a9c4e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ed-car{display:block;width:100%;margin-top:.35rem;padding:.15rem 0;text-align:left;font:400 .76rem var(--f-ui);color:#8fb2de;background:transparent;border:0;border-top:1px solid rgba(40,92,155,.3);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ed-car:hover{text-decoration:underline}
+  .ed-car.warn{color:#ffbf55}
+  .ed-dias{font:400 .74rem var(--f-ui);color:#7f98bb}
   .ed-list{flex:1;min-height:0;overflow-y:auto}
   .ed-list::-webkit-scrollbar{width:.6rem} .ed-list::-webkit-scrollbar-thumb{background:#1f4172;border-radius:10px}
-  .ed-row{display:grid;grid-template-columns:.9rem 1.3rem minmax(0,1fr) auto auto auto;align-items:center;gap:.5rem;padding:.45rem .3rem;position:relative;cursor:grab;user-select:none;border-bottom:1px solid rgba(40,92,155,.25);font:400 .82rem var(--f-ui)}
+  .ed-row{display:grid;grid-template-columns:1.5rem minmax(0,1fr) auto auto auto;align-items:center;gap:.4rem;padding:.45rem .2rem;position:relative;cursor:grab;user-select:none;border-bottom:1px solid rgba(40,92,155,.25);font:400 .82rem var(--f-ui)}
   .ed-row:active{cursor:grabbing}
   .ed-row:hover{background:rgba(30,110,220,.1)}
   .ed-row.arrastrado{opacity:.35}
@@ -175,7 +225,24 @@
   .fp{display:flex;align-items:center;gap:1.1rem;min-width:0;height:7.8rem;padding:.8rem 1.4rem}
   .f-ico{flex:none;align-self:flex-start;width:2.8rem;height:2.8rem;margin-top:.2rem;border-radius:50%;display:grid;place-items:center;color:#2aa4ff;border:2px solid #1f7fe0;background:rgba(20,80,160,.18)}
   .f-ico svg{width:1.55rem;height:1.55rem;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .cuenta{min-width:0}
+  .cuenta{min-width:0;cursor:pointer}
+  .cuenta:hover{background:linear-gradient(180deg,rgba(70,165,240,.5),rgba(40,120,200,.42));border-color:#8bd6ff;box-shadow:0 0 18px rgba(90,190,255,.4)}
+  .cuenta{transition:background .15s,border-color .15s,box-shadow .15s}
+  .caja.sig{max-width:580px;padding:22px 26px}
+  .caja.sig h3{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 12px;font:700 22px var(--f-ui)}
+  .caja.sig h3 small{font:400 13px var(--f-ui);color:var(--mut)}
+  .sg-ev{padding:.5rem 0;border-bottom:1px solid rgba(40,92,155,.3)}
+  .sg-row{display:flex;align-items:baseline;gap:.7rem;font:600 1.05rem var(--f-ui)}
+  .sg-h{flex:none;min-width:6rem;color:#4db3ff;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .sg-ev.ahora .sg-h{color:#2ce08a}
+  .sg-a{flex:none;color:#7f93b3}
+  .sg-n{min-width:0;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sg-n small{font:400 .8rem var(--f-ui);color:#9bb2d4;margin-left:.4rem}
+  .sg-sub{display:flex;gap:.7rem;padding:.12rem 0 0 7.9rem;font:400 .88rem var(--f-ui);color:#b6c9e4}
+  .sg-sub .sg-t{flex:none;min-width:4.6rem;font-variant-numeric:tabular-nums;color:#8fb2de}
+  .sg-sub span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sg-sub.act{color:#2ce08a} .sg-sub.act .sg-t{color:#2ce08a}
+  .sg-vacio{padding:1rem 0;color:var(--mut);font-size:.95rem}
   .cuenta .c1{font:600 .78rem var(--f-ui);color:#4db3ff;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cuenta .cn{font:700 1.2rem/1.3 var(--f-ui);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cuenta .cs{font:400 .82rem var(--f-ui);color:#b6c9e4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.2em}
@@ -230,6 +297,8 @@
   select:focus,input:focus{border-color:var(--acc)}
   .hrow{display:flex;gap:10px;align-items:center}
   .hrow input{flex:1}
+  #mHoras .hrow{margin-bottom:8px}
+  #mMasHora{margin:0 0 14px;padding:6px 12px;font-size:13px}
   .dias-sel{display:flex;gap:.2rem;padding:.2rem;border-radius:.8rem;background:rgba(14,38,76,.85);border:1px solid #1d3f73;transition:opacity .15s}
   .dias-sel.off{opacity:.4}
   .dias-sel button.dia{flex:1;min-width:0;padding:8px 0;font-size:12px;letter-spacing:.5px;border-radius:.6rem;background:transparent;border:1px solid transparent;color:#cfe0f5}
@@ -329,6 +398,7 @@
   .ev.radio{background:rgba(18,173,120,.22);border-color:#2fd39c;color:#c9f8e6}
   .ev.tanda{background:rgba(34,160,245,.22);border-color:#4bb4ff;color:#e0f1ff}
   .ev.programa{background:rgba(234,164,33,.22);border-color:#ffc260;color:#fff1d2}
+  .ev.audio{background:rgba(162,102,247,.24);border-color:#b98cff;color:#f0e4ff}
   .ev.pasado{opacity:.5}
   .ev.sona{background:rgba(255,59,79,.3);border-color:#ff3b4f;color:#fff;box-shadow:0 0 10px rgba(255,59,79,.4)}
   .nowl{position:absolute;left:0;right:0;height:0;border-top:2px solid #ff3b4f;z-index:2;pointer-events:none}
@@ -347,9 +417,10 @@
   .bk.radio.ini{border-top:2px solid #2fd39c}
   .bk.tanda{z-index:3;background:rgba(34,140,230,.88);border-color:#7cc6ff;color:#fff}
   .bk.programa{z-index:3;background:rgba(214,140,20,.9);border-color:#ffd48a;color:#fff}
+  .bk.audio{z-index:3;background:rgba(124,58,222,.9);border-color:#cfa9ff;color:#fff}
   .bk.pasado{opacity:.5}
   .bk.sona{opacity:1;background:rgba(255,59,79,.38);border-color:#ff3b4f;color:#fff;box-shadow:0 0 10px rgba(255,59,79,.4)}
-  .bk.tanda.sona,.bk.programa.sona{background:rgba(220,30,55,.92);border-color:#ff9aa6}
+  .bk.tanda.sona,.bk.programa.sona,.bk.audio.sona{background:rgba(220,30,55,.92);border-color:#ff9aa6}
   .cal-g .cday .nowl{z-index:4}
 
 </style>
@@ -362,7 +433,7 @@
     <span class="sep"></span>
     <div>
       <div class="t-main">AUTOMATIZACIÓN</div>
-      <div class="t-sub">RADIOS · TANDAS · PROGRAMAS</div>
+      <div class="t-sub">RADIOS · TANDAS · PROGRAMAS · AUDIOS</div>
     </div>
   </div>
   <div class="onair off" id="onair"><i></i><span id="onairTxt">DETENIDO</span></div>
@@ -387,11 +458,13 @@
         <div class="a-sub" id="aSub">Tocá ACTIVAR para empezar a retransmitir.</div>
       </div>
       <div class="a-rest"><b id="aRest">--:--</b><small>RESTANTE APROX.</small></div>
+      <div class="a-rest a-rep"><b id="aRep">--:--</b><small id="aRepL">REPRODUCIENDO</small></div>
     </section>
 
     <section class="tabla box">
-      <div class="thead"><span></span><span class="c">#</span><span>TIPO</span><span>TÍTULO</span><span class="c">DURACIÓN</span><span class="c">DÍAS</span><span class="c">HORARIOS</span><span>ACCIONES</span></div>
+      <div class="thead"><span class="c">#</span><span>TIPO</span><span>TÍTULO</span><span class="c">DURACIÓN</span><span class="c fh">AL FINALIZAR</span><span class="c">DÍAS</span><span class="c">HORARIOS</span><span>ACCIONES</span></div>
       <div id="lista"></div>
+      <div class="ed-drop" id="lsDrop"></div>
     </section>
 
   </div>
@@ -401,20 +474,21 @@
       <span class="lbl">COMPRESOR</span>
       <div class="tog"><button type="button" id="cmpOn">ON</button><button type="button" id="cmpOff">OFF</button></div>
     </section>
-    <section class="repP box">
-      <div class="box-t">DETALLE DE REPRODUCCIÓN</div>
-      <div class="rp-n"><span>Reproduciendo</span> <b id="dtT">—</b></div>
-      <div class="rp-v"><b id="dtEl">--:--:--</b></div>
-    </section>
     <section class="edP box">
-      <div class="box-t">EDITOR DE TANDAS</div>
+      <div class="ed-top">
+        <div class="box-t">EDITOR DE TANDAS</div>
+        <button type="button" class="sec" id="edAdd" disabled title="Añadir audios al final de la tanda seleccionada">+ Añadir audios</button>
+        <button type="button" class="sec ed-big" id="edBig" title="Agrandar el editor"></button>
+      </div>
       <div id="edBody"></div>
+      <div class="ed-drop" id="edDrop"></div>
     </section>
+    <div class="ed-bk" id="edBk"></div>
   </aside>
 </main>
 
 <footer>
-  <div class="fp box cuenta dim" id="cuenta">
+  <div class="fp box cuenta dim" id="cuenta" title="Tocá para ver qué suena y qué sigue">
     <div class="f-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></div>
     <div style="min-width:0;flex:1">
       <div class="c1" id="cuentaTit">PRÓXIMO EVENTO</div>
@@ -448,7 +522,7 @@
   </div>
 
   <div class="pop" id="volPop">
-    <div class="pop-h">Volumen individual<small>Cada emisora, tanda o programa tiene su propio nivel. Va de 0 a 200 % y queda guardado.</small></div>
+    <div class="pop-h">Volumen individual<small>Cada emisora, tanda, programa o audio tiene su propio nivel. Va de 0 a 200 % y queda guardado.</small></div>
     <div id="volLista"></div>
   </div>
 </footer>
@@ -468,6 +542,14 @@
       <button type="button" class="sec cal-x" id="calCerrar" title="Cerrar">✕</button>
     </div>
     <div class="cal-body" id="calBody"><div class="cal-g" id="calGrid"></div></div>
+  </div>
+</div>
+
+<div id="modalSig" class="overlay">
+  <div class="caja sig">
+    <h3><span>Qué suena y qué sigue</span><small>Horarios estimados</small></h3>
+    <div id="sigLista"></div>
+    <div class="pie"><button class="sec" id="sigCerrar" type="button">Cerrar</button></div>
   </div>
 </div>
 
@@ -510,13 +592,20 @@
 
     <div id="fHora" class="oculto">
       <label class="f">HORARIO (OPCIONAL)</label>
-      <div class="hrow">
-        <input type="time" id="mHora">
-        <button class="sec" type="button" id="mSinHora">Quitar</button>
-      </div>
+      <div id="mHoras"></div>
+      <button class="sec" type="button" id="mMasHora">+ Añadir otro horario</button>
       <label class="f">DÍAS</label>
       <div class="dias-sel" id="mDias"></div>
       <div class="diasnota" id="mDiasNota">Se usan solo si ponés un horario.</div>
+    </div>
+
+    <div id="fFin" class="oculto">
+      <label class="f">AL FINALIZAR</label>
+      <div class="finsel" id="mFin">
+        <button type="button" data-v="radio" class="on" title="RADIO: Cuando finalice este evento, seguirá con la radio que venía sonando.">RADIO</button>
+        <button type="button" data-v="cola" title="COLA: Cuando finalice este evento, seguirá con lo que continúe en la cola de reproducción.">COLA</button>
+      </div>
+      <div class="finnota" id="mFinNota"></div>
     </div>
 
     <div id="fArch" class="oculto">
@@ -534,6 +623,7 @@
 
 <input type="file" id="pickCarpeta" webkitdirectory multiple hidden>
 <input type="file" id="pickArchivo" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac" hidden>
+<input type="file" id="pickAnadir" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac" multiple hidden>
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
@@ -579,6 +669,8 @@ const COMP_PRE = {   // th = umbral (dB), mk = ganancia de compensación
   fuerte: {th:-30, ratio:8, knee:6,  att:.003, rel:.15, mk:2}
 };
 const diaOk = (it, d) => !it.days || !it.days.length || it.days.includes(d);
+// Horarios del ítem: it.times (varios). Los ítems viejos solo tienen it.time y siguen funcionando.
+const horasDe = it => Array.isArray(it.times) && it.times.length ? it.times : (it.time ? [it.time] : []);
 function textoDias(days){
   const ds = ORDEN.filter(d => !days || !days.length || days.includes(d));
   if (ds.length === 7) return 'TODOS LOS DÍAS';
@@ -948,7 +1040,15 @@ function decidirDespues(commit){
   if (!item && cur && cur.item.type === 'programa'){
     const i = items.findIndex(x => x.id === cur.item.id);
     const nx = i >= 0 ? items[i + 1] : null;
-    if (nx && !nx.time && nx.type === 'programa' && nx.name === cur.item.name) item = nx;
+    if (nx && !horasDe(nx).length && nx.type === 'programa' && nx.name === cur.item.name) item = nx;
+  }
+  if (!item && cur && cur.item.alFin === 'cola'){   // AL FINALIZAR = COLA: sigue con lo que viene abajo en la lista
+    const i = items.findIndex(x => x.id === cur.item.id);
+    const nx = i >= 0 ? items[i + 1] : null;
+    if (nx){
+      if (nx.type === 'radio'){ fondoUrl = urlRadio(nx); fondoId = nx.id; }
+      else item = nx;
+    }
   }
   if (commit){
     queue = q;
@@ -1082,11 +1182,14 @@ function tick(){
     const hhmm = String(ahora.getHours()).padStart(2, '0') + ':' + String(ahora.getMinutes()).padStart(2, '0');
     const fecha = ahora.toDateString();
     for (const it of items){
-      if (!it.time || it.time !== hhmm || !diaOk(it, ahora.getDay())) continue;
-      const k = fecha + '|' + it.id + '|' + it.time;
-      if (disparados.has(k)) continue;
-      disparados.add(k);
-      disparar(it);
+      if (!diaOk(it, ahora.getDay())) continue;
+      for (const h of horasDe(it)){
+        if (h !== hhmm) continue;
+        const k = fecha + '|' + it.id + '|' + h;
+        if (disparados.has(k)) continue;
+        disparados.add(k);
+        disparar(it);
+      }
     }
     // vigilancia de la emisora
     if (Date.now() - ultimoWatch > 5000){
@@ -1158,13 +1261,14 @@ function proximo(){
   const ahora = new Date();
   let mejor = null;
   for (const it of items){
-    if (!it.time) continue;
-    const [H, M] = it.time.split(':').map(Number);
-    for (let off = 0; off <= 7; off++){
-      const f = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + off, H, M, 0);
-      if (f <= ahora || !diaOk(it, f.getDay())) continue;
-      if (!mejor || f < mejor.f) mejor = {f, it, off};
-      break;
+    for (const hh of horasDe(it)){
+      const [H, M] = hh.split(':').map(Number);
+      for (let off = 0; off <= 7; off++){
+        const f = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + off, H, M, 0);
+        if (f <= ahora || !diaOk(it, f.getDay())) continue;
+        if (!mejor || f < mejor.f) mejor = {f, it, off};
+        break;
+      }
     }
   }
   return mejor;
@@ -1174,6 +1278,13 @@ function hhmm(f){ return f.toLocaleTimeString('es-AR', {hour: '2-digit', minute:
 const pad2 = n => String(n).padStart(2, '0');
 const hms = sec => { sec = Math.max(0, Math.floor(sec)); return pad2(Math.floor(sec / 3600)) + ':' + pad2(Math.floor(sec % 3600 / 60)) + ':' + pad2(sec % 60); };
 const mmss = sec => { sec = Math.max(0, Math.ceil(sec - 0.05)); const h = Math.floor(sec / 3600); return (h ? h + ':' : '') + pad2(Math.floor(sec % 3600 / 60)) + ':' + pad2(sec % 60); };
+const trans = sec => { sec = Math.max(0, Math.floor(sec)); const h = Math.floor(sec / 3600); return (h ? h + ':' : '') + pad2(Math.floor(sec % 3600 / 60)) + ':' + pad2(sec % 60); };
+const sinExt = n => String(n || '').replace(/\.[^.]+$/, '').trim().toLowerCase();
+function subLista(it){
+  if (it.type === 'audio') return '';
+  if (it.type === 'programa' && it.fileNames && it.fileNames[0] && sinExt(it.fileNames[0]) === sinExt(it.name)) return '';
+  return subDe(it);
+}
 function subDe(it){
   if (it.type === 'radio') return 'Emisora en vivo';
   if (it.type === 'tanda') return it.comp && it.fileNames && it.fileNames[0] ? it.fileNames[0] : (it.fileNames ? it.fileNames.length : 0) + ' audio(s)';
@@ -1182,7 +1293,7 @@ function subDe(it){
 function pintarAire(){
   const p = players[act], pr = proximo();
   let cls = 'off', lab = 'AHORA AL AIRE', t = 'Automatización detenida', sb = 'Tocá ACTIVAR para empezar a retransmitir.', rest = '--:--';
-  let dEl = '--:--:--', dPct = 0, dRest = '--';
+  let dEl = '--:--', dPct = 0, dRest = '--';
   if (activo && cur){
     cls = 'on'; t = titulo(cur.item);
     const f = cur.files[cur.idx];
@@ -1191,7 +1302,7 @@ function pintarAire(){
     rest = r == null ? '--:--' : mmss(r);
     const durs = cur.item.durs || [], tot = durs.length === cur.files.length ? durs.reduce((a, b) => a + b, 0) : 0;
     let el = finEl.currentTime || 0; for (let i = 0; i < cur.idx; i++) el += durs[i] || 0;
-    dEl = hms(el); dPct = tot > 0 ? Math.min(100, el / tot * 100) : 0; dRest = r == null ? '--' : '-' + mmss(r);
+    dEl = trans(el); dPct = tot > 0 ? Math.min(100, el / tot * 100) : 0; dRest = r == null ? '--' : '-' + mmss(r);
     radioClave = '';
   } else if (activo && lastRadioUrl){
     const it = items.find(i => i.id === curRadioId), k = claveDe(lastRadioUrl);
@@ -1200,7 +1311,7 @@ function pintarAire(){
     rest = pr ? mmss((pr.f - new Date()) / 1000) : '--:--';
     const clave = curRadioId + '|' + lastRadioUrl;
     if (clave !== radioClave){ radioClave = clave; radioDesde = Date.now(); }
-    dEl = hms((Date.now() - radioDesde) / 1000); dPct = 100;
+    dEl = trans((Date.now() - radioDesde) / 1000); dPct = 100;
   } else if (activo && conectando){
     cls = 'wait'; lab = 'CONECTANDO…';
     const ci = items.find(i => i.id === conectando.id); t = ci ? titulo(ci) : 'Emisora'; sb = 'Conectando con la emisora…'; radioClave = '';
@@ -1213,9 +1324,71 @@ function pintarAire(){
   }
   $('aire').className = 'aire ' + cls;
   $('aLab').textContent = lab; $('aTit').textContent = t; $('aSub').textContent = sb; $('aRest').textContent = rest;
-  $('dtT').textContent = (activo && (cur || lastRadioUrl)) ? t : '—';
-  $('dtEl').textContent = dEl;
+  $('aRep').textContent = dEl;
+  const repQue = (activo && (cur || lastRadioUrl)) ? t : '';
+  $('aRepL').textContent = repQue ? 'REPRODUCIENDO ' + repQue.toUpperCase() : 'REPRODUCIENDO';
+  $('aRepL').title = repQue ? 'Reproduciendo ' + repQue : '';
 }
+/* ----- Ventanita "qué suena y qué sigue" ----- */
+let sigAbierto = false;
+const hmsDe = d => pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+// Audios de una tanda con la hora estimada de cada uno (t0 = momento en que arranca el audio "desde")
+function subitemsDe(it, t0, desde){
+  if (it.type === 'radio' || !it.fileNames || it.fileNames.length < 2) return [];
+  const durs = durOk(it) ? it.durs : [];
+  let t = t0, ok = true;
+  const out = [];
+  for (let i = desde || 0; i < it.fileNames.length; i++){
+    out.push({n: it.fileNames[i].replace(/\.[^.]+$/, ''), t: ok ? new Date(t) : null, act: !!cur && cur.item.id === it.id && i === cur.idx});
+    const d = durs[i] || 0;
+    if (d > 0) t += d * 1000; else ok = false;
+  }
+  return out;
+}
+function bloqueSig(hora, nombre, subs, extra, cls){
+  return '<div class="sg-ev ' + (cls || '') + '"><div class="sg-row"><span class="sg-h">' + esc(hora) + '</span><span class="sg-a">›</span><span class="sg-n">' + esc(nombre) + (extra ? '<small>' + esc(extra) + '</small>' : '') + '</span></div>'
+    + subs.map(x => '<div class="sg-sub' + (x.act ? ' act' : '') + '"><span class="sg-t">' + (x.t ? hmsDe(x.t) : '--:--:--') + '</span><span>' + esc(x.n) + '</span></div>').join('') + '</div>';
+}
+function renderSig(){
+  const ahora = new Date();
+  let h = '';
+  // AHORA
+  if (!activo) h += bloqueSig('Ahora', 'Automatización detenida', [], '', 'ahora');
+  else if (cur){
+    h += bloqueSig('Ahora', titulo(cur.item), subitemsDe(cur.item, Date.now() - (finEl.currentTime || 0) * 1000, cur.idx), '', 'ahora');
+  } else if (lastRadioUrl){
+    const it = items.find(i => i.id === curRadioId), k = claveDe(lastRadioUrl);
+    h += bloqueSig('Ahora', it ? titulo(it) : (k ? RADIOS[k].name : 'Emisora'), [], '', 'ahora');
+  } else h += bloqueSig('Ahora', 'Sin emisora de fondo', [], '', 'ahora');
+  // AL TERMINAR lo que suena (si es una tanda / programa / audio)
+  const rest = activo ? restanteCur() : null;
+  if (rest != null){
+    const nx = nombreProximo(), f = new Date(Date.now() + rest * 1000);
+    if (nx.nombre) h += bloqueSig(hhmm(f) + ' hs', nx.nombre, nx.item ? subitemsDe(nx.item, f.getTime(), 0) : [], 'al terminar');
+  }
+  // LO AGENDADO (próximas 24 hs)
+  const lim = ahora.getTime() + 24 * 3600 * 1000, ev = [];
+  for (const it of items){
+    for (const hh of horasDe(it)){
+      const [H, M] = hh.split(':').map(Number);
+      for (let off = 0; off <= 1; off++){
+        const f = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + off, H, M, 0);
+        if (f <= ahora || f.getTime() > lim || !diaOk(it, f.getDay())) continue;
+        ev.push({f, it});
+      }
+    }
+  }
+  ev.sort((a, b) => a.f - b.f);
+  for (const e of ev) h += bloqueSig(hhmm(e.f) + ' hs', titulo(e.it), subitemsDe(e.it, e.f.getTime(), 0), e.f.toDateString() !== ahora.toDateString() ? 'mañana' : '');
+  if (!ev.length) h += '<div class="sg-vacio">No hay horarios programados en las próximas 24 hs.</div>';
+  $('sigLista').innerHTML = h;
+}
+function cerrarSig(){ sigAbierto = false; $('modalSig').style.display = 'none'; }
+$('cuenta').onclick = () => { sigAbierto = true; $('modalSig').style.display = 'flex'; renderSig(); };
+$('sigCerrar').onclick = cerrarSig;
+$('modalSig').addEventListener('mousedown', e => { if (e.target === $('modalSig')) cerrarSig(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sigAbierto) cerrarSig(); });
+
 function pintarCuenta(){
   pintarAire();
   const pr = proximo();
@@ -1227,7 +1400,7 @@ function pintarCuenta(){
     const nx = nombreProximo();
     lab = 'Próximo · al terminar «' + titulo(cur.item) + '»';
     nom = nx.nombre || 'Sin emisora de fondo';
-    sb = (nx.item ? subDe(nx.item) : 'Emisora en vivo') + (pr && pr.it !== nx.item ? ' · luego ' + hhmm(pr.f) + ' hs: ' + titulo(pr.it) : '');
+    sb = (nx.item ? subDe(nx.item) : 'Emisora en vivo');
     tiempo = hms(Math.ceil(rest - 0.05));
   } else if (pr){
     lab = 'PRÓXIMO EVENTO' + cuando(pr).toUpperCase();
@@ -1235,6 +1408,7 @@ function pintarCuenta(){
     tiempo = hms(Math.max(0, Math.round((pr.f - new Date()) / 1000)));
   }
   $('cuentaTit').textContent = lab; $('cuentaNom').textContent = nom; $('cuentaSub').textContent = sb; $('cuentaTiempo').textContent = tiempo;
+  if (sigAbierto) renderSig();
 }
 function pintarEstado(){
   let est = 'off', txt = 'DETENIDO';
@@ -1247,7 +1421,13 @@ function pintarEstado(){
 }
 
 /* ----- Editor de tandas (panel derecho) ----- */
+let edBusy = false;
 async function editarOrden(id, fn){
+  if (edBusy){ toast('Esperá un momento: se está guardando otro cambio.'); return; }
+  edBusy = true;
+  try{ await editarOrdenInt(id, fn); } finally { edBusy = false; pintarEditor(); }
+}
+async function editarOrdenInt(id, fn){
   const it = items.find(i => i.id === id); if (!it) return;
   const files = await leerArchivos(id);
   if (!files.length || files.length !== (it.fileNames || []).length){ toast('No se pudieron leer los audios guardados de esta tanda.'); return; }
@@ -1282,9 +1462,21 @@ function saltarAudio(i){
 }
 let edDrag = null;
 let edLast = {id: null, idx: -1};
+function carpetaHtml(it){
+  if (!it.dir) return '';
+  const e = dirEstado[it.id], n = esc(it.dir.nombre || 'carpeta');
+  let txt, cls = '', tip = 'Se revisa sola cada minuto y al volver a esta ventana. Clic para revisar ahora.';
+  if (!e) txt = '📁 Carpeta «' + n + '» · revisando…';
+  else if (e.st === 'permiso'){ txt = '⚠ Falta permiso para leer la carpeta «' + n + '» · tocá acá para permitirlo'; cls = ' warn'; tip = 'El navegador pide permiso una vez para poder actualizar la tanda.'; }
+  else if (e.st === 'falta'){ txt = '⚠ No encuentro la carpeta «' + n + '» (¿se movió o se borró?)'; cls = ' warn'; tip = 'Volvé a elegir la carpeta desde ✎ Editar.'; }
+  else if (e.st === 'vacia'){ txt = '⚠ La carpeta «' + n + '» está vacía: no se tocó la tanda'; cls = ' warn'; }
+  else txt = '📁 Carpeta «' + n + '» · actualizada ' + hhmm(e.t) + ' hs';
+  return '<button type="button" class="ed-car' + cls + '" data-car="1" title="' + tip + '">' + txt + '</button>';
+}
 function pintarEditor(){
   if (edDrag !== null) return;
   const box = $('edBody'), it = items.find(i => i.id === selId && i.type === 'tanda');
+  $('edAdd').disabled = !it || edBusy;
   if (!it){
     edLast = {id: null, idx: -1};
     box.innerHTML = '<div class="ed-vacio">(Importe una carpeta como tanda publicitaria, y seleccionela para poder ajustar orden)<br><button type="button" class="sec" id="edImportar">+ Importar carpeta…</button></div>';
@@ -1294,8 +1486,19 @@ function pintarEditor(){
   const names = it.fileNames || [], durs = durOk(it) ? it.durs : [];
   const total = durs.reduce((a, b) => a + b, 0);
   const suena = !!(cur && cur.item.id === it.id && !cur.ended), sIdx = suena ? cur.idx : -1;
-  box.innerHTML = '<div class="ed-h"><b title="' + esc(titulo(it)) + '">' + esc(titulo(it)) + '</b><span class="dur">(' + (durs.length ? fmtDur(total) : '…') + ')</span></div>'
-    + '<div class="ed-list">' + names.map((n, i) => '<div class="ed-row' + (i === sIdx ? ' suena' : '') + '" draggable="true" data-i="' + i + '"><span class="gr">⋮⋮</span><span class="en">' + (i === sIdx ? ICO.wave : (i + 1)) + '</span><span class="enm" title="' + esc(n) + '">' + esc(n) + '</span>'
+  const hs = horasDe(it);
+  const finDe = h => {
+    if (!(total > 0)) return '';
+    const [H, M] = h.split(':').map(Number), a = new Date(); a.setHours(H, M, 0, 0);
+    const f = new Date(a.getTime() + total * 1000);
+    return 'Finalizará ' + hhmm(f) + ' hs' + (f.toDateString() !== a.toDateString() ? ' (día siguiente)' : '');
+  };
+  const horasHtml = hs.length
+    ? hs.map(h => '<div class="ed-hr"><button type="button" class="ed-hb" data-hor="' + esc(h) + '" title="Editar este horario">' + ICO.clock + esc(h) + '</button><span class="ed-fin" title="Aproximado, según la duración de la tanda">' + esc(finDe(h)) + '</span></div>').join('') + '<div class="ed-dias">' + esc(textoDias(it.days)) + '</div>'
+    : '<div class="ed-hr"><button type="button" class="ed-hb sin" data-hor="" title="Agendar un horario para esta tanda">+ Agregar horario</button></div>';
+  box.innerHTML = '<div class="ed-det"><div class="ed-h"><b class="edn" title="' + esc(titulo(it)) + '">' + esc(titulo(it)) + '</b><span class="eds">-</span><span class="edd">Duración: <b class="edt">' + (durs.length ? fmtDur(total) : '…') + '</b></span></div>'
+    + '<div class="ed-hs">' + horasHtml + '</div>' + carpetaHtml(it) + '</div>'
+    + '<div class="ed-list">' + names.map((n, i) => '<div class="ed-row' + (i === sIdx ? ' suena' : '') + '" draggable="true" data-i="' + i + '"><span class="en">' + (i === sIdx ? ICO.wave : (i + 1)) + '</span><span class="enm" title="' + esc(n) + '">' + esc(n) + '</span>'
       + '<span class="edu">' + (durs[i] ? fmtDur(durs[i]) : '--') + '</span>'
       + '<button type="button" data-ed="rm" title="Quitar de la tanda">✕</button>'
       + '<button type="button" class="pl" data-ed="play" title="Reproducir este audio ahora (corta el que suena)">' + ICO.play + '</button></div>').join('') + '</div>'
@@ -1339,6 +1542,10 @@ edBody.addEventListener('drop', e => {
 edBody.addEventListener('dragend', () => { if (edDrag !== null){ edDrag = null; edMarcas(); pintarEditor(); } });
 $('edBody').addEventListener('click', e => {
   if (e.target.closest('#edImportar')){ abrirModal(null); $('mTipo').value = 'tanda'; actualizarCampos(); return; }
+  const cb = e.target.closest('button[data-car]');
+  if (cb){ const itC = items.find(i => i.id === selId); if (itC) sincronizarTanda(itC, true).then(pintarEditor); return; }
+  const hb = e.target.closest('button[data-hor]');
+  if (hb){ const itH = items.find(i => i.id === selId); if (itH) abrirModal(itH, hb.dataset.hor); return; }
   const b = e.target.closest('button[data-ed]'); if (!b || !selId) return;
   const op = b.dataset.ed, row = b.closest('.ed-row'), i = row ? Number(row.dataset.i) : -1;
   if (op === 'rm') editarOrden(selId, ix => { if (ix.length <= 1){ toast('La tanda no puede quedar vacía. Para eliminarla, usá ✕ en la lista.'); return null; } ix.splice(i, 1); return ix; });
@@ -1347,13 +1554,212 @@ $('edBody').addEventListener('click', e => {
   else if (op === 'play') saltarAudio(i);
 });
 
+/* ----- Añadir audios al final de la tanda (botón, selección múltiple y arrastrar desde el explorador) ----- */
+async function anadirAudios(lista, id){
+  const it = items.find(i => i.id === id && i.type === 'tanda');
+  if (!it){ toast('Primero seleccioná una tanda para añadirle audios.'); return; }
+  const nuevos = lista.filter(esAudio).sort((a, b) => a.name.localeCompare(b.name, 'es', {numeric: true}));
+  if (!nuevos.length){ toast('No encontré audios (mp3, wav…) en lo que elegiste.'); return; }
+  if (edBusy){ toast('Esperá un momento: se está guardando otro cambio.'); return; }
+  edBusy = true;
+  const btn = $('edAdd'); btn.disabled = true; btn.textContent = 'Añadiendo…';
+  try{
+    const files = await leerArchivos(id);
+    if (!files.length || files.length !== (it.fileNames || []).length){ toast('No se pudieron leer los audios guardados de esta tanda.'); return; }
+    const durs = durOk(it) ? it.durs.slice() : await medirTodos(files.map(f => f.blob));
+    const dn = await medirTodos(nuevos);
+    const nf = nuevos.map(f => ({name: f.name, blob: f}));
+    const todos = files.concat(nf);
+    if (!(await guardarArchivos(id, todos))){ toast('No se pudieron guardar los audios (¿falta espacio en el disco?).'); return; }
+    it.fileNames = todos.map(f => f.name); it.durs = durs.concat(dn);
+    it.comp = false;   // ahora tiene varios audios: deja de ser un "compilado"
+    if (cur && cur.item.id === id && cur.files.length === files.length) cur.files = cur.files.concat(nf);   // si está sonando, los nuevos suenan al final
+    await guardarMeta();
+    toast(nuevos.length + ' audio(s) añadidos al final de «' + titulo(it) + '».');
+    pintar();
+  } finally {
+    edBusy = false; btn.textContent = '+ Añadir audios'; pintarEditor();
+  }
+}
+/* ================= Carpetas vinculadas a tandas (se actualizan solas) ================= */
+// Al cargar una tanda con "Seleccionar carpeta…" el navegador (Chrome / Edge) guarda el acceso a esa carpeta.
+// Cada minuto, y al volver a esta ventana, se compara la carpeta con la tanda:
+//  · audios nuevos en la carpeta  -> se agregan al final de la tanda
+//  · audios que cambiaron         -> se reemplazan por la versión nueva
+//  · audios borrados de la carpeta -> se quitan de la tanda
+// Los audios que agregaste a mano a la tanda NUNCA se tocan, y un audio que quitaste a mano no vuelve a aparecer.
+const HAY_CARPETAS = typeof window.showDirectoryPicker === 'function';
+const dirEstado = {};      // id de tanda -> {st: 'ok' | 'permiso' | 'falta' | 'vacia', t: Date}
+const sincIds = new Set();
+function guardarHandle(id, h){
+  if (!db) return Promise.resolve(false);
+  return new Promise(res => {
+    try{
+      const t = db.transaction('meta', 'readwrite');
+      t.objectStore('meta').put({key: 'dir:' + id, handle: h});
+      t.oncomplete = () => res(true); t.onerror = t.onabort = () => res(false);
+    }catch(e){ res(false); }
+  });
+}
+async function leerHandle(id){
+  if (!db) return null;
+  try{ const r = await pReq(db.transaction('meta').objectStore('meta').get('dir:' + id)); return r ? r.handle : null; }catch(e){ return null; }
+}
+function borrarHandle(id){ if (!db) return; try{ db.transaction('meta', 'readwrite').objectStore('meta').delete('dir:' + id); }catch(e){} }
+async function listarCarpeta(h){
+  const out = [];
+  for await (const [nombre, ent] of h.entries()){
+    if (ent.kind !== 'file' || !/\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(nombre)) continue;
+    try{ out.push(await ent.getFile()); }catch(e){}
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name, 'es', {numeric: true}));
+}
+const huella = f => [f.size, f.lastModified];
+
+async function sincronizarTanda(it, pedir){
+  if (!HAY_CARPETAS || !it || !it.dir || sincIds.has(it.id)) return;
+  sincIds.add(it.id);
+  let lock = false;
+  try{
+    const h = await leerHandle(it.id);
+    if (!h){ dirEstado[it.id] = {st: 'falta', t: new Date()}; return; }
+    let perm = 'prompt';
+    try{
+      perm = await h.queryPermission({mode: 'read'});
+      if (perm !== 'granted' && pedir) perm = await h.requestPermission({mode: 'read'});
+    }catch(e){}
+    if (perm !== 'granted'){ dirEstado[it.id] = {st: 'permiso', t: new Date()}; return; }
+    let scan;
+    try{ scan = await listarCarpeta(h); }catch(e){ dirEstado[it.id] = {st: 'falta', t: new Date()}; return; }
+
+    const vistos = it.dir.vistos || {};
+    const listos = scan.filter(f => Date.now() - f.lastModified > 4000);          // los que se están copiando todavía, esperan
+    const cambios = listos.filter(f => { const v = vistos[f.name]; return !v || v[0] !== f.size || v[1] !== f.lastModified; });
+    const removidos = Object.keys(vistos).filter(n => !scan.some(f => f.name === n));
+    if (!cambios.length && !removidos.length){ dirEstado[it.id] = {st: 'ok', t: new Date()}; return; }
+
+    const dm = {};                                                                  // duraciones de lo nuevo (antes de bloquear el editor)
+    for (const f of cambios) dm[f.name] = await duracionBlob(f);
+
+    if (edBusy) return;                                                             // se está editando: se reintenta en un rato
+    edBusy = true; lock = true;
+    const files = await leerArchivos(it.id);
+    if (!files.length || files.length !== (it.fileNames || []).length) return;
+    const sonando = !!(cur && cur.item.id === it.id && !cur.ended);
+    const durOld = {};
+    (it.fileNames || []).forEach((n, i) => { durOld[n] = durOk(it) ? it.durs[i] : 0; });
+
+    let res = files.slice(), agreg = 0, camb = 0, quit = 0;
+    const nuevosF = [];
+    for (const f of cambios){
+      const i = res.findIndex(x => x.name === f.name);
+      if (i >= 0){ res[i] = {name: f.name, blob: f}; camb++; }
+      else if (!vistos[f.name]){ const nf = {name: f.name, blob: f}; res.push(nf); nuevosF.push(nf); agreg++; }
+    }
+    for (const n of removidos){
+      const i = res.findIndex(x => x.name === n);
+      if (i >= 0){ res.splice(i, 1); quit++; }
+    }
+    if (sonando && (camb || quit)) return;                                          // la tanda está sonando: sin cortar nada, se aplica cuando termine
+    if (!res.length){ dirEstado[it.id] = {st: 'vacia', t: new Date()}; return; }
+
+    if (agreg || camb || quit){
+      const durs = res.map(f => dm[f.name] != null ? dm[f.name] : (durOld[f.name] || 0));
+      if (!(await guardarArchivos(it.id, res))){ toast('No se pudo actualizar «' + titulo(it) + '» desde la carpeta (¿falta espacio en el disco?).'); return; }
+      it.fileNames = res.map(f => f.name); it.durs = durs;
+      if (sonando && cur.files.length === files.length) cur.files = cur.files.concat(nuevosF);   // los nuevos suenan al final
+    }
+    const nv = {};
+    for (const f of scan){
+      if (listos.includes(f)) nv[f.name] = huella(f);
+      else if (vistos[f.name]) nv[f.name] = vistos[f.name];
+    }
+    it.dir.vistos = nv;
+    await guardarMeta();
+    dirEstado[it.id] = {st: 'ok', t: new Date()};
+    if (agreg || camb || quit){
+      const partes = [];
+      if (agreg) partes.push('+' + agreg + ' nuevo(s)');
+      if (camb) partes.push(camb + ' actualizado(s)');
+      if (quit) partes.push('−' + quit + ' quitado(s)');
+      toast('«' + titulo(it) + '» se actualizó desde la carpeta: ' + partes.join(', ') + '.');
+      pintar();
+    }
+  } catch(e){
+    console.warn('Sincronización de carpeta:', e);
+  } finally {
+    if (lock){ edBusy = false; pintarEditor(); }
+    sincIds.delete(it.id);
+  }
+}
+async function sincronizarTodas(pedir){
+  if (!HAY_CARPETAS) return;
+  for (const it of items.slice()) if (it.type === 'tanda' && it.dir) await sincronizarTanda(it, pedir);
+  pintarEditor();
+}
+async function vincularCarpeta(it, h){
+  it.dir = {nombre: h.name, vistos: {}};
+  await guardarHandle(it.id, h);
+  await guardarMeta();
+  await sincronizarTanda(it, false);
+}
+setInterval(() => sincronizarTodas(false), 60000);
+window.addEventListener('focus', () => sincronizarTodas(false));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) sincronizarTodas(false); });
+
+let edAddId = null;
+$('edAdd').onclick = () => { if (!selId) return; edAddId = selId; $('pickAnadir').click(); };
+$('pickAnadir').addEventListener('change', e => { const l = [...e.target.files]; e.target.value = ''; if (l.length) anadirAudios(l, edAddId); });
+
+const edPanel = $('edBody').closest('.edP'), edDropEl = $('edDrop');
+const hayArchivos = e => !!(e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files'));
+const edDropOff = () => edPanel.classList.remove('arrastrando', 'no');
+function edSobre(e){
+  if (edDrag !== null || !hayArchivos(e)) return;     // el arrastre interno de pistas sigue con su propia lógica
+  e.preventDefault();
+  const it = items.find(i => i.id === selId && i.type === 'tanda');
+  e.dataTransfer.dropEffect = it ? 'copy' : 'none';
+  const msg = it ? 'Soltá los audios para añadirlos al final de «' + titulo(it) + '»' : 'Seleccioná una tanda para poder añadirle audios';
+  if (edDropEl.textContent !== msg) edDropEl.textContent = msg;
+  edPanel.classList.add('arrastrando'); edPanel.classList.toggle('no', !it);
+}
+edPanel.addEventListener('dragenter', edSobre);
+edPanel.addEventListener('dragover', edSobre);
+edPanel.addEventListener('dragleave', e => { if (!edPanel.contains(e.relatedTarget)) edDropOff(); });
+edPanel.addEventListener('drop', e => {
+  if (edDrag !== null || !hayArchivos(e)) return;
+  e.preventDefault(); edDropOff();
+  const l = [...e.dataTransfer.files];                // se copia ya, antes de cualquier await
+  anadirAudios(l, selId);
+});
+// Si se suelta un archivo fuera del editor, que el navegador no lo abra (cortaría la radio)
+['dragover', 'drop'].forEach(t => window.addEventListener(t, e => {
+  if (e.defaultPrevented || !hayArchivos(e)) return;
+  e.preventDefault(); if (t === 'dragover') e.dataTransfer.dropEffect = 'none';
+}));
+window.addEventListener('drop', edDropOff);
+window.addEventListener('dragend', edDropOff);
+
+/* Agrandar el editor provisoriamente */
+const ICO_EXP = '<svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+const ICO_RED = '<svg viewBox="0 0 24 24"><polyline points="14 10 20 10 20 4"/><polyline points="10 14 4 14 4 20"/><line x1="20" y1="4" x2="14" y2="10"/><line x1="4" y1="20" x2="10" y2="14"/></svg>';
+function edGrande(on){
+  edPanel.classList.toggle('grande', on);
+  $('edBig').title = on ? 'Reducir el editor (Esc)' : 'Agrandar el editor';
+  $('edBig').innerHTML = on ? ICO_RED : ICO_EXP;
+}
+edGrande(false);
+$('edBig').onclick = () => edGrande(!edPanel.classList.contains('grande'));
+$('edBk').onclick = () => edGrande(false);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && edPanel.classList.contains('grande')) edGrande(false); });
+
 function pintar(){
   pintarEstado();
   if (arrastrando) return;
   const box = $('lista');
   const st = box.scrollTop;
   if (!items.length){
-    box.innerHTML = '<div class="vacio">La lista está vacía.<br>Tocá <b>+ CARGAR NUEVO...</b> para agregar emisoras, tandas o programas.</div>';
+    box.innerHTML = '<div class="vacio">La lista está vacía.<br>Tocá <b>+ CARGAR NUEVO...</b> para agregar emisoras, tandas, programas o audios.<br>También podés arrastrar audios desde el explorador y soltarlos acá.</div>';
     pintarEditor();
     return;
   }
@@ -1363,25 +1769,29 @@ function pintar(){
     const finSuena = cur && cur.item.id === it.id;
     const enCola = queue.includes(it.id);
     const fin = it.type !== 'radio';
+    const hs = horasDe(it);
     const total = fin && Array.isArray(it.durs) ? it.durs.reduce((a, b) => a + b, 0) : null;
     const durTxt = fin ? (total == null ? '…' : fmtDur(total)) : '--';
+    const sub = fin ? subLista(it) : '';
+    const alFin = it.alFin === 'cola' ? 'cola' : 'radio';
+    const finCel = fin ? '<button type="button" class="fin-p ' + alFin + '" data-a="fin" title="' + (alFin === 'cola' ? 'COLA: Cuando finalice este evento, seguirá con lo que continúe en la cola de reproducción. (Clic para cambiar a RADIO)' : 'RADIO: Cuando finalice este evento, seguirá con la radio que venía sonando. (Clic para cambiar a COLA)') + '">' + alFin.toUpperCase() + '</button>' : '--';
     const tit = !fin
       ? '<div class="t1">' + esc(titulo(it)) + '</div><div class="t2">Emisora en vivo</div>'
       : '<div class="t-fin"><span class="t1" title="' + esc(titulo(it)) + '">' + esc(titulo(it)) + '</span><span class="dur" title="Duración total de los audios cargados">(' + durTxt + ')</span>'
-        + '<span class="t2">' + (it.type === 'programa' ? ICO.file : '') + esc(subDe(it)) + '</span></div>';
+        + (sub ? '<span class="t2">' + (it.type === 'programa' ? ICO.file : '') + esc(sub) + '</span>' : '') + '</div>';
     const hp = conect ? '<span class="hp conn">' + ICO.wave + 'CONECTANDO</span>'
       : suena ? '<span class="hp live">' + ICO.wave + (it.type === 'radio' ? 'EN VIVO' : 'SONANDO') + '</span>'
       : enCola ? '<span class="hp cola">' + ICO.list + 'EN COLA</span>'
-      : it.time ? '<span class="hp t" title="Editar horario">' + ICO.clock + esc(it.time) + '</span>'
+      : hs.length ? hs.map(h => '<span class="hp t" data-h="' + esc(h) + '" title="Editar horario ' + esc(h) + '">' + ICO.clock + esc(h) + '</span>').join('')
       : '<span class="hp sin" title="Sin horario: tocá para editar">SIN HORARIO</span>';
-    return `<div class="item ${it.type} ${suena ? 'play' : ''} ${it.id === selId ? 'sel' : ''}" data-id="${it.id}">
-      <span class="grip" title="Arrastrá para cambiar el orden">⠿</span>
+    return `<div class="item ${it.type} ${suena ? 'play' : ''} ${it.id === selId ? 'sel' : ''}" data-id="${it.id}" draggable="true">
       <span class="num">${i + 1}</span>
       <span class="badge b-${it.type}">${it.type.toUpperCase()}</span>
       <div class="c-tit">${tit}</div>
       <span class="cdur">${durTxt}</span>
-      <span class="cdias">${it.time ? esc(textoDias(it.days)) : '--'}</span>
-      <span class="chor">${hp}</span>
+      <span class="cfin">${finCel}</span>
+      <span class="cdias">${hs.length ? esc(textoDias(it.days)) : '--'}</span>
+      <span class="chor${!(conect || suena || enCola) && hs.length > 1 ? ' mult' : ''}">${hp}</span>
       <span class="acc">
         ${finSuena ? '<button class="stop" data-a="stop" title="Detener y volver a la emisora">' + ICO.stop + '</button>' : '<button data-a="play" title="Reproducir ahora">' + ICO.play + '</button>'}
         <button data-a="edit" title="Editar">${ICO.edit}</button>
@@ -1421,7 +1831,7 @@ $('lista').addEventListener('click', async e => {
   if (!b && hpEl && fila){
     if (hpEl.classList.contains('t') || hpEl.classList.contains('sin')){
       const itH = items.find(x => x.id === fila.dataset.id);
-      if (itH){ selId = itH.id; abrirModal(itH); }
+      if (itH){ selId = itH.id; abrirModal(itH, hpEl.dataset.h); }
     }
     return;   // EN VIVO / SONANDO / EN COLA: no hacen nada
   }
@@ -1442,6 +1852,7 @@ $('lista').addEventListener('click', async e => {
     if (!activo){ toast('Primero tocá ACTIVAR.'); return; }
     reproducirItem(it);
   } else if (a === 'stop') detenerFinito();
+  else if (a === 'fin'){ it.alFin = it.alFin === 'cola' ? 'radio' : 'cola'; await guardarMeta(); pintar(); }
   else if (a === 'edit') abrirModal(it);
   else if (a === 'dup') duplicar(id);
   else if (a === 'del'){
@@ -1449,7 +1860,7 @@ $('lista').addEventListener('click', async e => {
     if (cur && cur.item.id === id) detenerFinito();
     items.splice(i, 1);
     if (selId === id) selId = null;
-    borrarArchivos(id);
+    borrarArchivos(id); borrarHandle(id);
     delete ajustes.vol[id]; guardarAjustes();
     await guardarMeta();
     pintar();
@@ -1460,6 +1871,7 @@ async function duplicar(id){
   const it = items.find(x => x.id === id); if (!it) return;
   const copia = JSON.parse(JSON.stringify(it));
   copia.id = 'i' + Date.now() + Math.random().toString(36).slice(2, 6);
+  delete copia.dir;   // la copia es una tanda común: no queda vinculada a la carpeta
   if (it.type !== 'radio'){
     const files = await leerArchivos(it.id);
     if (files.length && !(await guardarArchivos(copia.id, files))){ toast('No se pudo duplicar (¿falta espacio en el disco?).'); return; }
@@ -1488,8 +1900,6 @@ function filaDebajo(y){
   return {row: rows[rows.length - 1], antes: false};
 }
 function finDrag(){ arrastrando = false; dragId = null; limpiarMarcas(); pintar(); }
-listaEl.addEventListener('mousedown', e => { const g = e.target.closest('.grip'); if (g) g.closest('.item').draggable = true; });
-listaEl.addEventListener('mouseup', () => { listaEl.querySelectorAll('.item[draggable="true"]').forEach(r => r.draggable = false); });
 listaEl.addEventListener('dragstart', e => {
   const r = e.target.closest ? e.target.closest('.item') : null;
   if (!r || !r.draggable) return;
@@ -1521,6 +1931,51 @@ listaEl.addEventListener('drop', async e => {
 });
 listaEl.addEventListener('dragend', finDrag);
 
+/* Soltar audios desde el explorador en la lista general: cada uno se importa como AUDIO (al final de la lista) */
+let impBusy = false;
+async function importarAudios(lista){
+  const audios = lista.filter(esAudio).sort((a, b) => a.name.localeCompare(b.name, 'es', {numeric: true}));
+  if (!audios.length){ toast('No encontré audios (mp3, wav…) en lo que soltaste.'); return; }
+  if (impBusy){ toast('Esperá un momento: todavía se están importando audios.'); return; }
+  impBusy = true; toast('Importando ' + audios.length + ' audio(s)…');
+  const nuevos = [];
+  try{
+    for (const f of audios){
+      const id = 'i' + Date.now() + Math.random().toString(36).slice(2, 6);
+      if (!(await guardarArchivos(id, [{name: f.name, blob: f}]))){ toast('No se pudo guardar "' + f.name + '" (¿falta espacio en el disco?).'); break; }
+      const d = await duracionBlob(f);
+      nuevos.push({id, type: 'audio', name: f.name.replace(/\.[^.]+$/, ''), block: '', time: '', times: [], days: ORDEN.slice(), fileNames: [f.name], durs: [d]});
+    }
+    if (nuevos.length){
+      items.push(...nuevos);
+      await guardarMeta();
+      pintar();
+      const fila = $('lista').querySelector('.item[data-id="' + nuevos[nuevos.length - 1].id + '"]');
+      if (fila) fila.scrollIntoView({block: 'nearest'});
+      toast(nuevos.length + ' audio(s) importados como AUDIO.');
+    }
+  } finally { impBusy = false; }
+}
+const tablaEl = listaEl.closest('.tabla'), lsDropEl = $('lsDrop');
+const lsDropOff = () => tablaEl.classList.remove('arrastrando');
+function lsSobre(e){
+  if (arrastrando || !hayArchivos(e)) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+  const msg = 'Soltá los audios para importarlos como AUDIO';
+  if (lsDropEl.textContent !== msg) lsDropEl.textContent = msg;
+  tablaEl.classList.add('arrastrando');
+}
+tablaEl.addEventListener('dragenter', lsSobre);
+tablaEl.addEventListener('dragover', lsSobre);
+tablaEl.addEventListener('dragleave', e => { if (!tablaEl.contains(e.relatedTarget)) lsDropOff(); });
+tablaEl.addEventListener('drop', e => {
+  if (arrastrando || !hayArchivos(e)) return;
+  e.preventDefault(); lsDropOff();
+  importarAudios([...e.dataTransfer.files]);   // se copia ya, antes de cualquier await
+});
+window.addEventListener('drop', lsDropOff);
+window.addEventListener('dragend', lsDropOff);
+
 /* ================= Ventanita "Cargar nuevo" ================= */
 let editando = null, pendientes = null;
 
@@ -1532,59 +1987,107 @@ function setDias(arr){
   });
 }
 const getDias = () => [...$('mDias').querySelectorAll('.dia.on')].map(b => Number(b.dataset.d));
-function diasSinHora(){ $('mDias').classList.toggle('off', !$('mHora').value); }
+function diasSinHora(){ $('mDias').classList.toggle('off', !getHoras().length); }
+function filaHora(v){
+  const d = document.createElement('div'); d.className = 'hrow';
+  d.innerHTML = '<input type="time" class="mh"><button class="sec mq" type="button" title="Quitar este horario">Quitar</button>';
+  d.querySelector('.mh').value = v || '';
+  return d;
+}
+function setHoras(arr){
+  const c = $('mHoras'); c.innerHTML = '';
+  (arr && arr.length ? arr : ['']).forEach(v => c.appendChild(filaHora(v)));
+  diasSinHora();
+}
+const getHoras = () => [...new Set([...$('mHoras').querySelectorAll('.mh')].map(i => i.value).filter(Boolean))].sort();
 $('mDias').addEventListener('click', e => {
   const b = e.target.closest('.dia'); if (!b) return;
   b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on'));
 });
-$('mHora').addEventListener('input', diasSinHora);
-$('mHora').addEventListener('change', diasSinHora);
+$('mHoras').addEventListener('input', diasSinHora);
+$('mHoras').addEventListener('change', diasSinHora);
+$('mHoras').addEventListener('click', e => {
+  const q = e.target.closest('.mq'); if (!q) return;
+  const fila = q.closest('.hrow');
+  if ($('mHoras').querySelectorAll('.hrow').length > 1) fila.remove(); else fila.querySelector('.mh').value = '';
+  diasSinHora();
+});
+$('mMasHora').onclick = () => { const f = filaHora(''); $('mHoras').appendChild(f); f.querySelector('.mh').focus(); diasSinHora(); };
 
 function descArchivos(it){
   if (!it.fileNames || !it.fileNames.length) return 'sin archivos';
   return it.type === 'tanda' && !it.comp ? it.fileNames.length + ' audio(s)' : it.fileNames[0];
 }
+function setFin(v){
+  v = v === 'cola' ? 'cola' : 'radio';
+  $('mFin').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  $('mFinNota').textContent = v === 'cola' ? 'Cuando finalice este evento, seguirá con lo que continúe en la cola de reproducción.' : 'Cuando finalice este evento, seguirá con la radio que venía sonando.';
+}
+const getFin = () => { const b = $('mFin').querySelector('button.on'); return b && b.dataset.v === 'cola' ? 'cola' : 'radio'; };
+$('mFin').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setFin(b.dataset.v); });
 function actualizarCampos(){
   const v = $('mTipo').value;
-  const esC = v === 'tandac', esT = v === 'tanda' || esC, esP = v === 'programa';
-  $('fNombre').classList.toggle('oculto', !(esT || esP));
+  const esC = v === 'tandac', esT = v === 'tanda' || esC, esP = v === 'programa', esA = v === 'audio';
+  $('fNombre').classList.toggle('oculto', !(esT || esP || esA));
   $('fBloque').classList.toggle('oculto', !esP);
   $('fHora').classList.toggle('oculto', !v);
-  $('fArch').classList.toggle('oculto', !(esT || esP));
-  $('lNombre').textContent = esP ? 'NOMBRE DEL PROGRAMA' : 'NOMBRE DE LA TANDA';
-  $('mNombre').placeholder = esP ? 'Ej: Hora de Tango' : 'Ej: Tanda mañana';
-  $('lArch').textContent = esP ? 'ARCHIVO DEL BLOQUE' : esC ? 'ARCHIVO DE LA TANDA' : 'CARPETA CON LOS AUDIOS';
-  $('mElegir').textContent = (esP || esC) ? '📄 Seleccionar archivo…' : '📂 Seleccionar carpeta…';
+  $('fArch').classList.toggle('oculto', !(esT || esP || esA));
+  $('fFin').classList.toggle('oculto', !(esT || esP || esA));
+  $('lNombre').textContent = esA ? 'NOMBRE DEL AUDIO' : esP ? 'NOMBRE DEL PROGRAMA' : 'NOMBRE DE LA TANDA';
+  $('mNombre').placeholder = esA ? 'Ej: Saludo de bienvenida' : esP ? 'Ej: Hora de Tango' : 'Ej: Tanda mañana';
+  $('lArch').textContent = esA ? (editando ? 'ARCHIVO DE AUDIO' : 'ARCHIVOS DE AUDIO') : esP ? 'ARCHIVO DEL BLOQUE' : esC ? 'ARCHIVO DE LA TANDA' : 'CARPETA CON LOS AUDIOS';
+  $('mElegir').textContent = esA && !editando ? '📄 Seleccionar archivo(s)…' : (esP || esC || esA) ? '📄 Seleccionar archivo…' : '📂 Seleccionar carpeta…';
   $('mOk').disabled = !v;
 }
 function llenarTipos(){
   $('mTipo').innerHTML = '<option value="" disabled selected>Elegí una opción…</option>'
     + Object.keys(RADIOS).map(k => '<option value="' + esc(k) + '">Track ' + esc(RADIOS[k].name) + '</option>').join('')
-    + '<option value="tanda">Tanda (Carpeta con audios)</option><option value="tandac">Tanda (Audio compilado)</option><option value="programa">Programa</option>';
+    + '<option value="tanda">Tanda (Carpeta con audios)</option><option value="tandac">Tanda (Audio compilado)</option><option value="programa">Programa</option><option value="audio">Audio (archivo suelto)</option>';
 }
-function abrirModal(it){
+function abrirModal(it, hFoco){
   llenarTipos();
   editando = it || null;
-  pendientes = null;
+  pendientes = null; pendHandle = null;
   $('mTitulo').textContent = it ? 'Editar' : 'Cargar nuevo';
   $('mOk').textContent = it ? 'Guardar' : 'Agregar';
   $('mTipo').value = it ? (it.type === 'radio' ? it.radioKey : (it.type === 'tanda' && it.comp ? 'tandac' : it.type)) : '';
   $('mTipo').disabled = !!it;
   $('mNombre').value = it && it.type !== 'radio' ? it.name : '';
   $('mBloque').value = it && it.block ? it.block : '';
-  $('mHora').value = it && it.time ? it.time : '';
-  $('mArchInfo').textContent = it && it.type !== 'radio' ? 'Actual: ' + descArchivos(it) + ' (elegí otro para reemplazarlo)' : 'Ninguno seleccionado';
+  setHoras(it ? horasDe(it) : []);
+  $('mArchInfo').textContent = it && it.type !== 'radio' ? 'Actual: ' + descArchivos(it) + (it.type === 'tanda' && !it.comp && HAY_CARPETAS ? ' (elegí una carpeta para vincularla: se suman los audios nuevos y se conservan los que ya tiene)' : ' (elegí otro para reemplazarlo)') : 'Ninguno seleccionado';
   setDias(it && it.days && it.days.length ? it.days : ORDEN);
   diasSinHora();
+  setFin(it ? it.alFin : 'radio');
+  $('mNombre').disabled = false;
   actualizarCampos();
   $('modal').style.display = 'flex';
+  if (hFoco){ const inp = [...$('mHoras').querySelectorAll('.mh')].find(i => i.value === hFoco); if (inp) inp.focus(); }
 }
 const cerrarModal = () => { $('modal').style.display = 'none'; };
 $('btnNuevo').onclick = () => abrirModal(null);
-$('mTipo').onchange = () => { if (!editando){ pendientes = null; $('mArchInfo').textContent = 'Ninguno seleccionado'; } actualizarCampos(); };
+$('mTipo').onchange = () => { $('mNombre').disabled = false; if (!editando){ pendientes = null; pendHandle = null; $('mArchInfo').textContent = 'Ninguno seleccionado'; } actualizarCampos(); };
 $('mCancelar').onclick = cerrarModal;
-$('mSinHora').onclick = () => { $('mHora').value = ''; diasSinHora(); };
-$('mElegir').onclick = () => { (['programa', 'tandac'].includes($('mTipo').value) ? $('pickArchivo') : $('pickCarpeta')).click(); };
+let pendHandle = null;   // carpeta elegida con acceso persistente (para que la tanda se actualice sola)
+$('mElegir').onclick = async () => {
+  const v = $('mTipo').value;
+  $('pickArchivo').multiple = (v === 'audio' && !editando);   // varios audios sueltos solo al cargar uno nuevo
+  if (['programa', 'tandac', 'audio'].includes(v)){ $('pickArchivo').click(); return; }
+  if (HAY_CARPETAS){
+    try{
+      const h = await showDirectoryPicker({id: 'tandas', mode: 'read'});
+      const fl = await listarCarpeta(h);
+      const antes = pendientes;
+      procesarSeleccion(fl, true);
+      if (pendientes !== antes){
+        pendHandle = h;
+        $('mArchInfo').textContent += ' · la carpeta queda vinculada: se actualiza sola';
+      }
+    }catch(e){ if (!e || e.name !== 'AbortError') toast('No se pudo leer la carpeta.'); }
+    return;
+  }
+  $('pickCarpeta').click();
+};
 
 function procesarSeleccion(lista, esCarpeta){
   let audios = lista.filter(esAudio);
@@ -1595,29 +2098,55 @@ function procesarSeleccion(lista, esCarpeta){
   audios.sort((a, b) => a.name.localeCompare(b.name, 'es', {numeric: true}));
   if (!audios.length){ toast('No encontré audios (mp3, wav…) ahí.'); return; }
   pendientes = audios;
-  $('mArchInfo').textContent = esCarpeta ? '✔ ' + audios.length + ' audio(s) seleccionados' : '✔ ' + audios[0].name;
-  if (!$('mNombre').value.trim() && !esCarpeta) $('mNombre').value = audios[0].name.replace(/\.[^.]+$/, '');
+  const varios = !esCarpeta && audios.length > 1;
+  $('mArchInfo').textContent = esCarpeta ? '✔ ' + audios.length + ' audio(s) seleccionados' : varios ? '✔ ' + audios.length + ' audios seleccionados (se cargará cada uno como AUDIO)' : '✔ ' + audios[0].name;
+  $('mNombre').disabled = varios;
+  $('mNombre').placeholder = varios ? 'Cada audio usa el nombre de su archivo' : $('mNombre').placeholder;
+  if (varios) $('mNombre').value = '';
+  else if (!$('mNombre').value.trim() && !esCarpeta) $('mNombre').value = audios[0].name.replace(/\.[^.]+$/, '');
 }
-$('pickCarpeta').addEventListener('change', e => { const l = [...e.target.files]; e.target.value = ''; if (l.length) procesarSeleccion(l, true); });
+$('pickCarpeta').addEventListener('change', e => { const l = [...e.target.files]; e.target.value = ''; if (l.length){ const antes = pendientes; procesarSeleccion(l, true); if (pendientes !== antes) pendHandle = null; } });
 $('pickArchivo').addEventListener('change', e => { const l = [...e.target.files]; e.target.value = ''; if (l.length) procesarSeleccion(l, false); });
 
 $('mOk').onclick = async () => {
   const v = $('mTipo').value; if (!v) return;
-  const time = $('mHora').value || '';
+  let mezclaCarpeta = null;
+  const horas = getHoras(), time = horas[0] || '';
   const dias = getDias();
   if (time && !dias.length){ toast('Marcá al menos un día.'); return; }
+  if (!editando && v === 'audio' && pendientes && pendientes.length > 1){   // varios audios a la vez: uno por archivo
+    $('mOk').disabled = true; $('mOk').textContent = 'Guardando…';
+    const nuevos = [];
+    for (const f of pendientes){
+      const id = 'i' + Date.now() + Math.random().toString(36).slice(2, 6);
+      if (!(await guardarArchivos(id, [{name: f.name, blob: f}]))){ toast('No se pudo guardar "' + f.name + '" (¿falta espacio en el disco?).'); break; }
+      const d = await duracionBlob(f);
+      nuevos.push({id, type: 'audio', name: f.name.replace(/\.[^.]+$/, ''), block: '', time, times: horas, days: dias, fileNames: [f.name], durs: [d], alFin: getFin()});
+    }
+    $('mOk').disabled = false; $('mOk').textContent = 'Agregar';
+    if (!nuevos.length) return;
+    items.push(...nuevos);
+    await guardarMeta();
+    cerrarModal(); pintar();
+    toast(nuevos.length + ' audio(s) cargados como AUDIO.');
+    return;
+  }
   const it = editando || {id: 'i' + Date.now() + Math.random().toString(36).slice(2, 6)};
   if (RADIOS[v]){
+    delete it.alFin;
     it.type = 'radio'; it.radioKey = v; it.url = RADIOS[v].url; it.name = RADIOS[v].name; it.time = time;
   } else {
     const esC = v === 'tandac', tipo = esC ? 'tanda' : v;
-    if (!editando && !pendientes){ toast(tipo === 'tanda' && !esC ? 'Elegí la carpeta con los audios.' : esC ? 'Elegí el archivo de la tanda.' : 'Elegí el archivo del programa.'); return; }
+    if (!editando && !pendientes){ toast(tipo === 'tanda' && !esC ? 'Elegí la carpeta con los audios.' : esC ? 'Elegí el archivo de la tanda.' : tipo === 'audio' ? 'Elegí el archivo de audio.' : 'Elegí el archivo del programa.'); return; }
     it.type = tipo; it.time = time;
     if (tipo === 'tanda') it.comp = esC; else delete it.comp;
     it.name = $('mNombre').value.trim() || (tipo === 'tanda' ? 'Tanda ' + (items.filter(x => x.type === 'tanda').length + (editando ? 0 : 1))
-                                                          : (pendientes ? pendientes[0].name.replace(/\.[^.]+$/, '') : 'Programa'));
+                                                          : (pendientes ? pendientes[0].name.replace(/\.[^.]+$/, '') : tipo === 'audio' ? 'Audio' : 'Programa'));
     it.block = tipo === 'programa' ? $('mBloque').value.trim() : '';
-    if (pendientes){
+    it.alFin = getFin();
+    const carpetaTanda = tipo === 'tanda' && !esC;
+    mezclaCarpeta = carpetaTanda && editando && pendHandle ? pendHandle : null;   // tanda existente + carpeta: se suma, no se reemplaza
+    if (pendientes && !mezclaCarpeta){
       $('mOk').disabled = true; $('mOk').textContent = 'Guardando…';
       const ok = await guardarArchivos(it.id, pendientes.map(f => ({name: f.name, blob: f})));
       $('mOk').disabled = false; $('mOk').textContent = editando ? 'Guardar' : 'Agregar';
@@ -1626,13 +2155,20 @@ $('mOk').onclick = async () => {
       it.durs = await medirTodos(pendientes);
       $('mOk').textContent = editando ? 'Guardar' : 'Agregar';
       it.fileNames = pendientes.map(f => f.name);
+      if (carpetaTanda){
+        if (pendHandle){
+          it.dir = {nombre: pendHandle.name, vistos: Object.fromEntries(pendientes.map(f => [f.name, huella(f)]))};
+          await guardarHandle(it.id, pendHandle);
+        } else if (it.dir){ delete it.dir; borrarHandle(it.id); }   // carpeta elegida sin acceso persistente: queda como copia fija
+      }
     }
   }
-  it.days = dias;
+  it.days = dias; it.times = horas; it.time = time;
   if (!editando) items.push(it);
   await guardarMeta();
   cerrarModal();
   pintar();
+  if (mezclaCarpeta) await vincularCarpeta(it, mezclaCarpeta);
 };
 
 /* ================= Barra inferior: Volumen / Info / Links ================= */
@@ -1669,8 +2205,8 @@ function pintarVol(){
     h += filaVol(k, RADIOS[k].name, nota);
   }
   const fin = items.filter(i => i.type !== 'radio');
-  h += '<div class="vsec">TANDAS Y PROGRAMAS</div>';
-  h += fin.length ? fin.map(i => filaVol(i.id, titulo(i))).join('') : '<div class="vvacio">Todavía no cargaste tandas ni programas.</div>';
+  h += '<div class="vsec">TANDAS, PROGRAMAS Y AUDIOS</div>';
+  h += fin.length ? fin.map(i => filaVol(i.id, titulo(i))).join('') : '<div class="vvacio">Todavía no cargaste tandas, programas ni audios.</div>';
   $('volLista').innerHTML = h;
 }
 const pop = $('volPop');
@@ -1961,23 +2497,25 @@ document.addEventListener('visibilitychange', () => { if (activo && document.vis
 
 // Qué emisora tiene que sonar al activar: la que corresponde por horario (la última radio programada de HOY
 // que ya empezó); si no hay ninguna, la primera radio de la lista sin horario.
-function radioDefecto(){ return items.find(i => i.type === 'radio' && !i.time) || items.find(i => i.type === 'radio') || null; }
+function radioDefecto(){ return items.find(i => i.type === 'radio' && !horasDe(i).length) || items.find(i => i.type === 'radio') || null; }
 // Emisora que está en vigencia en el momento t: la última radio programada que ya empezó (hasta 8 días atrás), y si no hay, la de fondo.
 function radioVigente(t){
   let mejor = null;
   for (const it of items){
-    if (it.type !== 'radio' || !it.time) continue;
-    const [H, M] = it.time.split(':').map(Number);
-    for (let off = 0; off <= 8; off++){
-      const f = new Date(t.getFullYear(), t.getMonth(), t.getDate() - off, H, M, 0);
-      if (f > t || !diaOk(it, f.getDay())) continue;
-      if (!mejor || f > mejor.f) mejor = {f, it};
-      break;
+    if (it.type !== 'radio') continue;
+    for (const hh of horasDe(it)){
+      const [H, M] = hh.split(':').map(Number);
+      for (let off = 0; off <= 8; off++){
+        const f = new Date(t.getFullYear(), t.getMonth(), t.getDate() - off, H, M, 0);
+        if (f > t || !diaOk(it, f.getDay())) continue;
+        if (!mejor || f > mejor.f) mejor = {f, it};
+        break;
+      }
     }
   }
   return mejor ? mejor.it : radioDefecto();
 }
-function radioInicial(){ return radioVigente(new Date()) || items.find(i => !i.time) || null; }
+function radioInicial(){ return radioVigente(new Date()) || items.find(i => !horasDe(i).length) || null; }
 function arrancar(){
   if (activo) return;
   {
@@ -2098,16 +2636,18 @@ function renderCal(conservar){
   $('calSem').textContent = 'Semana del ' + d0.getDate() + (d0.getMonth() !== d6.getMonth() ? ' de ' + mA.toLowerCase() : '') + ' al ' + d6.getDate() + ' de ' + mB.toLowerCase();
   const esHoy = d => d.toDateString() === hoy.toDateString();
   const ymd = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k);
-  const hm = it => it.time.split(':').map(Number);
+  const hm = h => h.split(':').map(Number);
 
   // Tandas / programas (con cola: si uno se pasa del horario del siguiente, el siguiente espera)
   const fo = [];
   for (let k = -1; k < 7; k++){
     const d = ymd(lun, k);
     for (const it of items){
-      if (it.type === 'radio' || !it.time || !diaOk(it, d.getDay())) continue;
-      const [H, M] = hm(it);
-      fo.push({it, prog: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
+      if (it.type === 'radio' || !diaOk(it, d.getDay())) continue;
+      for (const hh of horasDe(it)){
+        const [H, M] = hm(hh);
+        fo.push({it, hora: hh, prog: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
+      }
     }
   }
   fo.sort((a, b) => a.prog - b.prog || items.indexOf(a.it) - items.indexOf(b.it));
@@ -2119,9 +2659,11 @@ function renderCal(conservar){
   for (let k = 0; k < 7; k++){
     const d = ymd(lun, k);
     for (const it of items){
-      if (it.type !== 'radio' || !it.time || !diaOk(it, d.getDay())) continue;
-      const [H, M] = hm(it);
-      rc.push({it, t: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
+      if (it.type !== 'radio' || !diaOk(it, d.getDay())) continue;
+      for (const hh of horasDe(it)){
+        const [H, M] = hm(hh);
+        rc.push({it, t: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
+      }
     }
   }
   rc.sort((a, b) => a.t - b.t || items.indexOf(a.it) - items.indexOf(b.it));
@@ -2146,8 +2688,8 @@ function renderCal(conservar){
       const cont = f.ini < ds;
       const dTxt = fmtDur(calDurFin(f.it));
       ovs.push({fin: f.fin, ini: f.ini, bottom: top + h});
-      html += '<div class="bk ' + f.it.type + (sona ? ' sona' : f.fin <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;--ln:' + lineas(h, 0) + '" title="' + esc(f.it.time + ' hs · ' + f.it.type.toUpperCase() + ' · ' + titulo(f.it) + ' · dura ' + dTxt + ' · interrumpe la emisora y después vuelve') + '">'
-        + '<span class="bt">' + (cont ? '↳ ' : '<b>' + esc(f.it.time) + '</b>') + esc(titulo(f.it)) + ' · ' + dTxt + '</span></div>';
+      html += '<div class="bk ' + f.it.type + (sona ? ' sona' : f.fin <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;--ln:' + lineas(h, 0) + '" title="' + esc(f.hora + ' hs · ' + f.it.type.toUpperCase() + ' · ' + titulo(f.it) + ' · dura ' + dTxt + ' · interrumpe la emisora y después vuelve') + '">'
+        + '<span class="bt">' + (cont ? '↳ ' : '<b>' + esc(f.hora) + '</b>') + esc(titulo(f.it)) + ' · ' + dTxt + '</span></div>';
     }
     // 2) emisora: ocupa TODO el tiempo hasta el próximo cambio, partida donde la interrumpe una tanda/programa
     let r = base;
@@ -2218,6 +2760,7 @@ setInterval(() => { if (calAbierto) renderCal(true); }, 15000);
   pintarComp();
   pintar();
   completarDuraciones();
+  sincronizarTodas(false).then(() => { if (Object.values(dirEstado).some(x => x.st === 'permiso')) toast('Hay carpetas de tandas que necesitan tu permiso para actualizarse: seleccioná la tanda y tocá el aviso ⚠ en el editor.'); });
   arrancar();   // arranca activado al abrir el archivo
   pintar();
   setTimeout(() => { if (activo && ctx && ctx.state === 'suspended') toast('El navegador bloquea el audio hasta el primer clic: tocá en cualquier lado de la pantalla y empieza a sonar.'); }, 2500);
