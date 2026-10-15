@@ -413,8 +413,19 @@
 
   /* Calendario por bloques: la radio ocupa todo el tiempo hasta el próximo cambio; tandas/programas se muestran encima */
   .cal-g .ctime{position:sticky;left:0;z-index:2;background:#0a1a33}
-  .cal-g .ctime .ch{position:static;height:2.4rem;border-bottom:1px solid rgba(40,92,155,.28)}
-  .cal-g .cday{position:relative;height:57.6rem;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(2.4rem - 1px),rgba(40,92,155,.28) calc(2.4rem - 1px),rgba(40,92,155,.28) 2.4rem)}
+  .cal-g .ctime .ch{position:static;height:var(--hora,2.4rem);border-bottom:1px solid rgba(40,92,155,.28)}
+  .cal-g .cday{position:relative;height:calc(var(--hora,2.4rem) * 24);
+      background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hora,2.4rem) - 1px),rgba(40,92,155,.28) calc(var(--hora,2.4rem) - 1px),rgba(40,92,155,.28) var(--hora,2.4rem))}
+  /* con la lupa al máximo se dibujan líneas finas cada 10 min y cada 1 min para poder medir tandas cortas */
+  .cal-g.z10 .cday{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hora,2.4rem) - 1px),rgba(40,92,155,.28) calc(var(--hora,2.4rem) - 1px),rgba(40,92,155,.28) var(--hora,2.4rem)),
+      repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hora,2.4rem) / 6 - 1px),rgba(70,130,210,.16) calc(var(--hora,2.4rem) / 6 - 1px),rgba(70,130,210,.16) calc(var(--hora,2.4rem) / 6))}
+  .cal-g.z1 .cday{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hora,2.4rem) - 1px),rgba(40,92,155,.28) calc(var(--hora,2.4rem) - 1px),rgba(40,92,155,.28) var(--hora,2.4rem)),
+      repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hora,2.4rem) / 6 - 1px),rgba(70,130,210,.2) calc(var(--hora,2.4rem) / 6 - 1px),rgba(70,130,210,.2) calc(var(--hora,2.4rem) / 6)),
+      repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hora,2.4rem) / 60 - 1px),rgba(70,130,210,.1) calc(var(--hora,2.4rem) / 60 - 1px),rgba(70,130,210,.1) calc(var(--hora,2.4rem) / 60))}
+  .cal-r{display:flex;align-items:center;justify-content:flex-end;gap:.9rem}
+  .cal-zoom{display:flex;align-items:center;gap:.3rem;padding:.2rem;border-radius:.8rem;background:rgba(14,38,76,.85);border:1px solid #1d3f73}
+  .cal-zoom button{padding:.3rem .6rem;font-size:.95rem;min-width:0;white-space:nowrap}
+  .cal-zoom span{min-width:3.1rem;text-align:center;font:700 .9rem var(--f-ui);color:#dbe8fb;font-variant-numeric:tabular-nums}
   .cal-g .cday.hoy{background-color:rgba(30,110,220,.08)}
   .bk{position:absolute;left:2px;right:2px;overflow:hidden;border-left:3px solid;border-radius:.35rem;padding:.12rem .5rem;font:500 1.05rem/1.2 var(--f-ui)}
   .bk .bt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--ln,1);line-clamp:var(--ln,1);overflow:hidden;white-space:normal;word-break:break-word;text-overflow:ellipsis}
@@ -545,7 +556,14 @@
         <button type="button" class="sec" id="calM+" title="Mes siguiente">»</button>
         <button type="button" id="calHoy">HOY</button>
       </div>
-      <button type="button" class="sec cal-x" id="calCerrar" title="Cerrar">✕</button>
+      <div class="cal-r">
+        <div class="cal-zoom" title="Lupa vertical: agrandá para ver tandas que duran segundos (también Ctrl + rueda del mouse)">
+          <button type="button" class="sec" id="calZ-" title="Achicar: ver más horas juntas">🔍−</button>
+          <span id="calZn">×1</span>
+          <button type="button" class="sec" id="calZ+" title="Agrandar: ver mejor las tandas cortas">🔍+</button>
+        </div>
+        <button type="button" class="sec cal-x" id="calCerrar" title="Cerrar">✕</button>
+      </div>
     </div>
     <div class="cal-body" id="calBody"><div class="cal-g" id="calGrid"></div></div>
   </div>
@@ -2752,10 +2770,68 @@ function calSonando(it){
   if (cur) return cur.item.id === it.id;
   return it.type === 'radio' && it.id === curRadioId;
 }
-const CAL_REM = 0.04;   // alto en rem por minuto (1 hora = 2,4 rem)
+const CAL_ZOOMS = [0.6, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32];
+let calZoom = 1, CAL_REM = 0.04;   // CAL_REM: alto en rem por minuto (a ×1, 1 hora = 2,4 rem); cambia con la lupa
 const lineas = (h, pad) => Math.max(1, Math.floor((h - pad - 0.24 + 0.03) / 1.26));   // líneas de texto (1,26 rem c/u) que entran en el bloque
 const calDurFin = it => { const t = Array.isArray(it.durs) ? it.durs.reduce((x, y) => x + y, 0) : 0; return t > 0 ? t : 180; };
+// Arma la grilla de tandas/programas de la semana igual que lo hace el reproductor:
+// lo agendado manda por horario y los bloques en cola (2, 3, 4, 5...) o los que siguen por "AL FINALIZAR = COLA"
+// llenan el tiempo entre medio y retoman después de cada tanda/programa agendado.
+function simularCal(t0, t1){
+  const ev = [];
+  const d0 = new Date(t0), base = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate());
+  for (let k = 0; ; k++){
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + k);
+    if (d.getTime() >= t1) break;
+    for (const it of items){
+      if (it.type === 'radio' || !diaOk(it, d.getDay())) continue;
+      for (const hh of horasDe(it)){
+        const [H, M] = hh.split(':').map(Number);
+        ev.push({it, hh, f: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
+      }
+    }
+  }
+  ev.sort((a, b) => a.f - b.f || items.indexOf(a.it) - items.indexOf(b.it));
+  const out = [], sched = new Map();
+  let q = [], cn = [], last = null, busy = t0, evi = 0;
+  const durMs = it => calDurFin(it) * 1000;
+  const poner = (it, ini, e, sigue) => {
+    const fin = ini + durMs(it);
+    out.push({it, hora: e ? e.hh : hhmm(new Date(ini)), prog: e ? e.f : ini, ini, fin, sigue});
+    busy = fin; last = it;
+  };
+  for (let g = 0; g < 3000; g++){
+    if (last || q.length || cn.length){
+      if (busy >= t1) break;
+      while (evi < ev.length && ev[evi].f <= busy){            // lo que "disparó" mientras sonaba lo anterior se encola
+        const e = ev[evi++];
+        if (!q.includes(e.it.id)) q.push(e.it.id);
+        if (!sched.has(e.it.id)) sched.set(e.it.id, e);
+      }
+      const r = elegirSiguiente(q, cn, last);
+      q = r.q; cn = r.cont;
+      if (r.item){
+        const e = sched.get(r.item.id) || null; sched.delete(r.item.id);
+        if (r.item.type === 'radio') { last = null; continue; }
+        poner(r.item, busy, e, !r.deCola);
+        continue;
+      }
+      last = null;
+    }
+    if (evi >= ev.length) break;
+    const e = ev[evi++];
+    poner(e.it, Math.max(e.f, busy), e, false);
+  }
+  return out;
+}
 function renderCal(conservar){
+  CAL_REM = 0.04 * calZoom;
+  const minH = calZoom >= 6 ? 0.5 : 1.55;   // con zoom alto las tandas cortas se dibujan a su tamaño real
+  $('calGrid').style.setProperty('--hora', (60 * CAL_REM).toFixed(3) + 'rem');
+  $('calGrid').classList.toggle('z10', calZoom >= 3 && calZoom < 12);
+  $('calGrid').classList.toggle('z1', calZoom >= 12);
+  $('calZn').textContent = '×' + (calZoom % 1 ? calZoom.toString().replace('.', ',') : calZoom);
+  $('calZ-').disabled = calZoom <= CAL_ZOOMS[0]; $('calZ+').disabled = calZoom >= CAL_ZOOMS[CAL_ZOOMS.length - 1];
   const body = $('calBody'), sc = body.scrollTop;
   const lun = calLunes(calAncla), hoy = new Date(), ahoraMs = hoy.getTime();
   const dias = [...Array(7)].map((_, i) => new Date(lun.getFullYear(), lun.getMonth(), lun.getDate() + i));
@@ -2769,20 +2845,7 @@ function renderCal(conservar){
   const hm = h => h.split(':').map(Number);
 
   // Tandas / programas (con cola: si uno se pasa del horario del siguiente, el siguiente espera)
-  const fo = [];
-  for (let k = -1; k < 7; k++){
-    const d = ymd(lun, k);
-    for (const it of items){
-      if (it.type === 'radio' || !diaOk(it, d.getDay())) continue;
-      for (const hh of horasDe(it)){
-        const [H, M] = hm(hh);
-        fo.push({it, hora: hh, prog: new Date(d.getFullYear(), d.getMonth(), d.getDate(), H, M).getTime()});
-      }
-    }
-  }
-  fo.sort((a, b) => a.prog - b.prog || items.indexOf(a.it) - items.indexOf(b.it));
-  let libre = 0;
-  for (const f of fo){ f.ini = Math.max(f.prog, libre); f.fin = f.ini + calDurFin(f.it) * 1000; libre = f.fin; }
+  const fo = simularCal(ymd(lun, -1).getTime(), ymd(lun, 7).getTime());   // incluye los bloques en cola que continúan después de cada horario
 
   // Cambios de emisora durante la semana
   const rc = [];
@@ -2810,7 +2873,7 @@ function renderCal(conservar){
     for (const f of fo){
       if (f.fin <= ds || f.ini >= de) continue;
       const s = Math.max(f.ini, ds), e = Math.min(f.fin, de);
-      let top = min(s) * CAL_REM; const h = Math.max((e - s) / 60000 * CAL_REM, 1.55);
+      let top = min(s) * CAL_REM; const h = Math.max((e - s) / 60000 * CAL_REM, minH);
       if (top < ultimoFondo) top = ultimoFondo + 0.05;
       if (top + h > 1440 * CAL_REM) top = 1440 * CAL_REM - h;
       ultimoFondo = top + h;
@@ -2818,7 +2881,7 @@ function renderCal(conservar){
       const cont = f.ini < ds;
       const dTxt = fmtDur(calDurFin(f.it));
       ovs.push({fin: f.fin, ini: f.ini, bottom: top + h});
-      html += '<div class="bk ' + f.it.type + (sona ? ' sona' : f.fin <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;--ln:' + lineas(h, 0) + '" title="' + esc(f.hora + ' hs · ' + f.it.type.toUpperCase() + ' · ' + titulo(f.it) + ' · dura ' + dTxt + ' · interrumpe la emisora y después vuelve') + '">'
+      html += '<div class="bk ' + f.it.type + (sona ? ' sona' : f.fin <= ahoraMs ? ' pasado' : '') + '" style="top:' + top.toFixed(3) + 'rem;height:' + h.toFixed(3) + 'rem;--ln:' + lineas(h, 0) + '" title="' + esc(f.hora + ' hs · ' + f.it.type.toUpperCase() + ' · ' + titulo(f.it) + ' · dura ' + dTxt + (f.sigue ? ' · continúa en cola (hora estimada)' : ' · interrumpe la emisora y después vuelve')) + '">'
         + '<span class="bt">' + (cont ? '↳ ' : '<b>' + esc(f.hora) + '</b>') + esc(titulo(f.it)) + ' · ' + dTxt + '</span></div>';
     }
     // 2) emisora: ocupa TODO el tiempo hasta el próximo cambio, partida donde la interrumpe una tanda/programa
@@ -2878,6 +2941,26 @@ $('calM+').onclick = () => calMover(1, 0);
 $('calS-').onclick = () => calMover(0, -7);
 $('calS+').onclick = () => calMover(0, 7);
 $('calHoy').onclick = () => { calAncla = new Date(); renderCal(false); };
+function calZ(dir, yPx){
+  const i = CAL_ZOOMS.indexOf(calZoom), j = Math.max(0, Math.min(CAL_ZOOMS.length - 1, i + dir));
+  if (j === i) return;
+  const body = $('calBody'), bt = body.getBoundingClientRect().top;
+  const topDe = () => { const c = $('calGrid').querySelector('.cday'); return c.getBoundingClientRect().top - bt + body.scrollTop; };
+  const c0 = $('calGrid').querySelector('.cday');
+  const ancla = yPx != null ? yPx : body.clientHeight / 2;               // punto de la pantalla que no se mueve (centro, o el mouse)
+  const frac = (body.scrollTop + ancla - topDe()) / c0.offsetHeight;      // qué hora del día estaba ahí (0 a 1)
+  calZoom = CAL_ZOOMS[j];
+  renderCal(true);
+  const c1 = $('calGrid').querySelector('.cday');
+  body.scrollTop = topDe() + frac * c1.offsetHeight - ancla;
+}
+$('calZ-').onclick = () => calZ(-1);
+$('calZ+').onclick = () => calZ(1);
+$('calBody').addEventListener('wheel', e => {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+  calZ(e.deltaY < 0 ? 1 : -1, e.clientY - $('calBody').getBoundingClientRect().top);
+}, {passive: false});
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && calAbierto) cerrarCal(); });
 setInterval(() => { if (calAbierto) renderCal(true); }, 15000);
 
