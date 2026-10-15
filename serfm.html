@@ -799,6 +799,9 @@ const titulo = it => it.type === 'radio' ? (RADIOS[it.radioKey] ? RADIOS[it.radi
 
 /* ================= Reproductores de radio (2, para pasar de una emisora a otra con fundido) ================= */
 const sinCors = new Set();   // links que no permiten CORS: no se pueden amplificar por encima de 100 %
+const sinCorsT = new Map();  // link -> cuándo se marcó sin CORS por un error (se vuelve a probar pasado un rato)
+const corsFallos = new Map(); // link -> fallos seguidos en modo CORS (un corte momentáneo no debe marcarlo como bloqueado)
+const corsAvisado = new Set();
 let ctx = null;
 // Cada emisora puede tener un link alternativo (alt) y se elige cuál es el principal (pref: 'url' | 'alt')
 function radUrl(k){ const r = RADIOS[k]; return r.pref === 'alt' && r.alt ? r.alt : r.url; }
@@ -882,7 +885,7 @@ function nuevoEl(p){
   el.addEventListener('playing', () => {
     if (p.el !== el) return;
     bien();
-    if (el.crossOrigin === 'anonymous'){ el._cors = true; aplicarNivel(el); }
+    if (el.crossOrigin === 'anonymous'){ el._cors = true; if (p.url) corsFallos.delete(p.url); aplicarNivel(el); }
   });
   el.addEventListener('timeupdate', () => { if (p.el === el) bien(); });
   ['waiting','stalled','emptied'].forEach(ev => el.addEventListener(ev, () => { if (p.el === el) p.ok = false; }));
@@ -894,9 +897,21 @@ function nuevoEl(p){
     if (el.crossOrigin === 'anonymous' && !el._cors){
       // El stream no pudo cargarse en modo CORS. Se reintenta en modo normal
       // para priorizar que la radio siga sonando, aunque Web Audio no pueda procesarla.
-      sinCors.add(u);
+      // Un error aislado (corte del servidor/proxy, límite de conexiones) no alcanza para marcarlo como bloqueado:
+      // se reintenta en modo CORS y recién tras fallos seguidos se pasa al modo compatible.
+      const n = (corsFallos.get(u) || 0) + 1;
+      corsFallos.set(u, n);
+      if (n < 2){
+        setTimeout(() => { if (p.url === u && p.el === el) cargarStream(p, u); }, 1500);
+        return;
+      }
+      corsFallos.delete(u);
+      sinCors.add(u); sinCorsT.set(u, Date.now());
       if (pop.classList.contains('abierto')) pintarVol();
-      toast('Esta emisora no permite procesar el audio desde el navegador. Se reproduce normalmente, pero el compresor y el volumen sobre 100 % pueden no funcionar.');
+      if (!corsAvisado.has(u)){
+        corsAvisado.add(u);
+        toast('Esta emisora no permite procesar el audio desde el navegador. Se reproduce normalmente, pero el compresor y el volumen sobre 100 % pueden no funcionar.');
+      }
       cargarStream(p, u);
       return;
     }
@@ -925,6 +940,10 @@ function cargarStream(p, url){
   p.url = url; p.ok = false; p.lastOk = Date.now(); p.key = claveDe(url);
   el._g = volDe(p.key) / 100;
   const esM3u8 = /\.m3u8(\?|$)/i.test(url);
+  // si se marcó sin CORS por un error y pasó un rato, se vuelve a intentar con CORS (un solo intento antes de volver al modo compatible)
+  if (sinCors.has(url) && sinCorsT.has(url) && Date.now() - sinCorsT.get(url) > 15000){
+    sinCors.delete(url); sinCorsT.delete(url); corsFallos.set(url, 1);
+  }
   if (esM3u8 && window.Hls && Hls.isSupported()){
     el._cors = true;   // hls.js entrega el audio por MediaSource: se puede amplificar
     const h = new Hls({liveSyncDurationCount: 3, enableWorker: true});
@@ -2483,7 +2502,8 @@ async function probarCors(url){
       return modo === 'no-cors' ? true : r.ok;
     }catch(e){ clearTimeout(t); return null; }
   };
-  const c = await intento('cors');
+  let c = await intento('cors');
+  if (c === null){ await new Promise(r => setTimeout(r, 1500)); c = await intento('cors'); }   // un error momentáneo no es "sin CORS"
   if (c === true) return 'ok';
   if (c === false) return 'caido';
   const n = await intento('no-cors');
@@ -2499,7 +2519,8 @@ async function verLinea(el, url){
     el.dataset.s = 'chk'; el.textContent = EST_TXT.chk; el.title = EST_LARGO.chk;
     st = await probarCors(url);
     corsEstado.set(url, st);
-    if (st === 'nocors') sinCors.add(url); else if (st === 'ok') sinCors.delete(url);
+    if (st !== 'ok') setTimeout(() => corsEstado.delete(url), 30000);   // los resultados negativos no quedan fijos
+    if (st === 'nocors'){ sinCors.add(url); sinCorsT.set(url, Date.now()); } else if (st === 'ok'){ sinCors.delete(url); sinCorsT.delete(url); }
   }
   if (el._v !== tk) return;
   el.dataset.s = st; el.textContent = EST_TXT[st]; el.title = EST_LARGO[st];
