@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Hora</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 800px;            /* tamaño por defecto de OBS */
+    height: 600px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  #datos {
+    position: absolute;
+    right: 82px;             /* margen derecho */
+    bottom: 74px;            /* margen inferior */
+    display: flex;
+    gap: 8px;                /* separación entre los dos rectángulos */
+    font-family: Arial, sans-serif;
+    font-size: 27px;
+    line-height: 1;
+    color: #ffffff;
+  }
+
+  .caja {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;     /* esquinas redondeadas */
+    white-space: nowrap;
+  }
+
+  #caja-hora {
+    width: 98px;
+    background: #000000;
+    font-weight: bold;
+  }
+
+  #caja-temp {
+    width: 92px;
+    background: #2F2F2F;
+    font-weight: normal;
+  }
+</style>
+</head>
+<body>
+
+  <div id="datos">
+    <div class="caja" id="caja-hora"><span id="hora">00:00</span></div>
+    <div class="caja" id="caja-temp"><span id="temp">--.-°</span></div>
+  </div>
+
+<script>
+  // Hora de Córdoba, Argentina (formato 00:00, 24 h)
+  const fmtHora = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Argentina/Cordoba',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  });
+
+  function actualizarHora() {
+    document.getElementById('hora').textContent = fmtHora.format(new Date());
+  }
+
+  // Temperatura de Córdoba, Argentina (Open-Meteo, sin clave)
+  const URL_CLIMA =
+    'https://api.open-meteo.com/v1/forecast?latitude=-31.4201&longitude=-64.1888&current=temperature_2m&timezone=America%2FArgentina%2FCordoba';
+
+  async function actualizarTemp() {
+    try {
+      const r = await fetch(URL_CLIMA, { cache: 'no-store' });
+      const d = await r.json();
+      document.getElementById('temp').textContent = d.current.temperature_2m.toFixed(1) + '°';
+    } catch (e) {
+      // si falla, deja el último valor mostrado
+    }
+  }
+
+  actualizarHora();
+  actualizarTemp();
+  setInterval(actualizarHora, 1000);
+  setInterval(actualizarTemp, 10 * 60 * 1000); // cada 10 minutos
+</script>
+
+</body>
+</html>
