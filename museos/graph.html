@@ -132,7 +132,11 @@ if (PREVIEW) {
     } catch (e) { console.warn(e); }
     setTimeout(tick, CONFIG.POLL_MS);
   };
-  document.fonts.ready.then(tick);
+  // carga la Bebas ANTES de empezar, así el primer zócalo ya sale con la fuente correcta (máx. 4 s de espera)
+  Promise.race([
+    Promise.all([document.fonts.load('84px "Bebas Neue"'), document.fonts.load('27px "Bebas Neue"')]),
+    new Promise(r => setTimeout(r, 4000))
+  ]).catch(() => {}).then(tick);
 }
 </script>
 </body>
