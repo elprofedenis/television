@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control de zócalos · Noche de los Museos</title>
+<style>
+  @font-face { font-family: "Bebas Neue"; src: local("Bebas Neue"), url("BebasNeue-Regular.ttf"), url("BebasNeue.ttf"), url("BebasNeue-Regular.otf"); }
+  :root { --fondo:#111417; --panel:#182028; --teal:#00789a; --celeste:#8ecbf0; --crema:#fff1e6; --rojo:#e8644f; --rojo2:#e53935; --verde:#2fbf71; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body { background: var(--fondo); color: var(--crema); font-family: system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  header { position: relative; flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 12px; height: 100px; padding: 0 24px; border-bottom: 1px solid #25313b; }
+  .brand { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; gap: 14px; min-width: 0; }
+  h1 { font: 400 46px "Bebas Neue", Impact, sans-serif; letter-spacing: .05em; margin: 0; white-space: nowrap; }
+  #logo { height: 45px; width: auto; display: block; }
+  main { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 1.6vh; padding: 1.6vh 20px; width: 100%; margin: 0 auto; }
+
+  /* dos previsualizaciones chicas, lado a lado */
+  #views { flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; gap: 16px; }
+  .view { width: calc(50% - 8px); flex: none; }
+  .tag { font-size: clamp(11px, 1.7vh, 13px); color: var(--celeste); margin: 0 0 4px; display: flex; align-items: center; gap: 6px; }
+  .tag.vt { font-size: clamp(22px, 3.4vh, 26px); font-weight: 700; justify-content: center; text-align: center; line-height: 1.15; white-space: nowrap; }
+  .view.air .vt { color: var(--rojo2); } .view.draft .vt { color: var(--verde); }
+  .pw { position: relative; width: 100%; aspect-ratio: 16/9; background: #fff; border: 4px solid var(--verde); border-radius: 6px; overflow: hidden; }
+  .pw iframe { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; border: 0; background: transparent; transform-origin: 0 0; }
+  .view.air .pw { border-color: var(--rojo2); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #666; flex: none; }
+  .dot.on { background: #4fd18b; } .dot.err { background: var(--rojo); }
+
+  .card { flex: none; min-height: 0; background: var(--panel); border-radius: 10px; padding: 1.4vh 18px; display: flex; flex-direction: column; justify-content: space-between; gap: 1.2vh; }
+  .fields { flex: none; display: grid; grid-template-columns: 1fr 1.7fr; gap: 14px; }
+  label { display: grid; grid-template-rows: auto 1fr; gap: 4px; font-size: clamp(11px, 1.7vh, 13px); color: var(--celeste); min-width: 0; }
+  label small { color: #7f93a3; }
+  textarea { resize: none; height: calc(2.2em + 1.6vh + 4px); min-height: 0; overflow-y: auto; scrollbar-width: thin; line-height: 1.1; font: 400 clamp(20px, 3.6vh, 30px)/1.1 "Bebas Neue", Impact, sans-serif; letter-spacing: .04em; text-transform: uppercase; padding: .8vh 12px;
+          background: #0e1419; color: var(--crema); border: 2px solid #2a3a47; border-radius: 6px; width: 100%; }
+  textarea:focus-visible, button:focus-visible { outline: 3px solid var(--celeste); outline-offset: 2px; }
+  .row { display: flex; gap: 12px; align-items: center; }
+  button { font: 400 clamp(18px, 3.2vh, 26px) "Bebas Neue", Impact, sans-serif; letter-spacing: .06em; padding: .8vh 22px; border: 0; border-radius: 6px; cursor: pointer; color: var(--crema); background: #2a3a47; white-space: nowrap; }
+  button.send { background: #ff0000; color: #fff; flex: 1; }
+  button.hide, button.show { background: #1faa59; color: #fff; }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  #fs { font-size: 16px; padding: 6px 12px; }
+  .status { font-size: 13px; display: flex; gap: 8px; align-items: center; color: #9db0bf; }
+  #hist { display: flex; gap: 8px; height: 72px; flex: none; overflow-y: auto; overflow-x: hidden; flex-wrap: wrap; align-content: flex-start; padding: 4px 8px 4px 4px; background: #0e1419; border: 1px solid #2a3a47; border-radius: 6px; scrollbar-width: thin; scrollbar-color: #3a4d5c transparent; }
+  #hist::-webkit-scrollbar { width: 6px; } #hist::-webkit-scrollbar-thumb { background: #3a4d5c; border-radius: 3px; }
+  #master { display: block; width: 100%; text-align: left; background: #12384a; border: 2px solid var(--teal); padding: .6vh 14px; letter-spacing: .05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: clamp(16px, 2.8vh, 24px); }
+  #master small { font: 400 clamp(12px, 2vh, 17px) "Bebas Neue", Impact, sans-serif; color: var(--celeste); letter-spacing: .05em; }
+  .hi { position: relative; display: flex; max-width: 32%; }
+  .hi > button:first-child { font: 13px system-ui; letter-spacing: 0; height: 28px; padding: 0 26px 0 10px; background: #202c36; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .hi .x { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); display: none; width: 20px; height: 20px; padding: 0; border-radius: 50%; background: #7a2f26; color: var(--crema); font: 700 13px/20px system-ui; letter-spacing: 0; text-align: center; }
+  .hi:hover .x, .hi:focus-within .x { display: block; }
+  .hi .x:hover { background: var(--rojo); }
+  #modal { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: none; align-items: center; justify-content: center; padding: 20px; }
+  #modal.open { display: flex; }
+  #modal .dlg { background: var(--panel); border: 2px solid var(--teal); border-radius: 10px; padding: 24px; max-width: 640px; width: 100%; display: grid; gap: 14px; }
+  #modal h2 { margin: 0; font: 400 32px "Bebas Neue", Impact, sans-serif; }
+  #modal blockquote { max-height: 40vh; overflow: auto; margin: 0; padding: 12px; background: #0e1419; border-radius: 6px; font: 400 28px "Bebas Neue", Impact, sans-serif; letter-spacing: .04em; }
+  #modal blockquote small { display: block; font-size: 20px; color: var(--celeste); }
+  #modal .row button { font-size: 24px; padding: 10px 20px; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 90px); background: #4fd18b; color: #06210f; padding: 10px 22px; border-radius: 30px; font-weight: 600; transition: transform .35s; }
+  #toast.show { transform: translate(-50%, 0); }
+  @media (max-width: 720px) { .fields { grid-template-columns: 1fr; } .row { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>CONTROL DE ZÓCALOS –</h1>
+    <img id="logo" src="logolametro.png" alt="La Metro" onerror="this.style.display='none'">
+  </div>
+  <div class="row">
+    <div class="status"><span class="dot" id="dot"></span><span id="state">Conectando…</span></div>
+    <button id="fs" title="Pantalla completa">PANTALLA COMPLETA</button>
+  </div>
+</header>
+
+<main>
+  <section id="views">
+    <div class="view air">
+      <p class="tag vt">AL AIRE AHORA</p>
+      <div class="pw"><iframe id="pvLive" src="graph.html?live=1"></iframe></div>
+    </div>
+    <div class="view draft">
+      <p class="tag vt">BORRADOR <span style="font-weight:400">(lo que estás escribiendo)</span></p>
+      <div class="pw"><iframe id="pv" src="graph.html?preview=1"></iframe></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="fields">
+      <label><span>TEXTO CHICO <small>(opcional · vacío = no aparece la pestaña)</small></span>
+        <textarea id="small" autocomplete="off" placeholder="EN VIVO DESDE LA METRO"></textarea></label>
+      <label><span>TEXTO GRANDE <small>(obligatorio)</small></span>
+        <textarea id="big" autocomplete="off" placeholder="BIENVENIDOS A LA NOCHE DE LOS MUSEOS"></textarea></label>
+    </div>
+    <div class="row">
+      <button class="send" id="send" disabled>ENVIAR A PANTALLA</button>
+      <button class="hide" id="hide">OCULTAR ZÓCALO</button>
+    </div>
+    <div><p class="tag">BASE FIJA (clic para cargar)</p>
+      <button id="master" type="button"><small>EN VIVO DESDE LA METRO -</small> BIENVENIDOS A LA NOCHE DE LOS MUSEOS</button></div>
+    <div><p class="tag">ÚLTIMOS ENVIADOS (clic para recargar)</p><div id="hist"></div></div>
+  </section>
+</main>
+
+<div id="modal"><div class="dlg" role="dialog" aria-modal="true">
+  <h2>¿ENVIAR A PANTALLA?</h2>
+  <blockquote id="mq"></blockquote>
+  <p style="margin:0">Revisá la ortografía antes de enviar: lo que confirmes sale al aire.</p>
+  <div class="row"><button id="back">VOLVER A REVISAR</button><button class="send" id="ok">SÍ, ENVIAR</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script src="sync.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+var onAir = {};
+const small = $("small"), big = $("big"), pv = $("pv"), send = $("send");
+
+// escalado de las previsualizaciones al tamaño de su caja
+function fitViews() {
+  const v = $("views"), t = v.querySelector(".vt");
+  const h = v.clientHeight - t.offsetHeight - 4 - 8;             // alto disponible para la pantalla (sin título ni bordes)
+  const w = Math.max(160, Math.min(h * 16 / 9, (v.clientWidth - 16) / 2)) + 8;
+  v.querySelectorAll(".view").forEach(e => { e.style.width = w + "px"; });
+}
+function scale() {
+  fitViews();
+  document.querySelectorAll(".pw").forEach(w => { w.firstElementChild.style.transform = `scale(${w.clientWidth / 1920})`; });
+}
+addEventListener("resize", scale); scale();
+
+new ResizeObserver(scale).observe($("views"));
+
+// todo en mayúsculas, sin saltos de línea
+function upper(el) {
+  const p = el.selectionStart;
+  el.value = el.value.toUpperCase().replace(/[\r\n]+/g, " ");
+  el.setSelectionRange(p, p);
+}
+function draft() {
+  pv.contentWindow.postMessage({ type: "draft", small: small.value.trim(), big: big.value.trim() }, "*");
+  send.disabled = !big.value.trim();
+}
+[small, big].forEach(el => {
+  el.addEventListener("input", () => { upper(el); draft(); });
+  el.addEventListener("keydown", e => { if (e.key === "Enter") e.preventDefault(); }); // sin saltos de línea
+});
+pv.addEventListener("load", () => { scale(); draft(); });
+
+// confirmación
+send.onclick = () => {
+  $("mq").innerHTML = (small.value.trim() ? `<small>${esc(small.value.trim())}</small>` : "") + esc(big.value.trim());
+  $("modal").classList.add("open"); $("ok").focus();
+};
+$("back").onclick = () => $("modal").classList.remove("open");
+$("ok").onclick = async () => {
+  $("modal").classList.remove("open");
+  const s = { visible: true, small: small.value.trim(), big: big.value.trim(), action: "ENVIAR" };
+  await push(s, "ENVIADO A PANTALLA"); addHist(s);
+};
+// OCULTAR / MOSTRAR (muestra el último que estuvo al aire)
+const toggle = $("hide");
+function refreshToggle() {
+  toggle.textContent = onAir.visible ? "OCULTAR ZÓCALO" : "MOSTRAR ZÓCALO";
+  toggle.className = onAir.visible ? "hide" : "show";
+  toggle.disabled = !onAir.visible && !onAir.big;
+}
+toggle.onclick = () => {
+  const keep = { small: onAir.small || "", big: onAir.big || "" };
+  if (onAir.visible) push({ visible: false, ...keep, action: "OCULTAR" }, "ZÓCALO OCULTO");
+  else push({ visible: true, ...keep, action: "MOSTRAR" }, "ZÓCALO MOSTRADO");
+};
+
+async function push(s, msg) {
+  try { await Sync.set(s); onAir = { id: s.id, visible: s.visible, small: s.small, big: s.big }; refreshToggle(); toast(msg); } catch (e) { toast("ERROR AL ENVIAR"); }
+}
+function toast(t) { const el = $("toast"); el.textContent = t; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2200); }
+function esc(t) { return t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+// historial local
+const BASE = { small: "EN VIVO DESDE LA METRO", big: "BIENVENIDOS A LA NOCHE DE LOS MUSEOS" };
+const isBase = x => x.small === BASE.small && x.big === BASE.big;
+const getH = () => JSON.parse(localStorage.getItem("hist") || "[]").filter(x => !isBase(x));
+function addHist(s) {
+  if (isBase(s)) return;                      // la base fija ya tiene su propio botón
+  let h = getH().filter(x => x.big !== s.big || x.small !== s.small);
+  h.unshift({ small: s.small, big: s.big }); localStorage.setItem("hist", JSON.stringify(h.slice(0, 40))); drawHist();
+}
+function drawHist() {
+  const h = getH(); $("hist").innerHTML = "";
+  h.forEach((x, i) => {
+    const w = document.createElement("div"); w.className = "hi";
+    const b = document.createElement("button"); b.textContent = (x.small ? x.small + " · " : "") + x.big; b.title = b.textContent;
+    b.onclick = () => { small.value = x.small; big.value = x.big; draft(); };
+    const d = document.createElement("button"); d.className = "x"; d.textContent = "×"; d.title = "Borrar";
+    d.onclick = e => { e.stopPropagation(); const l = getH(); l.splice(i, 1); localStorage.setItem("hist", JSON.stringify(l)); drawHist(); };
+    w.append(b, d); $("hist").append(w);
+  });
+}
+drawHist();
+$("master").onclick = () => { small.value = "EN VIVO DESDE LA METRO"; big.value = "BIENVENIDOS A LA NOCHE DE LOS MUSEOS"; draft(); };
+
+// estado actual en pantalla
+async function poll() {
+  try {
+    onAir = await Sync.get();
+    $("dot").className = "dot " + (onAir.visible ? "on" : "");
+    $("state").textContent = onAir.visible ? "AL AIRE" : "Zócalo oculto";
+    refreshToggle();
+  } catch (e) { $("dot").className = "dot err"; $("state").textContent = "Sin conexión"; }
+  setTimeout(poll, 2000);
+}
+poll();
+
+// pantalla completa
+$("fs").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+document.addEventListener("fullscreenchange", () => { $("fs").textContent = document.fullscreenElement ? "SALIR" : "PANTALLA COMPLETA"; setTimeout(scale, 150); });
+</script>
+</body>
+</html>

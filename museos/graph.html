@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>graph</title>
+<style>
+  @font-face { font-family: "Bebas Neue"; src: local("Bebas Neue"), url("BebasNeue-Regular.ttf"), url("BebasNeue.ttf"), url("BebasNeue-Regular.otf"); }
+  :root { --noche:#042229; --tab:#111314; --trazo:#111314; --celeste:#71CCF0; --crema:#FFF5EA; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; font-family: "Bebas Neue", Impact, sans-serif; }
+
+  /* zócalo: 50px izquierda/derecha, 100px abajo */
+  #wrap { position: absolute; left: 50px; right: 50px; bottom: 60px; display: flex; flex-direction: column; align-items: flex-end; visibility: hidden; }
+  #tab { position: relative; z-index: 0; margin-right: 40px; height: 41px; padding: 0 24px; display: flex; align-items: center;
+         background: var(--tab); color: var(--celeste); font-size: 27px; letter-spacing: .09em; max-width: 1400px; overflow: hidden;
+         border-radius: 6px 6px 0 0; white-space: nowrap; }
+  #bar { z-index: 1; width: 100%; height: 140px; background: var(--noche); border: 4px solid var(--trazo); border-radius: 6px; overflow: hidden;
+         position: relative; display: flex; align-items: center; justify-content: center; }
+  #box { position: relative; z-index: 1; width: 1680px; height: 108px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #big { width: 100%; text-align: center; color: var(--crema); line-height: .95; letter-spacing: .02em; font-size: 84px; text-transform: uppercase; overflow-wrap: break-word; }
+
+  /* estrellitas de fondo (mitad celeste, mitad crema) */
+  #stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .st { position: absolute; border-radius: 50%; opacity: 0; animation: twinkle ease-in-out infinite; }
+  .st.c1 { background: var(--celeste); } .st.c2 { background: var(--crema); }
+  .st.sp { border-radius: 0; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+  @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.5); } 50% { opacity: var(--o); transform: scale(1); } }
+
+  /* modo previsualización (dentro del panel de control) */
+  body.preview { background: #fff; }
+  body.preview::after { content: ""; position: absolute; left: 50px; right: 50px; top: 0; bottom: 60px; border: 2px dashed rgba(0,0,0,.18); pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="tab"></div>
+  <div id="bar"><div id="stars"></div><div id="box"><div id="big"></div></div></div>
+</div>
+
+<script src="sync.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const wrap = $("wrap"), tab = $("tab"), bar = $("bar"), big = $("big"), box = $("box");
+const QS = new URLSearchParams(location.search);
+const PREVIEW = QS.has("preview"), LIVE = QS.has("live"); // preview = borrador | live = espejo de lo que está al aire
+const EASE = "cubic-bezier(.22,.9,.24,1)";
+const fx = (el, kf, ms, delay = 0) => { el.getAnimations().forEach(a => a.cancel()); return el.animate(kf, { duration: ms, delay, easing: EASE, fill: "both" }).finished; };
+
+function fit() {                       // achica la letra hasta que entre (1 o 2 líneas)
+  for (let s = 92; s >= 12; s -= 1) {
+    big.style.fontSize = s + "px";
+    if (big.scrollHeight <= box.clientHeight && big.scrollWidth <= box.clientWidth) break;
+  }
+}
+function fill(s) {
+  const small = (s.small || "").trim().toUpperCase();
+  tab.textContent = small; tab.style.display = small ? "flex" : "none"; tab.style.fontSize = "";
+  for (let t = 27; small && t >= 12 && tab.scrollWidth > tab.clientWidth; t--) tab.style.fontSize = t + "px";
+  big.textContent = (s.big || "").trim().toUpperCase();
+  fit();
+}
+
+let shown = false;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const hasTab = () => tab.style.display !== "none";
+const tabIn  = d => fx(tab, [{ opacity: 0, transform: "translateY(100%)" }, { opacity: 1, offset: .15 }, { opacity: 1, transform: "translateY(0)" }], 550, d || 0);
+const tabOut = () => fx(tab, [{ opacity: 1, transform: "translateY(0)" }, { opacity: 1, offset: .85 }, { opacity: 0, transform: "translateY(100%)" }], 400);
+const bigIn  = d => fx(big, [{ opacity: 0, transform: "translateY(60px)" }, { opacity: 1, transform: "none" }], 550, d || 0);
+const bigOut = () => fx(big, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(-50px)" }], 300);
+
+// aparece por primera vez (o después de ocultarse): entra el fondo + los textos
+async function animIn(s) {
+  fill(s);
+  wrap.style.visibility = "visible";
+  fx(bar, [{ clipPath: "inset(0 50% 0 50%)" }, { clipPath: "inset(0 0 0 0)" }], 750);
+  bigIn(380);
+  if (hasTab()) await tabIn(600); else await wait(950);
+  shown = true;
+}
+// se oculta por completo: sale todo, incluido el fondo
+async function animOut() {
+  bigOut(); if (hasTab()) tabOut();
+  await fx(bar, [{ clipPath: "inset(0 0 0 0)" }, { clipPath: "inset(0 50% 0 50%)" }], 550, 200);
+  wrap.style.visibility = "hidden"; shown = false;
+}
+// cambio de texto en vivo: el fondo se queda; la pestaña solo se anima si aparece o desaparece
+async function swap(s) {
+  const had = hasTab(), will = !!(s.small || "").trim();
+  await Promise.all([bigOut(), had && !will ? tabOut() : null]);
+  fill(s);
+  await Promise.all([bigIn(), !had && will ? tabIn() : null]);
+}
+
+let chain = Promise.resolve(), lastId = null;
+function apply(s) {
+  chain = chain.then(async () => {
+    const on = s.visible && s.big;
+    if (on && !shown) await animIn(s);
+    else if (on) await swap(s);
+    else if (shown) await animOut();
+  }).catch(console.error);
+}
+
+// estrellitas: aparecen y desaparecen suavemente, y reaparecen en otro lugar
+(function () {
+  const rnd = (a, b) => a + Math.random() * (b - a), N = 60;   // N par: 30 celestes + 30 crema
+  const place = st => { st.style.left = rnd(0, 99) + "%"; st.style.top = rnd(3, 90) + "%"; };
+  for (let i = 0; i < N; i++) {
+    const st = document.createElement("i"), sp = Math.floor(i / 2) % 4 === 0, z = sp ? rnd(9, 14) : rnd(2, 4);
+    st.className = "st " + (i % 2 ? "c1" : "c2") + (sp ? " sp" : "");
+    st.style.width = st.style.height = z + "px";
+    st.style.setProperty("--o", rnd(.35, .9).toFixed(2));
+    st.style.animationDuration = rnd(4, 9) + "s";
+    st.style.animationDelay = "-" + rnd(0, 9) + "s";
+    place(st); st.addEventListener("animationiteration", () => place(st));
+    $("stars").appendChild(st);
+  }
+})();
+
+if (PREVIEW || LIVE) document.body.classList.add("preview");
+if (PREVIEW) {
+  window.addEventListener("message", e => {
+    const d = e.data || {};
+    if (d.type !== "draft") return;
+    fill(d); wrap.style.visibility = d.big ? "visible" : "hidden";
+  });
+} else {
+  const tick = async () => {
+    try {
+      const s = await Sync.get();
+      if (s.id !== lastId) { lastId = s.id; apply(s); }
+    } catch (e) { console.warn(e); }
+    setTimeout(tick, CONFIG.POLL_MS);
+  };
+  document.fonts.ready.then(tick);
+}
+</script>
+</body>
+</html>
