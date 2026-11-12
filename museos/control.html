@@ -174,7 +174,7 @@ toggle.onclick = () => {
 };
 
 async function push(s, msg) {
-  try { await Sync.set(s); onAir = { id: s.id, visible: s.visible, small: s.small, big: s.big }; refreshToggle(); toast(msg); } catch (e) { toast("ERROR AL ENVIAR"); }
+  try { await Sync.set(s); onAir = { id: s.id, visible: s.visible, small: s.small, big: s.big }; refreshToggle(); toast(msg); } catch (e) { console.error("Sync.set falló:", e); toast("ERROR AL ENVIAR: " + String((e && e.message) || e).slice(0, 70)); }
 }
 function toast(t) { const el = $("toast"); el.textContent = t; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2200); }
 function esc(t) { return t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
