@@ -94,21 +94,80 @@
     box-shadow:0 4px 14px rgba(0,0,0,.4);
   }
   #newpill.show { display:block; }
+
+  /* ── Título con "mantener apretado" para entrar a la vista En pantalla ── */
+  .topbar-title { position:relative; padding:6px 4px; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; touch-action:none; }
+  .topbar-title::after {
+    content:""; position:absolute; left:0; bottom:0; height:2px; width:100%; background:var(--celeste);
+    transform:scaleX(0); transform-origin:left; transition:transform .15s;
+  }
+  .topbar-title.holding::after { transform:scaleX(1); transition:transform 1.8s linear; }
+  .btn-back {
+    display:none; background:var(--crema); color:var(--negro); border:none; border-radius:16px; padding:7px 14px;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.8rem; cursor:pointer; white-space:nowrap;
+  }
+
+  /* ── VISTA "EN PANTALLA" (aprobados): look invertido a propósito ── */
+  #view-live { display:none; }
+  body.live { background:var(--crema); color:var(--negro); }
+  body.live html, html:has(body.live) { background:var(--crema); }
+  body.live .topbar { background:var(--negro); border-bottom-color:var(--crema); }
+  body.live .badge { display:none; }
+  body.live .btn-back { display:block; }
+  body.live #view-pend { display:none; }
+  body.live #view-live { display:block; }
+  body.live .topbar-title::after { display:none; }
+  .live-banner {
+    background:var(--celeste); color:var(--negro); text-align:center;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.78rem; letter-spacing:.06em; text-transform:uppercase;
+    padding:8px 12px; line-height:1.3;
+  }
+  .lcard {
+    background:#fff; border:2px solid var(--negro); border-radius:4px; padding:11px 12px 12px; margin-bottom:10px;
+    max-height:300px; overflow:hidden;
+    transition:opacity .2s, max-height .25s ease .05s, margin .25s ease .05s, padding .25s ease .05s;
+    animation:in .25s ease;
+  }
+  .lcard.out { opacity:0; max-height:0; margin-bottom:0; padding-top:0; padding-bottom:0; border-width:0; pointer-events:none; }
+  .lcard.back { border-style:dashed; }
+  .lcard .name { font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.95rem; word-break:break-word; color:var(--negro); }
+  .lcard .msg  { font-size:1rem; line-height:1.3; margin:5px 0 11px; word-break:break-word; }
+  .btn-del {
+    width:100%; height:44px; border-radius:4px; cursor:pointer; background:var(--negro); color:var(--crema); border:2px solid var(--negro);
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase;
+    transition:transform .08s;
+  }
+  .btn-del:active { transform:scale(.97); }
+  .btn-del.armed { background:var(--crema); color:var(--negro); }
+  .lempty { text-align:center; padding:56px 20px; font-size:.95rem; line-height:1.6; display:none; }
+  .lempty.show { display:block; }
+  body.live #toast { background:var(--negro); color:var(--crema); }
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <img src="LOGO_LA_METRO.png" alt="La Metro">
-  <div class="topbar-title">Moderador</div>
+  <div class="topbar-title" id="hold"><span id="title-text">Moderador</span></div>
   <div class="badge zero" id="badge">0 pendientes</div>
+  <button class="btn-back" id="btn-back">← Volver</button>
 </div>
 <div class="offline">Sin conexión – reintentando…</div>
 
+<div id="view-pend">
 <div class="wrap">
   <div id="list"></div>
   <div class="empty show" id="empty"><b>Todo al día</b>Los mensajes nuevos aparecen acá abajo.</div>
   <div class="foot"><button class="btn-clear" id="btn-clear">Borrar todos los mensajes</button></div>
+</div>
+</div>
+
+<div id="view-live">
+  <div class="live-banner">Mensajes aprobados · en pantalla ahora<br>Eliminar los saca del stream</div>
+  <div class="wrap">
+    <div id="llist"></div>
+    <div class="lempty" id="lempty">No hay mensajes aprobados en pantalla.</div>
+  </div>
 </div>
 
 <button id="newpill">↓ Mensaje nuevo</button>
@@ -156,6 +215,7 @@
     b.textContent = n === 1 ? '1 pendiente' : n + ' pendientes';
     b.classList.toggle('zero', n === 0);
     $('empty').classList.toggle('show', n === 0);
+    $('btn-back').textContent = n ? '← Volver (' + n + ')' : '← Volver';
   }
   function addCard(it, back) {
     const el = document.createElement('div');
@@ -232,7 +292,11 @@
       for (const id of [...cards.keys()]) if (!pendIds.has(id)) removeCard(id);   // resuelto/borrado en otro lado
       for (const id of [...done]) if (!pendIds.has(id)) done.delete(id);
 
-      if (initialized && nuevos) { beep(); showPill(); }
+      if (initialized && nuevos) {
+        beep();
+        if (document.body.classList.contains('live')) toast('Hay mensajes nuevos para moderar');
+        else showPill();
+      }
       initialized = true;
     } catch (e) {
       document.body.classList.add('is-offline');
@@ -266,6 +330,92 @@
       toast('Todos los mensajes borrados');
     } catch (e) { toast('No se pudo borrar'); }
   });
+
+  /* ═════════ VISTA "EN PANTALLA" (aprobados) ═════════ */
+  const llist = $('llist');
+  const lcards = new Map(), lseq = new Map(), lbusy = new Set(), ldone = new Set();
+  let lN = 0, liveTimer = null;
+
+  function enterLive() {
+    document.body.classList.add('live');
+    $('title-text').textContent = 'En pantalla';
+    window.scrollTo(0, 0);
+    pollLive();
+    liveTimer = setInterval(pollLive, 4000);
+    if (navigator.vibrate) navigator.vibrate(40);
+  }
+  function exitLive() {
+    document.body.classList.remove('live');
+    $('title-text').textContent = 'Moderador';
+    clearInterval(liveTimer);
+    window.scrollTo(0, 0);
+  }
+  $('btn-back').addEventListener('click', exitLive);
+
+  // Entrada: mantener apretado el título "Moderador" durante ~2 segundos
+  (function () {
+    const h = $('hold'); let t = null;
+    const start = e => {
+      if (document.body.classList.contains('live')) return;
+      h.classList.add('holding');
+      t = setTimeout(() => { h.classList.remove('holding'); enterLive(); }, 1800);
+    };
+    const stop = () => { clearTimeout(t); h.classList.remove('holding'); };
+    h.addEventListener('pointerdown', start);
+    ['pointerup','pointerleave','pointercancel'].forEach(ev => h.addEventListener(ev, stop));
+    h.addEventListener('contextmenu', e => e.preventDefault());
+  })();
+
+  function addLive(it, back) {
+    const el = document.createElement('div');
+    el.className = 'lcard' + (back ? ' back' : '');
+    el.dataset.seq = lseq.get(it.id);
+    el.innerHTML =
+      '<div class="name">' + esc(it.nombre.toUpperCase()) + '</div>' +
+      '<div class="msg">' + esc(it.texto.toUpperCase()) + '</div>' +
+      '<button class="btn-del">🗑 Eliminar de pantalla</button>';
+    const btn = el.querySelector('.btn-del'); let armT = null;
+    btn.addEventListener('click', () => {
+      if (!btn.classList.contains('armed')) {            // 1er toque: pedir confirmación
+        btn.classList.add('armed'); btn.textContent = '¿Seguro? Tocá otra vez';
+        armT = setTimeout(() => { btn.classList.remove('armed'); btn.textContent = '🗑 Eliminar de pantalla'; }, 3000);
+        return;
+      }
+      clearTimeout(armT); delLive(it.id);                // 2do toque: eliminar
+    });
+    const seq = lseq.get(it.id);
+    const next = [...llist.children].find(c => !c.classList.contains('out') && +c.dataset.seq > seq);
+    llist.insertBefore(el, next || null);
+    lcards.set(it.id, { el, it });
+    $('lempty').classList.toggle('show', lcards.size === 0);
+  }
+  function removeLive(id) {
+    const c = lcards.get(id); if (!c) return;
+    lcards.delete(id); c.el.classList.add('out'); setTimeout(() => c.el.remove(), 320);
+    $('lempty').classList.toggle('show', lcards.size === 0);
+  }
+  async function delLive(id) {
+    const c = lcards.get(id); if (!c || lbusy.has(id)) return;
+    const it = c.it; lbusy.add(id); removeLive(id);
+    try { await api({ action:'eliminar', id }); ldone.add(id); toast('Eliminado de pantalla'); }
+    catch (e) { toast('No se pudo eliminar. Volvió a la lista.'); addLive(it, true); }
+    finally { lbusy.delete(id); }
+  }
+  async function pollLive() {
+    try {
+      const r = await fetch(SCRIPT_URL + '?action=aprobados&_=' + Date.now());
+      const data = await r.json(); if (!data.ok) throw new Error();
+      const ids = new Set(data.items.map(i => i.id));
+      for (const it of data.items) {
+        if (!lseq.has(it.id)) lseq.set(it.id, ++lN);
+        if (lcards.has(it.id) || lbusy.has(it.id) || ldone.has(it.id)) continue;
+        addLive(it);
+      }
+      for (const id of [...lcards.keys()]) if (!ids.has(id)) removeLive(id);
+      for (const id of [...ldone]) if (!ids.has(id)) ldone.delete(id);
+      $('lempty').classList.toggle('show', lcards.size === 0);
+    } catch (e) {}
+  }
 </script>
 </body>
 </html>
