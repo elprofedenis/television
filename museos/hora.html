@@ -4,55 +4,48 @@
 <meta charset="utf-8">
 <title>Hora</title>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 800px;            /* tamaño por defecto de OBS */
-    height: 600px;
-    overflow: hidden;
-    background: transparent;
+  @font-face { font-family:'HNBold';  src:url('helvetica-neue-lt-std-bold.ttf') format('truetype'); font-weight:700; }
+  @font-face { font-family:'HNLight'; src:url('HelveticaNeueLTPro-Lt.otf') format('opentype'); font-weight:300; }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1920px; height:1080px; overflow:hidden; background:transparent; }
+
+  /* Dos solapas pegadas al borde derecho, a la misma altura que la barra de mensajes:
+     de la línea celeste (86px desde abajo) al borde inferior de la barra (39px) = 47px de alto.
+     Esquina inferior izquierda redondeada (espejo de "TU MENSAJE"), lado derecho recto. */
+  .solapa {
+    position:fixed; bottom:39px; height:47px;
+    display:flex; align-items:center; justify-content:center;
+    padding-bottom:8px;                    /* sube el texto 4px respecto del centro exacto */
+    white-space:nowrap; line-height:1;
+    border-radius:0 0 0 18px;
   }
 
-  #datos {
-    position: absolute;
-    right: 82px;             /* margen derecho */
-    bottom: 74px;            /* margen inferior */
-    display: flex;
-    gap: 8px;                /* separación entre los dos rectángulos */
-    font-family: Arial, sans-serif;
-    font-size: 27px;
-    line-height: 1;
-    color: #ffffff;
-  }
-
-  .caja {
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;     /* esquinas redondeadas */
-    white-space: nowrap;
-  }
-
-  #caja-hora {
-    width: 98px;
-    background: #000000;
-    font-weight: bold;
-  }
-
+  /* Temperatura: gris, encima. El conjunto está corrido 120px a la izquierda; el gris se estira hasta el borde
+     derecho de la pantalla (240px en total) y el texto queda centrado en los 120px de la izquierda. */
   #caja-temp {
-    width: 92px;
-    background: #2F2F2F;
-    font-weight: normal;
+    right:0; width:240px; z-index:2;
+    padding-right:120px;
+    background:#2F2F2F; color:#FFF5EA;
+    font-family:'HNLight',Helvetica,Arial,sans-serif; font-weight:300;
+    font-size:32px; letter-spacing:-0.005em;     /* interletrado -5 */
+  }
+
+  /* Hora: celeste, por debajo de la temperatura (se asoma hacia la izquierda).
+     Mide 24px más que su parte visible (150px) porque queda tapada por la solapa gris. */
+  #caja-hora {
+    right:216px; width:174px; z-index:1;
+    padding-right:24px;
+    background:#71CCF0; color:#111314;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-weight:700;
+    font-size:34px; letter-spacing:-0.005em;     /* interletrado -5 */
   }
 </style>
 </head>
 <body>
 
-  <div id="datos">
-    <div class="caja" id="caja-hora"><span id="hora">00:00</span></div>
-    <div class="caja" id="caja-temp"><span id="temp">--.-°</span></div>
-  </div>
+  <div class="solapa" id="caja-hora"><span id="hora">00:00</span></div>
+  <div class="solapa" id="caja-temp"><span id="temp">--.-°</span></div>
 
 <script>
   // Hora de Córdoba, Argentina (formato 00:00, 24 h)
