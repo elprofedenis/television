@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Metro – Noche de los Museos – Mensajes</title>
+<style>
+  @font-face { font-family:'HNBold';  src:url('helvetica-neue-lt-std-bold.ttf') format('truetype'); font-weight:700; }
+  @font-face { font-family:'HNLight'; src:url('HelveticaNeueLTPro-Lt.otf') format('opentype'); font-weight:300; }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100vw; height:100vh; overflow:hidden; background:transparent; }
+
+  /* barra de mensajes: 39px sobre el borde inferior, justo debajo del zócalo de graph.html
+     (el zócalo termina a 86px del borde inferior → 86 - 39 = 47px de alto), desde 200px a la izquierda hasta el borde derecho */
+  #ticker-bar {
+    position:fixed; bottom:39px; left:200px; right:0;
+    height:47px;
+    background:#111314; z-index:20;
+    border-top:4px solid #71CCF0;
+    overflow:hidden;
+  }
+  #ticker-canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
+  /* solapita celeste que cuelga de la línea celeste (arriba de la barra) hacia abajo; texto a 141px del borde izquierdo
+     de la barra (= 341px de la pantalla). Los mensajes pasan por detrás y arrancan después de ella. */
+  #ticker-label {
+    position:fixed; bottom:39px; left:200px; height:47px;   /* de la línea celeste (86px) hasta el borde inferior de la barra (39px): tapa todo lo negro */
+    background:#71CCF0; color:#111314;
+    font-family:'HNBold',Helvetica,Arial,sans-serif;
+    font-size:27px; letter-spacing:0.08em; text-transform:uppercase;
+    padding:4px 32px 0 141px;
+    display:flex; align-items:center; white-space:nowrap;
+    border-radius:0 0 18px 0;
+    z-index:30; line-height:1;
+  }
+  .flash-new {
+    position:fixed; bottom:82px; left:200px; right:0; height:4px;
+    background:linear-gradient(90deg,#71CCF0,#FFF5EA,#71CCF0);
+    z-index:40; animation:flashBar 1s ease forwards; pointer-events:none;
+  }
+  @keyframes flashBar {
+    0%  { opacity:1; transform:scaleX(0); transform-origin:left; }
+    40% { opacity:1; transform:scaleX(1); }
+    100%{ opacity:0; transform:scaleX(1); }
+  }
+</style>
+</head>
+<body>
+<div id="ticker-label">Tu mensaje</div>
+<div id="ticker-bar">
+  <canvas id="ticker-canvas"></canvas>
+</div>
+
+<script type="module">
+// 🔧 PEGÁ ACÁ LA URL DE LA IMPLEMENTACIÓN DE APPS SCRIPT (termina en /exec)
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNyhWurhiwWTsHgmpxkvXmOfrxoJFjY7u85G31yNA5UNTjpiZLRUzBv2tYbCKSyEc/exec';
+
+const canvas  = document.getElementById('ticker-canvas');
+const ctx     = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width  = canvas.offsetWidth  * devicePixelRatio;
+  canvas.height = canvas.offsetHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const COLOR_TEXT = '#FFF5EA';
+const COLOR_DOT  = '#71CCF0';
+const BAR_H    = 47;
+const SPEED    = 110;
+let   LABEL_W  = 345;                      // ancho de la solapita + aire; se recalcula al cargar las fuentes
+const SEP_PAD  = 30;                       // espacio a cada lado del círculo
+const NAME_SIZE = 27;                      // antes 20.8
+const TEXT_SIZE = 26;                      // antes 20
+let   CENTER_Y = 25;                       // se recalcula: centro vertical de la barra
+const NAME_FONT = `700 ${NAME_SIZE}px HNBold, Helvetica, Arial, sans-serif`;
+const BODY_FONT = `300 ${TEXT_SIZE}px HNLight, Helvetica, Arial, sans-serif`;
+
+// Métricas de la "O" mayúscula (se calculan al cargar las fuentes)
+let CAP_H = 24, CAP_MID = 12, DOT_D = 14, SLOT_GAP = SEP_PAD * 2 + DOT_D;
+function computeMetrics() {
+  CENTER_Y = canvas.offsetHeight / 2;
+  LABEL_W = document.getElementById('ticker-label').offsetWidth + 30;
+  if (slots.length === 0) tailX = LABEL_W;
+  ctx.font = NAME_FONT;
+  const m = ctx.measureText('O');
+  CAP_H   = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  CAP_MID = (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2; // centro de la O sobre la línea base
+  DOT_D   = CAP_H * 0.55;                // círculo más chico que la O
+  SLOT_GAP = SEP_PAD * 2 + DOT_D;
+}
+const BASELINE_Y = () => CENTER_Y + CAP_MID; // la O queda centrada en CENTER_Y
+
+let catalogue = [];
+let slots     = [];
+let tailX     = LABEL_W;
+let catIdx    = 0;
+
+function measureName(t) { ctx.font = NAME_FONT; return ctx.measureText(t).width; }
+function measureBody(t) { ctx.font = BODY_FONT; return ctx.measureText(t).width; }
+
+function createSlot(ci_) {
+  const ci = ci_ % catalogue.length;
+  const m  = catalogue[ci];
+  const nameText = m.nombre.toUpperCase();
+  const bodyText = m.texto.toUpperCase();
+  const nameW = measureName(nameText);
+  const bodyW = measureBody(bodyText);
+  const width = nameW + 16 + bodyW + SLOT_GAP;
+  return { x:tailX, width, catKey:m.key, nameText, bodyText, nameW, bodyW, removing:m.removing||false };
+}
+
+function drawFrame() {
+  const W = canvas.offsetWidth;
+  ctx.clearRect(0, 0, W, BAR_H);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = COLOR_TEXT;
+  const by = BASELINE_Y();
+  for (const slot of slots) {
+    let cx = slot.x;
+    ctx.font = NAME_FONT;
+    ctx.fillText(slot.nameText, cx, by);
+    cx += slot.nameW + 16;
+    ctx.font = BODY_FONT;
+    ctx.fillText(slot.bodyText, cx, by);
+    cx += slot.bodyW;
+    // separador: círculo centrado entre mensajes, a la altura del centro de la "O"
+    ctx.fillStyle = COLOR_DOT;
+    ctx.beginPath();
+    ctx.arc(cx + SEP_PAD + DOT_D / 2, CENTER_Y, DOT_D / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = COLOR_TEXT;
+  }
+}
+
+let lastTs = null; let running = false; let rafId = null;
+
+function fillTail() {
+  const limit = canvas.offsetWidth * 1.2;
+  while (tailX < limit) {
+    let tries = 0;
+    while (tries < catalogue.length && catalogue[catIdx % catalogue.length]?.removing) { catIdx++; tries++; }
+    if (tries >= catalogue.length || catalogue.length === 0) break;
+    const slot = createSlot(catIdx); catIdx++;
+    slots.push(slot); tailX = slot.x + slot.width;
+  }
+}
+
+function tick(ts) {
+  if (lastTs === null) lastTs = ts;
+  const dt = Math.min(ts - lastTs, 50); lastTs = ts;
+  const delta = (dt / 1000) * SPEED;
+  for (const slot of slots) slot.x -= delta;
+  tailX -= delta;
+  slots = slots.filter(slot => {
+    if (slot.x + slot.width < 0) {
+      if (slot.removing) {
+        const ci = catalogue.findIndex(m => m.key === slot.catKey);
+        if (ci !== -1) catalogue.splice(ci, 1);
+        if (catIdx > 0) catIdx = catIdx % Math.max(catalogue.length, 1);
+      }
+      return false;
+    }
+    return true;
+  });
+  if (slots.length > 0) {
+    const last = slots[slots.length - 1];
+    tailX = last.x + last.width;
+  } else { tailX = LABEL_W; }
+
+  if (catalogue.filter(m => !m.removing).length > 0) fillTail();
+  drawFrame();
+  rafId = requestAnimationFrame(tick);
+}
+
+async function start() {
+  if (running) return; running = true;
+  await Promise.all([
+    document.fonts.load(NAME_FONT, 'O'),
+    document.fonts.load(BODY_FONT, 'O')
+  ]).catch(()=>{});
+  await document.fonts.ready;
+  computeMetrics();
+  await new Promise(r => requestAnimationFrame(r));
+  if (catalogue.filter(m => !m.removing).length > 0) fillTail();
+  lastTs = null; rafId = requestAnimationFrame(tick);
+}
+
+async function addMessage(m) {
+  catalogue.push({ ...m, removing:false });
+  if (!running) await start();
+}
+
+function removeMessage(key) {
+  const entry = catalogue.find(m => m.key === key);
+  if (!entry) return;
+  entry.removing = true;
+  for (const slot of slots) if (slot.catKey === key) slot.removing = true;
+}
+
+function flashBar() {
+  const el = document.createElement('div');
+  el.className = 'flash-new'; document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1100);
+}
+
+// ── Lectura desde la hoja APROBADOS (vía Apps Script), cada 5 s ──
+const known = new Set();
+let firstLoad = true;
+async function poll() {
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=aprobados&_=' + Date.now());
+    const data = await r.json();
+    if (!data.ok) return;
+    const ids = new Set(data.items.map(i => i.id));
+    for (const it of data.items) {
+      if (!known.has(it.id)) {
+        known.add(it.id);
+        addMessage({ key: it.id, nombre: it.nombre + ':', texto: it.texto });
+        if (!firstLoad) flashBar();
+      }
+    }
+    for (const id of [...known]) {
+      if (!ids.has(id)) { known.delete(id); removeMessage(id); }
+    }
+    firstLoad = false;
+  } catch (e) { /* sin conexión: reintenta en el próximo ciclo */ }
+}
+poll();
+setInterval(poll, 5000);
+</script>
+</body>
+</html>
