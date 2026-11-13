@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moderador – La Metro – Noche de los Museos</title>
+<style>
+  @font-face { font-family:'HNBold';  src:url('helvetica-neue-lt-std-bold.ttf') format('truetype'); font-weight:700; }
+  @font-face { font-family:'HNLight'; src:url('HelveticaNeueLTPro-Lt.otf') format('opentype'); font-weight:300; }
+
+  :root { --negro:#111314; --petroleo:#042229; --celeste:#71CCF0; --crema:#FFF5EA; --linea:rgba(113,204,240,.28); }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:var(--negro); }
+  body {
+    font-family:'HNLight',Helvetica,Arial,sans-serif; color:var(--crema); background:var(--negro);
+    min-height:100vh; touch-action:manipulation;
+    padding-bottom:env(safe-area-inset-bottom,0);
+  }
+  button { font-family:inherit; touch-action:manipulation; }
+
+  /* HEADER */
+  .topbar {
+    position:sticky; top:0; z-index:10;
+    background:var(--petroleo); border-bottom:3px solid var(--celeste);
+    padding:calc(8px + env(safe-area-inset-top,0)) 14px 8px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .topbar img { height:26px; width:auto; }
+  .topbar-title { font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.85rem; letter-spacing:.08em; text-transform:uppercase; }
+  .badge {
+    background:var(--celeste); color:var(--negro);
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.8rem;
+    padding:6px 12px; border-radius:16px; white-space:nowrap; transition:opacity .2s;
+  }
+  .badge.zero { background:transparent; color:var(--celeste); border:1px solid var(--linea); }
+  .offline {
+    display:none; background:var(--crema); color:var(--negro); text-align:center;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.78rem; padding:5px;
+  }
+  body.is-offline .offline { display:block; }
+
+  /* LISTA */
+  .wrap { max-width:560px; margin:0 auto; padding:12px 12px 24px; }
+  #list { display:flex; flex-direction:column; }
+
+  .card {
+    background:var(--petroleo); border:1.5px solid var(--linea); border-radius:12px;
+    padding:11px 12px 12px; margin-bottom:10px;
+    max-height:300px; overflow:hidden;
+    transition:opacity .2s, transform .2s, max-height .25s ease .05s, margin .25s ease .05s, padding .25s ease .05s;
+    animation:in .25s ease;
+  }
+  @keyframes in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .card.out { opacity:0; transform:scale(.97); max-height:0; margin-bottom:0; padding-top:0; padding-bottom:0; border-width:0; pointer-events:none; }
+  .card.back { border-color:var(--crema); }
+
+  .card-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .name { font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.95rem; letter-spacing:.02em; word-break:break-word; }
+  .time { font-size:.75rem; color:var(--celeste); white-space:nowrap; }
+  .msg  { font-size:1rem; line-height:1.3; margin:5px 0 11px; word-break:break-word; }
+
+  .btns { display:flex; gap:10px; }
+  .btn {
+    flex:1; height:46px; border-radius:10px; cursor:pointer;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    transition:transform .08s, filter .15s;
+  }
+  .btn:active { transform:scale(.96); }
+  .btn-no  { background:transparent; color:var(--crema); border:2px solid rgba(255,245,234,.7); }
+  .btn-yes { background:var(--celeste); color:var(--negro); border:2px solid var(--celeste); }
+
+  .empty { text-align:center; padding:56px 20px; color:rgba(255,245,234,.6); font-size:.95rem; line-height:1.6; display:none; }
+  .empty.show { display:block; }
+  .empty b { display:block; font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:1.05rem; color:var(--crema); margin-bottom:4px; }
+
+  .foot { text-align:center; margin-top:18px; }
+  .btn-clear {
+    background:none; border:none; color:rgba(255,245,234,.4); font-size:.75rem; text-decoration:underline; padding:10px; cursor:pointer;
+  }
+
+  /* AVISOS */
+  #toast {
+    position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom,0)); transform:translate(-50%,20px);
+    background:var(--crema); color:var(--negro); padding:11px 20px; border-radius:26px;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.82rem;
+    opacity:0; transition:opacity .25s, transform .25s; z-index:50; max-width:90vw; text-align:center; pointer-events:none;
+  }
+  #toast.show { opacity:1; transform:translate(-50%,0); }
+  #newpill {
+    position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom,0)); transform:translateX(-50%);
+    background:var(--celeste); color:var(--negro); border:none; border-radius:26px; padding:12px 20px;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.85rem; z-index:40; display:none; cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.4);
+  }
+  #newpill.show { display:block; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="LOGO_LA_METRO.png" alt="La Metro">
+  <div class="topbar-title">Moderador</div>
+  <div class="badge zero" id="badge">0 pendientes</div>
+</div>
+<div class="offline">Sin conexión – reintentando…</div>
+
+<div class="wrap">
+  <div id="list"></div>
+  <div class="empty show" id="empty"><b>Todo al día</b>Los mensajes nuevos aparecen acá abajo.</div>
+  <div class="foot"><button class="btn-clear" id="btn-clear">Borrar todos los mensajes</button></div>
+</div>
+
+<button id="newpill">↓ Mensaje nuevo</button>
+<div id="toast"></div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNyhWurhiwWTsHgmpxkvXmOfrxoJFjY7u85G31yNA5UNTjpiZLRUzBv2tYbCKSyEc/exec';
+
+  const $ = id => document.getElementById(id);
+  const list = $('list');
+  const cards = new Map();   // id -> { el, it }   (tarjetas visibles)
+  const seqOf = new Map();   // id -> orden de llegada (para volver siempre a su lugar)
+  const busy  = new Set();   // enviándose en segundo plano
+  const done  = new Set();   // ya enviados OK (ignorar mientras el sheet aún diga PENDIENTE)
+  let seqN = 0, initialized = false;
+
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  /* ── sonido ── */
+  let audioCtx = null;
+  const unlock = () => { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} };
+  ['click','touchstart'].forEach(ev => document.addEventListener(ev, unlock, { once:true, passive:true }));
+  function beep() {
+    try {
+      if (!audioCtx) return;
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination); o.type = 'sine';
+      o.frequency.setValueAtTime(880, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + .18);
+      g.gain.setValueAtTime(.35, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .35);
+      o.start(); o.stop(audioCtx.currentTime + .35);
+    } catch(e){}
+    if (navigator.vibrate) navigator.vibrate(60);
+  }
+
+  /* ── UI ── */
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 3200);
+  }
+  function refresh() {
+    const n = cards.size;
+    const b = $('badge');
+    b.textContent = n === 1 ? '1 pendiente' : n + ' pendientes';
+    b.classList.toggle('zero', n === 0);
+    $('empty').classList.toggle('show', n === 0);
+  }
+  function addCard(it, back) {
+    const el = document.createElement('div');
+    el.className = 'card' + (back ? ' back' : '');
+    el.dataset.seq = seqOf.get(it.id);
+    const hora = (it.fecha || '').slice(11, 16);
+    el.innerHTML =
+      '<div class="card-head"><div class="name">' + esc(it.nombre.toUpperCase()) + '</div>' +
+      '<div class="time">' + esc(hora) + (hora ? ' hs' : '') + '</div></div>' +
+      '<div class="msg">' + esc(it.texto.toUpperCase()) + '</div>' +
+      '<div class="btns">' +
+        '<button class="btn btn-no"  data-a="rechazar">✖ Rechazar</button>' +
+        '<button class="btn btn-yes" data-a="aprobar">✔ Aprobar</button>' +
+      '</div>';
+    el.querySelectorAll('.btn').forEach(b => b.addEventListener('click', () => act(it.id, b.dataset.a)));
+    // insertar en su lugar según orden de llegada (los nuevos van al final)
+    const seq = seqOf.get(it.id);
+    const next = [...list.children].find(c => !c.classList.contains('out') && +c.dataset.seq > seq);
+    list.insertBefore(el, next || null);
+    cards.set(it.id, { el, it });
+    refresh();
+  }
+  function removeCard(id) {
+    const c = cards.get(id); if (!c) return;
+    cards.delete(id);
+    c.el.classList.add('out');
+    setTimeout(() => c.el.remove(), 320);
+    refresh();
+  }
+
+  /* ── API ── */
+  async function api(body) {
+    const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(body) });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'error');
+  }
+
+  // Desaparece al instante; se envía en segundo plano; si falla vuelve a su lugar
+  async function act(id, action) {
+    const c = cards.get(id);
+    if (!c || busy.has(id)) return;
+    const it = c.it;
+    busy.add(id);
+    removeCard(id);
+    try {
+      await api({ action, id });
+      done.add(id);
+    } catch (e) {
+      toast('No se pudo enviar. El mensaje volvió a la lista.');
+      addCard(it, true);
+    } finally {
+      busy.delete(id);
+    }
+  }
+
+  /* ── lectura periódica de RECIBIDOS ── */
+  async function poll() {
+    try {
+      const r = await fetch(SCRIPT_URL + '?action=recibidos&_=' + Date.now());
+      const data = await r.json();
+      if (!data.ok) throw new Error();
+      document.body.classList.remove('is-offline');
+
+      const pend = data.items.filter(i => !i.estado || i.estado === 'PENDIENTE');
+      const pendIds = new Set(pend.map(i => i.id));
+      let nuevos = 0;
+
+      for (const it of pend) {
+        if (!seqOf.has(it.id)) seqOf.set(it.id, ++seqN);
+        if (cards.has(it.id) || busy.has(it.id) || done.has(it.id)) continue;
+        addCard(it);
+        nuevos++;
+      }
+      for (const id of [...cards.keys()]) if (!pendIds.has(id)) removeCard(id);   // resuelto/borrado en otro lado
+      for (const id of [...done]) if (!pendIds.has(id)) done.delete(id);
+
+      if (initialized && nuevos) { beep(); showPill(); }
+      initialized = true;
+    } catch (e) {
+      document.body.classList.add('is-offline');
+    }
+  }
+  poll();
+  setInterval(poll, 3000);
+
+  /* ── aviso "mensaje nuevo" (sólo si queda fuera de pantalla) ── */
+  function showPill() {
+    const last = list.lastElementChild;
+    if (!last) return;
+    if (last.getBoundingClientRect().bottom <= window.innerHeight) return;
+    const p = $('newpill'); p.classList.add('show');
+    clearTimeout(p._t); p._t = setTimeout(() => p.classList.remove('show'), 6000);
+  }
+  $('newpill').addEventListener('click', () => {
+    $('newpill').classList.remove('show');
+    window.scrollTo({ top: document.body.scrollHeight, behavior:'smooth' });
+  });
+  window.addEventListener('scroll', () => {
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 40) $('newpill').classList.remove('show');
+  }, { passive:true });
+
+  /* ── borrar todo (con confirmación) ── */
+  $('btn-clear').addEventListener('click', async () => {
+    if (!confirm('¿Borrar TODOS los mensajes (recibidos y aprobados)?')) return;
+    try {
+      await api({ action:'borrarTodo' });
+      [...cards.keys()].forEach(removeCard);
+      toast('Todos los mensajes borrados');
+    } catch (e) { toast('No se pudo borrar'); }
+  });
+</script>
+</body>
+</html>
