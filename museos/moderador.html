@@ -141,6 +141,13 @@
   .btn-del.armed { background:var(--crema); color:var(--negro); }
   .lempty { text-align:center; padding:56px 20px; font-size:.95rem; line-height:1.6; display:none; }
   .lempty.show { display:block; }
+  .danger { margin-top:26px; padding-top:18px; border-top:2px dashed var(--negro); text-align:center; }
+  .btn-danger {
+    width:100%; height:46px; background:transparent; color:var(--negro); border:2px solid var(--negro); border-radius:4px; cursor:pointer;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase;
+  }
+  .btn-danger:active { background:var(--negro); color:var(--crema); }
+  .danger p { font-size:.75rem; line-height:1.4; margin-top:8px; opacity:.7; }
   body.live #toast { background:var(--negro); color:var(--crema); }
 </style>
 </head>
@@ -158,7 +165,7 @@
 <div class="wrap">
   <div id="list"></div>
   <div class="empty show" id="empty"><b>Todo al día</b>Los mensajes nuevos aparecen acá abajo.</div>
-  <div class="foot"><button class="btn-clear" id="btn-clear">Borrar todos los mensajes</button></div>
+  <div class="foot"><button class="btn-clear" id="btn-clear-pend">Borrar todos los pendientes</button></div>
 </div>
 </div>
 
@@ -167,6 +174,10 @@
   <div class="wrap">
     <div id="llist"></div>
     <div class="lempty" id="lempty">No hay mensajes aprobados en pantalla.</div>
+    <div class="danger">
+      <button class="btn-danger" id="btn-clear">⚠ Borrar TODO lo que está en pantalla</button>
+      <p>Saca del stream todos los mensajes aprobados. Quedan guardados en la hoja HISTORIAL del Sheet.</p>
+    </div>
   </div>
 </div>
 
@@ -321,13 +332,30 @@
     if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 40) $('newpill').classList.remove('show');
   }, { passive:true });
 
-  /* ── borrar todo (con confirmación) ── */
-  $('btn-clear').addEventListener('click', async () => {
-    if (!confirm('¿Borrar TODOS los mensajes (recibidos y aprobados)?')) return;
+  /* ── borrar todos los PENDIENTES (panel normal, con confirmación) ── */
+  const clearPend = $('btn-clear-pend');
+  clearPend.addEventListener('click', async () => {
+    const ids = [...cards.keys()];
+    if (!ids.length) { toast('No hay pendientes para borrar'); return; }
+    if (!confirm('¿Borrar los ' + ids.length + ' mensajes pendientes (sin aprobar ni rechazar)?\n\nQuedan guardados en la hoja HISTORIAL.')) return;
     try {
-      await api({ action:'borrarTodo' });
-      [...cards.keys()].forEach(removeCard);
-      toast('Todos los mensajes borrados');
+      await api({ action:'borrarPendientes', ids });
+      ids.forEach(id => { removeCard(id); done.add(id); });
+      toast('Pendientes borrados');
+    } catch (e) { toast('No se pudo borrar'); }
+  });
+
+  /* ── borrar TODO lo que está en pantalla (vista desarrollador, doble confirmación) ── */
+  $('btn-clear').addEventListener('click', async () => {
+    const ids = [...lcards.keys()];
+    if (!ids.length) { toast('No hay mensajes en pantalla'); return; }
+    if (!confirm('¿Sacar de pantalla los ' + ids.length + ' mensajes aprobados?\n\nQuedan guardados en la hoja HISTORIAL.')) return;
+    const t = prompt('Para confirmar, escribí BORRAR');
+    if (!t || t.trim().toUpperCase() !== 'BORRAR') { toast('Cancelado, no se borró nada'); return; }
+    try {
+      await api({ action:'borrarAprobados', ids });
+      ids.forEach(id => { removeLive(id); ldone.add(id); });
+      toast('Pantalla vaciada');
     } catch (e) { toast('No se pudo borrar'); }
   });
 
