@@ -217,49 +217,32 @@
   const done  = new Set();   // ya enviados OK (ignorar mientras el sheet aún diga PENDIENTE)
   let seqN = 0, initialized = false;
 
-  /* ── moderador activado / desactivado (se recuerda en este dispositivo) ──
-     Desactivado: los mensajes que llegan se aprueban solos y salen directo a pantalla.
-     "hold" = los que ya estaban pendientes al desactivar: siguen esperando aprobación manual. */
-  let modOff = false;
-  const hold = new Set();
-  try {
-    modOff = localStorage.getItem('modOff') === '1';
-    JSON.parse(localStorage.getItem('modHold') || '[]').forEach(id => hold.add(id));
-  } catch (e) {}
-  function saveMod() {
-    try { localStorage.setItem('modOff', modOff ? '1' : '0'); localStorage.setItem('modHold', JSON.stringify([...hold])); } catch (e) {}
-  }
+  /* ── moderador activado / desactivado ──
+     El estado vive en el servidor (Apps Script): vale para todos los dispositivos y funciona aunque esta página esté cerrada.
+     Desactivado: el servidor aprueba cada mensaje nuevo apenas llega y sale directo a pantalla.
+     Los que ya estaban pendientes siguen esperando aprobación manual. */
+  let modOff = false, modSetAt = 0;
   function applyMod() {
     document.body.classList.toggle('mod-off', modOff);
     const b = $('btn-mod');
     b.textContent = modOff ? 'Activar moderador' : 'Desactivar moderador';
     b.classList.toggle('on', modOff);
     $('mod-note').textContent = modOff
-      ? 'Los mensajes nuevos salen directo a pantalla, sin aprobación. Esta página tiene que quedar abierta para que se envíen. Los que ya están en pantalla se pueden eliminar desde acá.'
+      ? 'Los mensajes nuevos salen directo a pantalla, sin aprobación (aunque cierres esta página). Los que ya están en pantalla se pueden eliminar desde acá.'
       : 'Los mensajes nuevos esperan tu aprobación antes de salir a pantalla.';
   }
   document.addEventListener('DOMContentLoaded', () => {
     applyMod();
-    $('btn-mod').addEventListener('click', () => {
-      if (!modOff) {
-        if (!confirm('¿Desactivar el moderador?\n\nLos mensajes que lleguen a partir de ahora saldrán directo a pantalla, sin que los apruebes.')) return;
-        hold.clear(); [...cards.keys()].forEach(id => hold.add(id));   // los pendientes actuales siguen esperando
-        modOff = true;
-        toast('Moderador desactivado');
-      } else {
-        modOff = false; hold.clear();
-        toast('Moderador activado: los mensajes nuevos vuelven a pedir aprobación');
-      }
-      saveMod(); applyMod();
+    $('btn-mod').addEventListener('click', async () => {
+      const quiero = !modOff;   // true = desactivar
+      if (quiero && !confirm('¿Desactivar el moderador?\n\nLos mensajes que lleguen a partir de ahora saldrán directo a pantalla, sin que los apruebes.')) return;
+      try {
+        await api({ action:'setModerador', off: quiero });
+        modOff = quiero; modSetAt = Date.now(); applyMod();
+        toast(quiero ? 'Moderador desactivado' : 'Moderador activado: los mensajes nuevos vuelven a pedir aprobación');
+      } catch (e) { toast('No se pudo cambiar el moderador'); }
     });
   });
-  // aprueba solo, en segundo plano; si falla queda como pendiente normal
-  async function autoApprove(it) {
-    busy.add(it.id);
-    try { await api({ action:'aprobar', id: it.id }); done.add(it.id); }
-    catch (e) { toast('No se pudo enviar un mensaje automáticamente. Quedó pendiente.'); addCard(it, true); }
-    finally { busy.delete(it.id); }
-  }
 
   const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -355,6 +338,8 @@
       const data = await r.json();
       if (!data.ok) throw new Error();
       document.body.classList.remove('is-offline');
+      // estado del moderador según el servidor (se ignora unos segundos después de cambiarlo acá)
+      if (typeof data.modOff === 'boolean' && data.modOff !== modOff && Date.now() - modSetAt > 6000) { modOff = data.modOff; applyMod(); }
 
       const pend = data.items.filter(i => !i.estado || i.estado === 'PENDIENTE');
       const pendIds = new Set(pend.map(i => i.id));
@@ -363,13 +348,9 @@
       for (const it of pend) {
         if (!seqOf.has(it.id)) seqOf.set(it.id, ++seqN);
         if (cards.has(it.id) || busy.has(it.id) || done.has(it.id)) continue;
-        if (modOff && !hold.has(it.id)) { autoApprove(it); continue; }   // moderador desactivado: sale directo
         addCard(it);
         nuevos++;
       }
-      let hChanged = false;
-      for (const id of [...hold]) if (!pendIds.has(id)) { hold.delete(id); hChanged = true; }
-      if (hChanged) saveMod();
       for (const id of [...cards.keys()]) if (!pendIds.has(id)) removeCard(id);   // resuelto/borrado en otro lado
       for (const id of [...done]) if (!pendIds.has(id)) done.delete(id);
 
