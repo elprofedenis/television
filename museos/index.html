@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Metro – Noche de los Museos</title>
+<style>
+  @font-face { font-family:'HNBold';  src:url('helvetica-neue-lt-std-bold.ttf') format('truetype'); font-weight:700; }
+  @font-face { font-family:'HNLight'; src:url('HelveticaNeueLTPro-Lt.otf') format('opentype'); font-weight:300; }
+
+  :root {
+    --negro:  #111314;
+    --petroleo: #042229;
+    --celeste: #71CCF0;
+    --crema:  #FFF5EA;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family:'HNLight', Helvetica, Arial, sans-serif;
+    background:var(--negro);
+    color:var(--crema);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+  }
+
+  /* HEADER */
+  .header {
+    width:100%;
+    background:var(--petroleo);
+    border-bottom:4px solid var(--celeste);
+    padding:20px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .header img { width:100%; max-width:300px; height:auto; object-fit:contain; }
+
+  /* CONTENT */
+  .content {
+    width:100%; max-width:480px;
+    padding:26px 20px 36px;
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+  }
+
+  .event-logo { height:168px; width:auto; display:block; }
+
+  .view { width:100%; display:none; flex-direction:column; gap:18px; }
+  .view.active { display:flex; }
+
+  .form-intro {
+    font-family:'HNBold', Helvetica, Arial, sans-serif;
+    font-size:1.2rem; line-height:1.3;
+    color:var(--crema); text-align:center;
+  }
+
+  .form-group { display:flex; flex-direction:column; gap:6px; width:100%; }
+
+  label {
+    font-family:'HNBold', Helvetica, Arial, sans-serif;
+    font-size:0.82rem; letter-spacing:0.07em; text-transform:uppercase;
+    color:var(--celeste);
+  }
+
+  input[type="text"], textarea {
+    width:100%;
+    background:var(--crema);
+    border:2px solid var(--crema);
+    border-radius:12px;
+    padding:14px 16px;
+    font-family:'HNLight', Helvetica, Arial, sans-serif;
+    font-size:1rem; color:var(--negro);
+    outline:none; resize:none;
+    text-transform:uppercase;
+    transition:border-color .2s;
+  }
+  input[type="text"]:focus, textarea:focus { border-color:var(--celeste); }
+  input[type="text"]::placeholder, textarea::placeholder { text-transform:none; color:#8a8680; }
+
+  .char-count { text-align:right; font-size:0.78rem; color:rgba(255,245,234,.6); margin-top:-2px; }
+  .char-count.warn { color:var(--celeste); }
+
+  .btn-send {
+    width:100%;
+    background:var(--celeste); color:var(--negro);
+    border:none; border-radius:14px; padding:18px;
+    font-family:'HNBold', Helvetica, Arial, sans-serif;
+    font-size:1.1rem; letter-spacing:0.05em; text-transform:uppercase;
+    cursor:pointer; transition:transform .15s, filter .2s;
+  }
+  .btn-send:hover { filter:brightness(1.08); }
+  .btn-send:active { transform:scale(.97); }
+  .btn-send:disabled { background:#4b5a5f; color:#9aa6aa; cursor:not-allowed; }
+
+  .disclaimer {
+    font-size:0.74rem; line-height:1.5; text-align:center;
+    color:rgba(255,245,234,.55); padding:0 4px;
+  }
+
+  .error-msg {
+    display:none;
+    background:rgba(113,204,240,.1);
+    border:1.5px solid var(--celeste);
+    border-radius:10px; padding:12px 16px;
+    font-size:0.9rem; color:var(--celeste);
+  }
+  .error-msg.show { display:block; }
+
+  /* SUCCESS */
+  .success-box {
+    text-align:center; padding:30px 20px 10px;
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+  }
+  .success-icon { font-size:3.2rem; }
+  .success-box h3 {
+    font-family:'HNBold', Helvetica, Arial, sans-serif;
+    font-size:1.45rem; color:var(--crema);
+    text-transform:uppercase; letter-spacing:.03em;
+  }
+  .success-box p { font-size:1rem; line-height:1.5; color:rgba(255,245,234,.8); }
+
+  /* SOCIAL */
+  .social-section { display:flex; flex-direction:column; align-items:center; gap:12px; margin-top:6px; width:100%; }
+  .web-link {
+    font-family:'HNBold', Helvetica, Arial, sans-serif;
+    font-size:.95rem; color:var(--crema); text-decoration:none;
+    border-bottom:2px solid rgba(113,204,240,.7); padding-bottom:3px; letter-spacing:.03em;
+  }
+  .social-label {
+    font-family:'HNBold', Helvetica, Arial, sans-serif;
+    font-size:.78rem; color:var(--celeste); text-transform:uppercase; letter-spacing:.1em;
+  }
+  .social-buttons { display:flex; gap:16px; align-items:center; justify-content:center; }
+  .social-btn {
+    display:flex; align-items:center; justify-content:center;
+    width:48px; height:48px; border-radius:50%;
+    background:var(--crema); text-decoration:none;
+    transition:box-shadow .18s, transform .15s;
+  }
+  .social-btn:hover { box-shadow:0 0 0 3px rgba(113,204,240,.6); transform:translateY(-2px); }
+  .social-btn:active { transform:scale(.94); }
+  .social-btn svg { width:22px; height:22px; fill:var(--petroleo); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="LOGO_LA_METRO.png" alt="La Metro">
+</div>
+
+<div class="content">
+
+  <img class="event-logo" src="logo-NM26.svg" alt="Noche de los Museos 2026">
+
+  <!-- VISTA MENSAJE -->
+  <div class="view active" id="view-msg">
+
+    <div class="form-intro">¡ENVIÁ TU MENSAJE Y MIRALO EN PANTALLA!</div>
+
+    <div class="form-group">
+      <label for="msg-nombre">Tu nombre *</label>
+      <input type="text" id="msg-nombre" placeholder="¿Cómo te llamás?" maxlength="40" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label for="msg-texto">Tu mensaje *</label>
+      <textarea id="msg-texto" rows="4" placeholder="Escribí tu mensaje acá..." maxlength="80"></textarea>
+      <div class="char-count" id="char-count">0 / 80</div>
+    </div>
+
+    <div class="error-msg" id="msg-error">Completá tu nombre y tu mensaje.</div>
+
+    <button class="btn-send" id="btn-send-msg" onclick="enviarMensaje()">Enviar mensaje</button>
+
+    <div class="disclaimer">* Los mensajes son revisados por un moderador antes de aparecer en pantalla. Mensajes inapropiados o fuera de lugar no serán aprobados.</div>
+  </div>
+
+  <!-- ÉXITO -->
+  <div class="view" id="view-msg-ok">
+    <div class="success-box">
+      <div class="success-icon">🎉</div>
+      <h3>¡Tu mensaje fue enviado!</h3>
+      <p>Un moderador lo está revisando.<br>Si se aprueba, ¡aparecerá en pantalla!</p>
+    </div>
+    <button class="btn-send" onclick="showView('view-msg')" style="margin-top:10px">¿Mandás otro? 🙌</button>
+
+    <!-- REDES -->
+    <div class="social-section">
+      <a href="https://www.lametro.edu.ar" target="_blank" rel="noopener" class="web-link">www.lametro.edu.ar</a>
+      <div class="social-label">¡Seguinos!</div>
+      <div class="social-buttons">
+        <a href="https://www.facebook.com/escuela.lametro/" target="_blank" rel="noopener" class="social-btn" aria-label="Facebook">
+          <svg viewBox="0 0 24 24"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/lametrocordoba/" target="_blank" rel="noopener" class="social-btn" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://www.youtube.com/@lametrotelevision" target="_blank" rel="noopener" class="social-btn" aria-label="YouTube">
+          <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // 🔧 PEGÁ ACÁ LA URL DE LA IMPLEMENTACIÓN DE APPS SCRIPT (termina en /exec)
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNyhWurhiwWTsHgmpxkvXmOfrxoJFjY7u85G31yNA5UNTjpiZLRUzBv2tYbCKSyEc/exec';
+
+  window.showView = (id) => {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  };
+
+  const textarea  = document.getElementById('msg-texto');
+  const charCount = document.getElementById('char-count');
+  textarea.addEventListener('input', () => {
+    const len = textarea.value.length;
+    charCount.textContent = `${len} / 80`;
+    charCount.classList.toggle('warn', len > 60);
+  });
+
+  window.enviarMensaje = async () => {
+    const nombre = document.getElementById('msg-nombre').value.trim();
+    const texto  = textarea.value.trim();
+    const errEl  = document.getElementById('msg-error');
+    const btn    = document.getElementById('btn-send-msg');
+
+    if (!nombre || !texto) {
+      errEl.textContent = 'Completá tu nombre y tu mensaje.';
+      errEl.classList.add('show');
+      return;
+    }
+    errEl.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'enviar', nombre, texto })
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      document.getElementById('msg-nombre').value = '';
+      textarea.value = '';
+      charCount.textContent = '0 / 80';
+      showView('view-msg-ok');
+    } catch (e) {
+      errEl.textContent = 'Error al enviar. Revisá tu conexión.';
+      errEl.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enviar mensaje';
+    }
+  };
+</script>
+</body>
+</html>
