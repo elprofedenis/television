@@ -10,14 +10,14 @@
   html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; font-family: "Bebas Neue", Impact, sans-serif; }
 
   /* zócalo: 200px libres a la izquierda, 50px a la derecha, 86px abajo (26px más arriba que antes) */
-  #wrap { position: absolute; left: 200px; right: 50px; bottom: 86px; display: flex; flex-direction: column; align-items: flex-start; visibility: hidden; }
+  #wrap { position: absolute; left: 200px; right: 0; bottom: 86px; display: flex; flex-direction: column; align-items: flex-start; visibility: hidden; }
   /* texto a 141px del borde del zócalo (= 341px del borde de pantalla) */
-  #tab { position: relative; z-index: 0; height: 45px; padding: 0 24px 0 141px; display: flex; align-items: center;
-         background: var(--tab); color: var(--celeste); font-size: 29.7px; letter-spacing: .09em; max-width: 1400px; overflow: hidden;
-         border-radius: 6px 6px 0 0; white-space: nowrap; }
-  #bar { z-index: 1; width: 100%; height: 140px; background: var(--noche); border: 4px solid var(--trazo); border-radius: 6px; overflow: hidden;
+  #tab { position: relative; z-index: 0; height: 58px; padding: 0 32px 0 141px; display: flex; align-items: center;
+         background: var(--tab); color: var(--celeste); font-size: 38.6px; letter-spacing: .09em; max-width: 1400px; overflow: hidden;
+         border-radius: 6px 18px 0 0; white-space: nowrap; }
+  #bar { z-index: 1; width: 100%; height: 170px; background: var(--noche); border: 4px solid var(--trazo); border-radius: 6px; overflow: hidden;
          position: relative; display: flex; align-items: center; justify-content: flex-start; padding: 0 40px 0 137px; }
-  #box { position: relative; z-index: 1; flex: 1; min-width: 0; height: 108px; display: flex; align-items: center; justify-content: flex-start; overflow: hidden; }
+  #box { position: relative; z-index: 1; flex: 1; min-width: 0; height: 138px; display: flex; align-items: center; justify-content: flex-start; overflow: hidden; }
   #big { width: 100%; text-align: left; color: var(--crema); line-height: .95; letter-spacing: .02em; font-size: 84px; text-transform: uppercase; overflow-wrap: break-word; }
 
   /* estrellitas de fondo (mitad celeste, mitad crema) */
@@ -29,7 +29,7 @@
 
   /* modo previsualización (dentro del panel de control) */
   body.preview { background: #fff; }
-  body.preview::after { content: ""; position: absolute; left: 50px; right: 50px; top: 0; bottom: 86px; border: 2px dashed rgba(0,0,0,.18); pointer-events: none; }
+  body.preview::after { content: ""; position: absolute; left: 50px; right: 0; top: 0; bottom: 86px; border: 2px dashed rgba(0,0,0,.18); pointer-events: none; }
 </style>
 </head>
 <body>
@@ -48,7 +48,7 @@ const EASE = "cubic-bezier(.22,.9,.24,1)";
 const fx = (el, kf, ms, delay = 0) => { el.getAnimations().forEach(a => a.cancel()); return el.animate(kf, { duration: ms, delay, easing: EASE, fill: "both" }).finished; };
 
 function fit() {                       // achica la letra hasta que entre (1 o 2 líneas)
-  for (let s = 92; s >= 12; s -= 1) {
+  for (let s = 138; s >= 12; s -= 1) {
     big.style.fontSize = s + "px";
     if (big.scrollHeight <= box.clientHeight && big.scrollWidth <= box.clientWidth) break;
   }
@@ -56,7 +56,7 @@ function fit() {                       // achica la letra hasta que entre (1 o 2
 function fill(s) {
   const small = (s.small || "").trim().toUpperCase();
   tab.textContent = small; tab.style.display = small ? "flex" : "none"; tab.style.fontSize = "";
-  for (let t = 29.7; small && t >= 12 && tab.scrollWidth > tab.clientWidth; t--) tab.style.fontSize = t + "px";
+  for (let t = 38.6; small && t >= 12 && tab.scrollWidth > tab.clientWidth; t--) tab.style.fontSize = t + "px";
   big.textContent = (s.big || "").trim().toUpperCase();
   fit();
 }
