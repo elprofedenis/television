@@ -9,26 +9,27 @@
   * { box-sizing: border-box; margin: 0; }
   html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; font-family: "Bebas Neue", Impact, sans-serif; }
 
-  /* zócalo: 50px izquierda/derecha, 100px abajo */
-  #wrap { position: absolute; left: 50px; right: 50px; bottom: 60px; display: flex; flex-direction: column; align-items: flex-end; visibility: hidden; }
-  #tab { position: relative; z-index: 0; margin-right: 40px; height: 41px; padding: 0 24px; display: flex; align-items: center;
-         background: var(--tab); color: var(--celeste); font-size: 27px; letter-spacing: .09em; max-width: 1400px; overflow: hidden;
+  /* zócalo: 200px libres a la izquierda, 50px a la derecha, 86px abajo (26px más arriba que antes) */
+  #wrap { position: absolute; left: 200px; right: 50px; bottom: 86px; display: flex; flex-direction: column; align-items: flex-start; visibility: hidden; }
+  /* texto a 141px del borde del zócalo (= 341px del borde de pantalla) */
+  #tab { position: relative; z-index: 0; height: 45px; padding: 0 24px 0 141px; display: flex; align-items: center;
+         background: var(--tab); color: var(--celeste); font-size: 29.7px; letter-spacing: .09em; max-width: 1400px; overflow: hidden;
          border-radius: 6px 6px 0 0; white-space: nowrap; }
   #bar { z-index: 1; width: 100%; height: 140px; background: var(--noche); border: 4px solid var(--trazo); border-radius: 6px; overflow: hidden;
-         position: relative; display: flex; align-items: center; justify-content: center; }
-  #box { position: relative; z-index: 1; width: 1680px; height: 108px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-  #big { width: 100%; text-align: center; color: var(--crema); line-height: .95; letter-spacing: .02em; font-size: 84px; text-transform: uppercase; overflow-wrap: break-word; }
+         position: relative; display: flex; align-items: center; justify-content: flex-start; padding: 0 40px 0 137px; }
+  #box { position: relative; z-index: 1; flex: 1; min-width: 0; height: 108px; display: flex; align-items: center; justify-content: flex-start; overflow: hidden; }
+  #big { width: 100%; text-align: left; color: var(--crema); line-height: .95; letter-spacing: .02em; font-size: 84px; text-transform: uppercase; overflow-wrap: break-word; }
 
   /* estrellitas de fondo (mitad celeste, mitad crema) */
   #stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
   .st { position: absolute; border-radius: 50%; opacity: 0; animation: twinkle ease-in-out infinite; }
   .st.c1 { background: var(--celeste); } .st.c2 { background: var(--crema); }
   .st.sp { border-radius: 0; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
-  @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.5); } 50% { opacity: var(--o); transform: scale(1); } }
+  @keyframes twinkle { 0%, 100% { opacity: 0; transform: translate(0, 0) scale(.5); } 50% { opacity: var(--o); transform: translate(var(--dx), var(--dy)) scale(1); } }
 
   /* modo previsualización (dentro del panel de control) */
   body.preview { background: #fff; }
-  body.preview::after { content: ""; position: absolute; left: 50px; right: 50px; top: 0; bottom: 60px; border: 2px dashed rgba(0,0,0,.18); pointer-events: none; }
+  body.preview::after { content: ""; position: absolute; left: 50px; right: 50px; top: 0; bottom: 86px; border: 2px dashed rgba(0,0,0,.18); pointer-events: none; }
 </style>
 </head>
 <body>
@@ -55,7 +56,7 @@ function fit() {                       // achica la letra hasta que entre (1 o 2
 function fill(s) {
   const small = (s.small || "").trim().toUpperCase();
   tab.textContent = small; tab.style.display = small ? "flex" : "none"; tab.style.fontSize = "";
-  for (let t = 27; small && t >= 12 && tab.scrollWidth > tab.clientWidth; t--) tab.style.fontSize = t + "px";
+  for (let t = 29.7; small && t >= 12 && tab.scrollWidth > tab.clientWidth; t--) tab.style.fontSize = t + "px";
   big.textContent = (s.big || "").trim().toUpperCase();
   fit();
 }
@@ -103,13 +104,15 @@ function apply(s) {
 
 // estrellitas: aparecen y desaparecen suavemente, y reaparecen en otro lugar
 (function () {
-  const rnd = (a, b) => a + Math.random() * (b - a), N = 60;   // N par: 30 celestes + 30 crema
+  const rnd = (a, b) => a + Math.random() * (b - a), N = 84;   // N par: 42 celestes + 42 crema
   const place = st => { st.style.left = rnd(0, 99) + "%"; st.style.top = rnd(3, 90) + "%"; };
   for (let i = 0; i < N; i++) {
     const st = document.createElement("i"), sp = Math.floor(i / 2) % 4 === 0, z = sp ? rnd(9, 14) : rnd(2, 4);
     st.className = "st " + (i % 2 ? "c1" : "c2") + (sp ? " sp" : "");
     st.style.width = st.style.height = z + "px";
-    st.style.setProperty("--o", rnd(.35, .9).toFixed(2));
+    st.style.setProperty("--o", rnd(.3, .85).toFixed(2));
+    st.style.setProperty("--dx", rnd(-14, 14).toFixed(1) + "px");   // deriva suave mientras brilla
+    st.style.setProperty("--dy", rnd(-10, 10).toFixed(1) + "px");
     st.style.animationDuration = rnd(4, 9) + "s";
     st.style.animationDelay = "-" + rnd(0, 9) + "s";
     place(st); st.addEventListener("animationiteration", () => place(st));
@@ -132,11 +135,7 @@ if (PREVIEW) {
     } catch (e) { console.warn(e); }
     setTimeout(tick, CONFIG.POLL_MS);
   };
-  // carga la Bebas ANTES de empezar, así el primer zócalo ya sale con la fuente correcta (máx. 4 s de espera)
-  Promise.race([
-    Promise.all([document.fonts.load('84px "Bebas Neue"'), document.fonts.load('27px "Bebas Neue"')]),
-    new Promise(r => setTimeout(r, 4000))
-  ]).catch(() => {}).then(tick);
+  document.fonts.ready.then(tick);
 }
 </script>
 </body>
