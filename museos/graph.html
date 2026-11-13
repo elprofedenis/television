@@ -15,10 +15,11 @@
   #tab { position: relative; z-index: 0; height: 58px; padding: 0 32px 0 141px; display: flex; align-items: center;
          background: var(--tab); color: var(--celeste); font-size: 38.6px; letter-spacing: .09em; max-width: 1400px; overflow: hidden;
          border-radius: 6px 18px 0 0; white-space: nowrap; }
-  #bar { z-index: 1; width: 100%; height: 170px; background: var(--noche); border: 4px solid var(--trazo); border-radius: 6px; overflow: hidden;
+  #bar { z-index: 1; width: 100%; height: 140px; background: var(--noche); border: 4px solid var(--trazo); border-radius: 6px; overflow: hidden;
          position: relative; display: flex; align-items: center; justify-content: flex-start; padding: 0 40px 0 137px; }
-  #box { position: relative; z-index: 1; flex: 1; min-width: 0; height: 138px; display: flex; align-items: center; justify-content: flex-start; overflow: hidden; }
-  #big { width: 100%; text-align: left; color: var(--crema); line-height: .95; letter-spacing: .02em; font-size: 84px; text-transform: uppercase; overflow-wrap: break-word; }
+  #box { position: relative; z-index: 1; flex: 1; min-width: 0; height: 108px; display: flex; align-items: center; justify-content: flex-start; overflow: visible; }
+  /* interlineado ajustado (Bebas Neue es solo mayúsculas) para que el texto grande entre en la misma altura */
+  #big { position: relative; top: .05em; width: 100%; text-align: left; color: var(--crema); line-height: .78; letter-spacing: .02em; font-size: 84px; text-transform: uppercase; overflow-wrap: break-word; }
 
   /* estrellitas de fondo (mitad celeste, mitad crema) */
   #stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
