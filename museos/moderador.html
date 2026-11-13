@@ -149,6 +149,23 @@
   .btn-danger:active { background:var(--negro); color:var(--crema); }
   .danger p { font-size:.75rem; line-height:1.4; margin-top:8px; opacity:.7; }
   body.live #toast { background:var(--negro); color:var(--crema); }
+
+  /* ── MODERADOR DESACTIVADO (los mensajes salen directo a pantalla) ── */
+  #modbanner {
+    display:none; background:#d93a2b; color:#fff; text-align:center;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.78rem; letter-spacing:.06em; text-transform:uppercase;
+    padding:7px 12px; line-height:1.3;
+  }
+  body.mod-off #modbanner { display:block; }
+  .modctl { margin-bottom:18px; padding-bottom:18px; border-bottom:2px dashed var(--negro); text-align:center; }
+  .btn-mod {
+    width:100%; height:46px; background:transparent; color:var(--negro); border:2px solid var(--negro); border-radius:4px; cursor:pointer;
+    font-family:'HNBold',Helvetica,Arial,sans-serif; font-size:.85rem; letter-spacing:.05em; text-transform:uppercase;
+    transition:transform .08s;
+  }
+  .btn-mod:active { transform:scale(.97); }
+  .btn-mod.on { background:var(--negro); color:var(--crema); }
+  .modctl p { font-size:.75rem; line-height:1.4; margin-top:8px; opacity:.7; }
 </style>
 </head>
 <body>
@@ -160,6 +177,7 @@
   <button class="btn-back" id="btn-back">← Volver</button>
 </div>
 <div class="offline">Sin conexión – reintentando…</div>
+<div id="modbanner">Moderador desactivado · los mensajes nuevos salen directo a pantalla</div>
 
 <div id="view-pend">
 <div class="wrap">
@@ -172,6 +190,10 @@
 <div id="view-live">
   <div class="live-banner">Mensajes aprobados · en pantalla ahora<br>Eliminar los saca del stream</div>
   <div class="wrap">
+    <div class="modctl">
+      <button class="btn-mod" id="btn-mod">Desactivar moderador</button>
+      <p id="mod-note"></p>
+    </div>
     <div id="llist"></div>
     <div class="lempty" id="lempty">No hay mensajes aprobados en pantalla.</div>
     <div class="danger">
@@ -194,6 +216,50 @@
   const busy  = new Set();   // enviándose en segundo plano
   const done  = new Set();   // ya enviados OK (ignorar mientras el sheet aún diga PENDIENTE)
   let seqN = 0, initialized = false;
+
+  /* ── moderador activado / desactivado (se recuerda en este dispositivo) ──
+     Desactivado: los mensajes que llegan se aprueban solos y salen directo a pantalla.
+     "hold" = los que ya estaban pendientes al desactivar: siguen esperando aprobación manual. */
+  let modOff = false;
+  const hold = new Set();
+  try {
+    modOff = localStorage.getItem('modOff') === '1';
+    JSON.parse(localStorage.getItem('modHold') || '[]').forEach(id => hold.add(id));
+  } catch (e) {}
+  function saveMod() {
+    try { localStorage.setItem('modOff', modOff ? '1' : '0'); localStorage.setItem('modHold', JSON.stringify([...hold])); } catch (e) {}
+  }
+  function applyMod() {
+    document.body.classList.toggle('mod-off', modOff);
+    const b = $('btn-mod');
+    b.textContent = modOff ? 'Activar moderador' : 'Desactivar moderador';
+    b.classList.toggle('on', modOff);
+    $('mod-note').textContent = modOff
+      ? 'Los mensajes nuevos salen directo a pantalla, sin aprobación. Esta página tiene que quedar abierta para que se envíen. Los que ya están en pantalla se pueden eliminar desde acá.'
+      : 'Los mensajes nuevos esperan tu aprobación antes de salir a pantalla.';
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    applyMod();
+    $('btn-mod').addEventListener('click', () => {
+      if (!modOff) {
+        if (!confirm('¿Desactivar el moderador?\n\nLos mensajes que lleguen a partir de ahora saldrán directo a pantalla, sin que los apruebes.')) return;
+        hold.clear(); [...cards.keys()].forEach(id => hold.add(id));   // los pendientes actuales siguen esperando
+        modOff = true;
+        toast('Moderador desactivado');
+      } else {
+        modOff = false; hold.clear();
+        toast('Moderador activado: los mensajes nuevos vuelven a pedir aprobación');
+      }
+      saveMod(); applyMod();
+    });
+  });
+  // aprueba solo, en segundo plano; si falla queda como pendiente normal
+  async function autoApprove(it) {
+    busy.add(it.id);
+    try { await api({ action:'aprobar', id: it.id }); done.add(it.id); }
+    catch (e) { toast('No se pudo enviar un mensaje automáticamente. Quedó pendiente.'); addCard(it, true); }
+    finally { busy.delete(it.id); }
+  }
 
   const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -297,9 +363,13 @@
       for (const it of pend) {
         if (!seqOf.has(it.id)) seqOf.set(it.id, ++seqN);
         if (cards.has(it.id) || busy.has(it.id) || done.has(it.id)) continue;
+        if (modOff && !hold.has(it.id)) { autoApprove(it); continue; }   // moderador desactivado: sale directo
         addCard(it);
         nuevos++;
       }
+      let hChanged = false;
+      for (const id of [...hold]) if (!pendIds.has(id)) { hold.delete(id); hChanged = true; }
+      if (hChanged) saveMod();
       for (const id of [...cards.keys()]) if (!pendIds.has(id)) removeCard(id);   // resuelto/borrado en otro lado
       for (const id of [...done]) if (!pendIds.has(id)) done.delete(id);
 
